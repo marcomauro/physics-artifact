@@ -1,0 +1,13 @@
+[
+  {
+    "slug": "feynman-path-integral",
+    "source": "feynman-path-integral.html",
+    "title": { "en": "Feynman Path Integrals", "it": "Integrale sui cammini di Feynman" },
+    "summary": {
+      "en": "Five interactive figures: the sum over paths as a phasor sum, stationary phase and the Cornu spiral, the double slit with the Aharonov–Bohm phase, Euclidean path-integral Monte Carlo, caustics and the Maslov index.",
+      "it": "Cinque figure interattive: la somma sui cammini come somma di fasori, fase stazionaria e spirale di Cornu, doppia fenditura con fase di Aharonov–Bohm, Monte Carlo sui cammini euclidei, caustiche e indice di Maslov."
+    },
+    "topics": ["quantum mechanics", "path integrals"],
+    "updated": "2026-11-12"
+  }
+]

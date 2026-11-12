@@ -1,9 +1,10 @@
-<title>Integrale sui cammini di Feynman</title>
+<title>Feynman Path Integrals</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
 <script>
+(function(){var l='en';try{var v=localStorage.getItem('pi-lang');if(v==='it'||v==='en')l=v;}catch(e){}document.documentElement.setAttribute('data-ui',l);document.documentElement.lang=l;var t=null;try{t=localStorage.getItem('pi-theme');}catch(e){}if(t==='dark'||t==='light')document.documentElement.setAttribute('data-theme',t);})();
 window.MathJax = {
   tex: { inlineMath: [['\\(', '\\)']], displayMath: [['\\[', '\\]']] },
   svg: { fontCache: 'global' }
@@ -37,6 +38,13 @@ window.MathJax = {
   --accent: #8099ff; --hot: #f0854f; --teal: #3fc3b3; --phaseL: 62%; color-scheme: dark;
 }
 * { box-sizing: border-box; }
+html[data-ui="it"] [data-l="en"], html:not([data-ui="it"]) [data-l="it"] { display: none !important; }
+.topbar { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+.tools { display: inline-flex; gap: 10px; flex-wrap: wrap; }
+.lang, .seg { display: inline-flex; border: 1px solid var(--rule); border-radius: 3px; overflow: hidden; font: 500 12px var(--mono); }
+.lang button, .seg button { border: 0; background: transparent; color: var(--muted); padding: 5px 12px; cursor: pointer; font: inherit; letter-spacing: .06em; }
+.lang button + button, .seg button + button { border-left: 1px solid var(--rule); }
+.lang button[aria-pressed="true"], .seg button[aria-pressed="true"] { background: var(--accent); color: var(--panel); }
 body {
   background: var(--bg); color: var(--fg);
   font-family: var(--sans); font-size: 15.5px; line-height: 1.6;
@@ -121,68 +129,93 @@ footer { font-size: 12.5px; color: var(--muted); font-family: var(--mono); }
 <div class="wrap">
 
 <header>
-  <div class="eyebrow">Meccanica quantistica · formulazione lagrangiana · ħ come scala di fase</div>
-  <h1>Integrale sui cammini di Feynman</h1>
-  <p class="lead">L'ampiezza di transizione è la somma coerente, su tutte le storie compatibili con le condizioni al contorno, di un fattore di fase di modulo unitario determinato dall'azione classica. Le cinque figure che seguono costruiscono questa affermazione e ne estraggono le conseguenze: limite classico, interferenza, fasi topologiche, meccanica statistica euclidea, indice di Maslov.</p>
+  <div class="topbar">
+    <div class="eyebrow"><span data-l="en">Quantum mechanics · Lagrangian formulation · ħ as the phase scale</span><span data-l="it">Meccanica quantistica · formulazione lagrangiana · ħ come scala di fase</span></div>
+    <div class="tools">
+      <div class="seg" id="theme" role="group" aria-label="Theme / Tema">
+        <button type="button" data-theme-set="auto" aria-pressed="true">AUTO</button>
+        <button type="button" data-theme-set="light" aria-pressed="false">☀</button>
+        <button type="button" data-theme-set="dark" aria-pressed="false">☾</button>
+      </div>
+      <div class="lang" role="group" aria-label="Language / Lingua">
+        <button type="button" id="lang-en" data-set="en" aria-pressed="true">EN</button>
+        <button type="button" id="lang-it" data-set="it" aria-pressed="false">IT</button>
+      </div>
+    </div>
+  </div>
+  <h1><span data-l="en">Feynman Path Integrals</span><span data-l="it">Integrale sui cammini di Feynman</span></h1>
+  <p class="lead" data-l="en">The transition amplitude is the coherent sum, over all histories compatible with the boundary conditions, of a unit-modulus phase factor fixed by the classical action. The five figures below build up this statement and draw out its consequences: the classical limit, interference, topological phases, Euclidean statistical mechanics, and the Maslov index.</p>
+  <p class="lead" data-l="it">L'ampiezza di transizione è la somma coerente, su tutte le storie compatibili con le condizioni al contorno, di un fattore di fase di modulo unitario determinato dall'azione classica. Le cinque figure che seguono costruiscono questa affermazione e ne estraggono le conseguenze: limite classico, interferenza, fasi topologiche, meccanica statistica euclidea, indice di Maslov.</p>
   <div class="eq">\[
   K(x_b,t_b;x_a,t_a)=\langle x_b|e^{-iH(t_b-t_a)/\hbar}|x_a\rangle
   =\lim_{N\to\infty}\Big(\frac{m}{2\pi i\hbar\varepsilon}\Big)^{N/2}\!\int\!\prod_{k=1}^{N-1}\!dx_k\,
   \exp\Big\{\frac{i}{\hbar}\sum_{k=0}^{N-1}\varepsilon\Big[\frac m2\Big(\frac{x_{k+1}-x_k}{\varepsilon}\Big)^2-V(x_k)\Big]\Big\}
   \equiv\int_{x_a}^{x_b}\!\mathcal Dx\;e^{iS[x]/\hbar}
   \]</div>
-  <p>con \(\varepsilon=(t_b-t_a)/N\). La costruzione segue dalla formula di Trotter, \(e^{-i(T+V)\varepsilon/\hbar}=e^{-iT\varepsilon/\hbar}e^{-iV\varepsilon/\hbar}+O(\varepsilon^2)\), inserendo \(N-1\) risoluzioni dell'identità \(\int dx_k\,|x_k\rangle\langle x_k|\). La proprietà di composizione \(K(b,a)=\int dx_c\,K(b,c)K(c,a)\) è manifesta. Nelle figure si usano unità \(m=1\); \(\hbar\) resta un parametro libero perché è il controllo naturale del passaggio quantistico → classico.</p>
+  <p data-l="en">with \(\varepsilon=(t_b-t_a)/N\). The construction follows from the Trotter formula, \(e^{-i(T+V)\varepsilon/\hbar}=e^{-iT\varepsilon/\hbar}e^{-iV\varepsilon/\hbar}+O(\varepsilon^2)\), by inserting \(N-1\) resolutions of the identity \(\int dx_k\,|x_k\rangle\langle x_k|\). The composition property \(K(b,a)=\int dx_c\,K(b,c)K(c,a)\) is manifest. The figures use units with \(m=1\); \(\hbar\) is kept as a free parameter because it is the natural control of the quantum → classical crossover.</p>
+  <p data-l="it">con \(\varepsilon=(t_b-t_a)/N\). La costruzione segue dalla formula di Trotter, \(e^{-i(T+V)\varepsilon/\hbar}=e^{-iT\varepsilon/\hbar}e^{-iV\varepsilon/\hbar}+O(\varepsilon^2)\), inserendo \(N-1\) risoluzioni dell'identità \(\int dx_k\,|x_k\rangle\langle x_k|\). La proprietà di composizione \(K(b,a)=\int dx_c\,K(b,c)K(c,a)\) è manifesta. Nelle figure si usano unità \(m=1\); \(\hbar\) resta un parametro libero perché è il controllo naturale del passaggio quantistico → classico.</p>
   <div class="keys">
-    <div><b>§1 Somma coerente</b><span>Ogni cammino pesa \(|e^{iS/\hbar}|=1\). Conta solo la distribuzione delle fasi.</span></div>
-    <div><b>§2 Fase stazionaria</b><span>\(\delta S=0\) seleziona la traiettoria classica quando \(S\gg\hbar\).</span></div>
-    <div><b>§3 Interferenza e topologia</b><span>Doppia fenditura e fase di Aharonov–Bohm \(\tfrac q\hbar\oint A\cdot dx\).</span></div>
-    <div><b>§4 Tempo immaginario</b><span>\(t\to-i\tau\): \(e^{iS/\hbar}\to e^{-S_E/\hbar}\), Monte Carlo sui cammini.</span></div>
-    <div><b>§5 Caustiche</b><span>Punti coniugati, indice di Morse e fase di Maslov \(e^{-i\pi\nu/2}\).</span></div>
+    <div><b><span data-l="en">§1 Coherent sum</span><span data-l="it">§1 Somma coerente</span></b><span data-l="en">Every path weighs \(|e^{iS/\hbar}|=1\). Only the distribution of phases matters.</span><span data-l="it">Ogni cammino pesa \(|e^{iS/\hbar}|=1\). Conta solo la distribuzione delle fasi.</span></div>
+    <div><b><span data-l="en">§2 Stationary phase</span><span data-l="it">§2 Fase stazionaria</span></b><span data-l="en">\(\delta S=0\) selects the classical trajectory when \(S\gg\hbar\).</span><span data-l="it">\(\delta S=0\) seleziona la traiettoria classica quando \(S\gg\hbar\).</span></div>
+    <div><b><span data-l="en">§3 Interference and topology</span><span data-l="it">§3 Interferenza e topologia</span></b><span data-l="en">Double slit and the Aharonov–Bohm phase \(\tfrac q\hbar\oint A\cdot dx\).</span><span data-l="it">Doppia fenditura e fase di Aharonov–Bohm \(\tfrac q\hbar\oint A\cdot dx\).</span></div>
+    <div><b><span data-l="en">§4 Imaginary time</span><span data-l="it">§4 Tempo immaginario</span></b><span data-l="en">\(t\to-i\tau\): \(e^{iS/\hbar}\to e^{-S_E/\hbar}\), Monte Carlo over paths.</span><span data-l="it">\(t\to-i\tau\): \(e^{iS/\hbar}\to e^{-S_E/\hbar}\), Monte Carlo sui cammini.</span></div>
+    <div><b><span data-l="en">§5 Caustics</span><span data-l="it">§5 Caustiche</span></b><span data-l="en">Conjugate points, Morse index and Maslov phase \(e^{-i\pi\nu/2}\).</span><span data-l="it">Punti coniugati, indice di Morse e fase di Maslov \(e^{-i\pi\nu/2}\).</span></div>
   </div>
 </header>
 
 <!-- §1 -->
 <section id="sec1">
-  <h2><span class="n">§1</span>La somma sui cammini come somma di fasori</h2>
-  <div class="prose">
+  <h2><span class="n">§1</span><span data-l="en">The sum over paths as a sum of phasors</span><span data-l="it">La somma sui cammini come somma di fasori</span></h2>
+  <div class="prose" data-l="en">
+    <p>At discretized time a path is a vector \((x_1,\dots,x_{N-1})\in\mathbb R^{N-1}\). The figure samples paths as Brownian bridges around the classical solution, \(x_k=x_{\rm cl}(t_k)+\sigma B_k\), and colors each one by its phase \(\Delta S/\hbar=(S-S_{\rm cl})/\hbar\) modulo \(2\pi\). The diagram on the right adds the phasors \(e^{i\Delta S_j/\hbar}/M\) head to tail: once the spread of phases exceeds \(2\pi\) the chain curls up on itself and the sum cancels.</p>
+    <p>Typical paths of the Wiener measure are nowhere differentiable, \(\langle(\Delta x)^2\rangle\propto\varepsilon\): for free motion \(\Delta S=\tfrac{\sigma^2}{2}\chi^2_{N-1}\), so \(\langle e^{i\Delta S/\hbar}\rangle=(1-i\sigma^2/\hbar)^{-(N-1)/2}\). The growth with \(N\) is the same divergence that the prefactor \((m/2\pi i\hbar\varepsilon)^{N/2}\) compensates. The sampling here is illustrative and does not replace the measure: it shows the structure of the phases, not the value of \(K\).</p>
+  </div>
+  <div class="prose" data-l="it">
     <p>A tempo discretizzato un cammino è un vettore \((x_1,\dots,x_{N-1})\in\mathbb R^{N-1}\). La figura campiona cammini come ponti browniani attorno alla soluzione classica, \(x_k=x_{\rm cl}(t_k)+\sigma B_k\), e colora ciascuno con la sua fase \(\Delta S/\hbar=(S-S_{\rm cl})/\hbar\) modulo \(2\pi\). Il diagramma a destra somma i fasori \(e^{i\Delta S_j/\hbar}/M\) testa-coda: se la dispersione delle fasi supera \(2\pi\) la catena si avvolge su se stessa e la somma si annulla.</p>
     <p>I cammini tipici della misura di Wiener non sono differenziabili, \(\langle(\Delta x)^2\rangle\propto\varepsilon\): per il moto libero \(\Delta S=\tfrac{\sigma^2}{2}\chi^2_{N-1}\), quindi \(\langle e^{i\Delta S/\hbar}\rangle=(1-i\sigma^2/\hbar)^{-(N-1)/2}\). La crescita con \(N\) è la stessa divergenza che il prefattore \((m/2\pi i\hbar\varepsilon)^{N/2}\) compensa. Il campionamento qui è illustrativo e non sostituisce la misura: mostra la struttura delle fasi, non il valore di \(K\).</p>
   </div>
   <div class="fig">
     <div class="fig-grid g-2-1">
       <div class="pane">
-        <h3>Cammini nel piano (t, x), colore = fase ΔS/ħ mod 2π</h3>
-        <div class="cv grow" style="min-height:380px"><canvas id="c1a" aria-label="Cammini campionati colorati per fase"></canvas></div>
-        <div class="legend"><span class="l-fg"><i></i>traiettoria classica</span><span><span class="phbar" id="phbar"></span>fase 0 → 2π</span></div>
+        <h3><span data-l="en">Paths in the (t, x) plane, color = phase ΔS/ħ mod 2π</span><span data-l="it">Cammini nel piano (t, x), colore = fase ΔS/ħ mod 2π</span></h3>
+        <div class="cv grow" style="min-height:380px"><canvas id="c1a" aria-label="Sampled paths colored by phase"></canvas></div>
+        <div class="legend"><span class="l-fg"><i></i><span data-l="en">classical trajectory</span><span data-l="it">traiettoria classica</span></span><span><span class="phbar" id="phbar"></span><span data-l="en">phase 0 → 2π</span><span data-l="it">fase 0 → 2π</span></span></div>
       </div>
       <div class="col">
         <div class="pane">
-          <h3>Fasori exp(iΔS/ħ)/M nel piano complesso</h3>
-          <div class="cv sq"><canvas id="c1b" aria-label="Catena di fasori"></canvas></div>
+          <h3><span data-l="en">Phasors exp(iΔS/ħ)/M in the complex plane</span><span data-l="it">Fasori exp(iΔS/ħ)/M nel piano complesso</span></h3>
+          <div class="cv sq"><canvas id="c1b" aria-label="Phasor chain"></canvas></div>
         </div>
         <div class="pane">
-          <h3>Distribuzione di ΔS/ħ</h3>
-          <div class="cv" style="height:130px"><canvas id="c1c" aria-label="Istogramma delle fasi"></canvas></div>
+          <h3><span data-l="en">Distribution of ΔS/ħ</span><span data-l="it">Distribuzione di ΔS/ħ</span></h3>
+          <div class="cv" style="height:130px"><canvas id="c1c" aria-label="Histogram of phases"></canvas></div>
         </div>
       </div>
     </div>
     <div class="ctl">
       <label for="h1"><span class="row">ħ<output for="h1" id="o_h1"></output></span><input type="range" id="h1" min="-2" max="0.7" step="0.01" value="-0.5"></label>
-      <label for="s1"><span class="row">ampiezza fluttuazioni σ<output for="s1" id="o_s1"></output></span><input type="range" id="s1" min="0.02" max="1.2" step="0.01" value="0.35"></label>
-      <label for="n1"><span class="row">fette temporali N<output for="n1" id="o_n1"></output></span><input type="range" id="n1" min="4" max="80" step="1" value="24"></label>
-      <label for="m1"><span class="row">cammini M<output for="m1" id="o_m1"></output></span><input type="range" id="m1" min="10" max="600" step="10" value="240"></label>
-      <label for="v1"><span class="row">potenziale</span>
-        <select id="v1"><option value="free">libero, V = 0</option><option value="ho">armonico, ω = 2.5</option><option value="lin">lineare, V = g x, g = 4</option></select></label>
-      <div class="btns"><button id="b1" type="button">Nuovo campione</button></div>
+      <label for="s1"><span class="row"><span><span data-l="en">fluctuation amplitude σ</span><span data-l="it">ampiezza fluttuazioni σ</span></span><output for="s1" id="o_s1"></output></span><input type="range" id="s1" min="0.02" max="1.2" step="0.01" value="0.35"></label>
+      <label for="n1"><span class="row"><span><span data-l="en">time slices N</span><span data-l="it">fette temporali N</span></span><output for="n1" id="o_n1"></output></span><input type="range" id="n1" min="4" max="80" step="1" value="24"></label>
+      <label for="m1"><span class="row"><span><span data-l="en">paths M</span><span data-l="it">cammini M</span></span><output for="m1" id="o_m1"></output></span><input type="range" id="m1" min="10" max="600" step="10" value="240"></label>
+      <label for="v1"><span class="row"><span><span data-l="en">potential</span><span data-l="it">potenziale</span></span></span>
+        <select id="v1"><option value="free" data-en="free, V = 0" data-it="libero, V = 0">free, V = 0</option><option value="ho" data-en="harmonic, ω = 2.5" data-it="armonico, ω = 2.5">harmonic, ω = 2.5</option><option value="lin" data-en="linear, V = g x, g = 4" data-it="lineare, V = g x, g = 4">linear, V = g x, g = 4</option></select></label>
+      <div class="btns"><button id="b1" type="button"><span data-l="en">New sample</span><span data-l="it">Nuovo campione</span></button></div>
     </div>
     <dl class="ro" id="r1"></dl>
-    <p class="cap">Variando ħ i cammini restano gli stessi: cambia solo la scala con cui l'azione viene convertita in fase. Per ħ ≫ σ² la catena di fasori è quasi rettilinea (tutti i cammini interferiscono costruttivamente); per ħ ≪ σ² sopravvive solo l'intorno della traiettoria classica.</p>
+    <p class="cap" data-l="en">Changing ħ leaves the paths unchanged: only the scale that converts action into phase changes. For ħ ≫ σ² the phasor chain is nearly straight (all paths interfere constructively); for ħ ≪ σ² only the neighbourhood of the classical trajectory survives.</p>
+    <p class="cap" data-l="it">Variando ħ i cammini restano gli stessi: cambia solo la scala con cui l'azione viene convertita in fase. Per ħ ≫ σ² la catena di fasori è quasi rettilinea (tutti i cammini interferiscono costruttivamente); per ħ ≪ σ² sopravvive solo l'intorno della traiettoria classica.</p>
   </div>
 </section>
 
 <!-- §2 -->
 <section id="sec2">
-  <h2><span class="n">§2</span>Fase stazionaria e limite classico</h2>
-  <div class="prose">
+  <h2><span class="n">§2</span><span data-l="en">Stationary phase and the classical limit</span><span data-l="it">Fase stazionaria e limite classico</span></h2>
+  <div class="prose" data-l="en">
+    <p>Restrict the integral to a one-parameter family, \(x_a(t)=x_b\,t/T+a\sin(\pi t/T)\), with \(x(0)=0\), \(x(T)=x_b=1\), \(T=1\). The functional integral reduces to \(I=\int da\,e^{iS(a)/\hbar}\). Away from the points where \(S'(a)=0\) the integrand oscillates with frequency \(S'/\hbar\) and the contributions cancel; near a stationary point the phase is frozen over an interval \(|a-a^*|\lesssim\sqrt{2\pi\hbar/|S''|}\) (first Fresnel zone). In the stationary-phase approximation</p>
+    <div class="eq">\[ I\simeq\sum_{a^*}\sqrt{\frac{2\pi\hbar}{|S''(a^*)|}}\;\exp\Big[\frac{i}{\hbar}S(a^*)+\frac{i\pi}{4}\,\mathrm{sgn}\,S''(a^*)\Big], \]</div>
+    <p>which in the full problem becomes \(\delta S=0\), i.e. the Euler–Lagrange equations. The Cornu spiral \(F(a)=\int_{-A}^{a}e^{iS/\hbar}da'\) makes the mechanism visible: the straight stretches correspond to stationary points, the coils to self-cancelling regions. For the oscillator, \(S''=\tfrac T2[(\pi/T)^2-\omega^2]\) vanishes at \(\omega T=\pi\): there the quadratic approximation fails (see §5).</p>
+  </div>
+  <div class="prose" data-l="it">
     <p>Si restringa l'integrale a una famiglia a un parametro, \(x_a(t)=x_b\,t/T+a\sin(\pi t/T)\), con \(x(0)=0\), \(x(T)=x_b=1\), \(T=1\). L'integrale funzionale si riduce a \(I=\int da\,e^{iS(a)/\hbar}\). Lontano dai punti in cui \(S'(a)=0\) l'integrando oscilla con frequenza \(S'/\hbar\) e i contributi si cancellano; vicino a un punto stazionario la fase è ferma per un intervallo \(|a-a^*|\lesssim\sqrt{2\pi\hbar/|S''|}\) (prima zona di Fresnel). Nell'approssimazione di fase stazionaria</p>
     <div class="eq">\[ I\simeq\sum_{a^*}\sqrt{\frac{2\pi\hbar}{|S''(a^*)|}}\;\exp\Big[\frac{i}{\hbar}S(a^*)+\frac{i\pi}{4}\,\mathrm{sgn}\,S''(a^*)\Big], \]</div>
     <p>che nel caso completo diventa \(\delta S=0\), cioè le equazioni di Eulero–Lagrange. La spirale di Cornu \(F(a)=\int_{-A}^{a}e^{iS/\hbar}da'\) rende visibile il meccanismo: i tratti rettilinei corrispondono ai punti stazionari, gli avvolgimenti alle regioni che si autocancellano. Per l'oscillatore, \(S''=\tfrac T2[(\pi/T)^2-\omega^2]\) si annulla a \(\omega T=\pi\): lì l'approssimazione quadratica fallisce (si veda §5).</p>
@@ -190,39 +223,45 @@ footer { font-size: 12.5px; color: var(--muted); font-family: var(--mono); }
   <div class="fig">
     <div class="fig-grid g-3-2">
       <div class="pane">
-        <h3>S(a) − S_ref e integrando exp[i(S − S_ref)/ħ]</h3>
-        <div class="cv" style="height:420px"><canvas id="c2a" aria-label="Azione e integrando in funzione del parametro"></canvas></div>
-        <div class="legend"><span class="l-acc"><i></i>Re</span><span class="l-teal"><i></i>Im</span><span class="l-hot"><i></i>punto stazionario ± zona di Fresnel</span><span class="l-mut">trascina sul grafico per scorrere a</span></div>
+        <h3><span data-l="en">S(a) − S_ref and integrand exp[i(S − S_ref)/ħ]</span><span data-l="it">S(a) − S_ref e integrando exp[i(S − S_ref)/ħ]</span></h3>
+        <div class="cv" style="height:420px"><canvas id="c2a" aria-label="Action and integrand versus the parameter"></canvas></div>
+        <div class="legend"><span class="l-acc"><i></i>Re</span><span class="l-teal"><i></i>Im</span><span class="l-hot"><i></i><span data-l="en">stationary point ± Fresnel zone</span><span data-l="it">punto stazionario ± zona di Fresnel</span></span><span class="l-mut"><span data-l="en">drag on the plot to scrub a</span><span data-l="it">trascina sul grafico per scorrere a</span></span></div>
       </div>
       <div class="col">
         <div class="pane">
-          <h3>Spirale di Cornu F(a)</h3>
-          <div class="cv sq"><canvas id="c2b" aria-label="Spirale di Cornu"></canvas></div>
-          <div class="legend"><span class="l-fg"><i></i>F(A) numerico</span><span class="l-hot"><i></i>fase stazionaria</span></div>
+          <h3><span data-l="en">Cornu spiral F(a)</span><span data-l="it">Spirale di Cornu F(a)</span></h3>
+          <div class="cv sq"><canvas id="c2b" aria-label="Cornu spiral"></canvas></div>
+          <div class="legend"><span class="l-fg"><i></i><span data-l="en">F(A) numerical</span><span data-l="it">F(A) numerico</span></span><span class="l-hot"><i></i><span data-l="en">stationary phase</span><span data-l="it">fase stazionaria</span></span></div>
         </div>
         <div class="pane">
-          <h3>Cammini della famiglia</h3>
-          <div class="cv" style="height:150px"><canvas id="c2c" aria-label="Cammini della famiglia"></canvas></div>
+          <h3><span data-l="en">Paths of the family</span><span data-l="it">Cammini della famiglia</span></h3>
+          <div class="cv" style="height:150px"><canvas id="c2c" aria-label="Paths of the family"></canvas></div>
         </div>
       </div>
     </div>
     <div class="ctl">
       <label for="h2"><span class="row">ħ<output for="h2" id="o_h2"></output></span><input type="range" id="h2" min="-1.3" max="0.3" step="0.01" value="-0.75"></label>
-      <label for="v2"><span class="row">potenziale</span>
-        <select id="v2"><option value="free">libero</option><option value="ho" selected>armonico ½ω²x²</option><option value="anh">anarmonico ½ω²x² + g x⁴</option></select></label>
+      <label for="v2"><span class="row"><span><span data-l="en">potential</span><span data-l="it">potenziale</span></span></span>
+        <select id="v2"><option value="free" data-en="free" data-it="libero">free</option><option value="ho" selected data-en="harmonic ½ω²x²" data-it="armonico ½ω²x²">harmonic ½ω²x²</option><option value="anh" data-en="anharmonic ½ω²x² + g x⁴" data-it="anarmonico ½ω²x² + g x⁴">anharmonic ½ω²x² + g x⁴</option></select></label>
       <label for="w2"><span class="row">ω T<output for="w2" id="o_w2"></output></span><input type="range" id="w2" min="0" max="4.5" step="0.01" value="2"></label>
-      <label for="g2"><span class="row">g (solo anarmonico)<output for="g2" id="o_g2"></output></span><input type="range" id="g2" min="0" max="3" step="0.01" value="1.6"></label>
-      <label for="a2"><span class="row">parametro a<output for="a2" id="o_a2"></output></span><input type="range" id="a2" min="-2" max="2" step="0.001" value="0.6"></label>
+      <label for="g2"><span class="row"><span><span data-l="en">g (anharmonic only)</span><span data-l="it">g (solo anarmonico)</span></span><output for="g2" id="o_g2"></output></span><input type="range" id="g2" min="0" max="3" step="0.01" value="1.6"></label>
+      <label for="a2"><span class="row"><span><span data-l="en">parameter a</span><span data-l="it">parametro a</span></span><output for="a2" id="o_a2"></output></span><input type="range" id="a2" min="-2" max="2" step="0.001" value="0.6"></label>
     </div>
     <dl class="ro" id="r2"></dl>
-    <p class="cap">Il confronto tra <b>F(A)</b> calcolato numericamente sull'intervallo finito e la somma di fase stazionaria migliora al diminuire di ħ; le piccole oscillazioni residue sono i contributi degli estremi a = ±A. Con il potenziale anarmonico e g sufficiente compaiono tre punti stazionari, di cui uno con S'' &lt; 0 e fase −π/4.</p>
+    <p class="cap" data-l="en">The agreement between <b>F(A)</b>, computed numerically on the finite interval, and the stationary-phase sum improves as ħ decreases; the small residual oscillations are the endpoint contributions from a = ±A. With the anharmonic potential and large enough g three stationary points appear, one of them with S'' &lt; 0 and phase −π/4.</p>
+    <p class="cap" data-l="it">Il confronto tra <b>F(A)</b> calcolato numericamente sull'intervallo finito e la somma di fase stazionaria migliora al diminuire di ħ; le piccole oscillazioni residue sono i contributi degli estremi a = ±A. Con il potenziale anarmonico e g sufficiente compaiono tre punti stazionari, di cui uno con S'' &lt; 0 e fase −π/4.</p>
   </div>
 </section>
 
 <!-- §3 -->
 <section id="sec3">
-  <h2><span class="n">§3</span>Doppia fenditura e fase di Aharonov–Bohm</h2>
-  <div class="prose">
+  <h2><span class="n">§3</span><span data-l="en">Double slit and the Aharonov–Bohm phase</span><span data-l="it">Doppia fenditura e fase di Aharonov–Bohm</span></h2>
+  <div class="prose" data-l="en">
+    <p>In the paraxial approximation the transverse motion is that of a free particle with time \(t=z/v\), and the amplitude on the screen follows from composing the propagators through the apertures:</p>
+    <div class="eq">\[ \psi(y)=\int_{A\cup B}\!ds\;K_0(y,t_2;s,t_1)\,K_0(s,t_1;0,0),\qquad K_0\propto\exp\Big[\frac{ik}{2}\Big(\frac{s^2}{L_1}+\frac{(y-s)^2}{L_2}\Big)\Big]. \]</div>
+    <p>With a shielded solenoid between the slits, minimal coupling \(L\to L+q\dot{\mathbf x}\cdot\mathbf A\) multiplies every path by \(\exp[\tfrac{iq}{\hbar}\int\mathbf A\cdot d\mathbf x]\). All paths in the same homotopy class acquire the same phase; the difference between the two classes is \(\tfrac q\hbar\oint\mathbf A\cdot d\mathbf x=2\pi\Phi/\Phi_0\), \(\Phi_0=h/q\). The field vanishes wherever the particle goes, yet the fringes shift by \(\Delta y=(\Phi/\Phi_0)\,\lambda L_2/d\) while the envelope stays put.</p>
+  </div>
+  <div class="prose" data-l="it">
     <p>Nell'approssimazione parassiale il moto trasverso è quello di una particella libera con tempo \(t=z/v\), e l'ampiezza sullo schermo si ottiene per composizione dei propagatori attraverso le aperture:</p>
     <div class="eq">\[ \psi(y)=\int_{A\cup B}\!ds\;K_0(y,t_2;s,t_1)\,K_0(s,t_1;0,0),\qquad K_0\propto\exp\Big[\frac{ik}{2}\Big(\frac{s^2}{L_1}+\frac{(y-s)^2}{L_2}\Big)\Big]. \]</div>
     <p>Con un solenoide schermato tra le fenditure l'accoppiamento minimale \(L\to L+q\dot{\mathbf x}\cdot\mathbf A\) aggiunge a ogni cammino il fattore \(\exp[\tfrac{iq}{\hbar}\int\mathbf A\cdot d\mathbf x]\). Tutti i cammini di una stessa classe di omotopia ricevono la stessa fase; la differenza tra le due classi è \(\tfrac q\hbar\oint\mathbf A\cdot d\mathbf x=2\pi\Phi/\Phi_0\), \(\Phi_0=h/q\). Il campo è nullo dove passa la particella, ma le frange traslano di \(\Delta y=(\Phi/\Phi_0)\,\lambda L_2/d\) mentre l'inviluppo resta fermo.</p>
@@ -230,36 +269,43 @@ footer { font-size: 12.5px; color: var(--muted); font-family: var(--mono); }
   <div class="fig">
     <div class="fig-grid g-2-1">
       <div class="pane">
-        <h3>Geometria (schematica) e intensità |ψ(y)|² sullo schermo</h3>
-        <div class="cv" style="height:420px"><canvas id="c3a" aria-label="Doppia fenditura e intensità"></canvas></div>
-        <div class="legend"><span class="l-acc"><i></i>|ψ_A + ψ_B|²</span><span class="l-mut"><i></i>|ψ_A|² + |ψ_B|²</span><span class="l-teal"><i></i>fenditura singola</span><span class="l-mut">passa sul grafico per scegliere y</span></div>
+        <h3><span data-l="en">Geometry (schematic) and intensity |ψ(y)|² on the screen</span><span data-l="it">Geometria (schematica) e intensità |ψ(y)|² sullo schermo</span></h3>
+        <div class="cv" style="height:420px"><canvas id="c3a" aria-label="Double slit and intensity"></canvas></div>
+        <div class="legend"><span class="l-acc"><i></i>|ψ_A + ψ_B|²</span><span class="l-mut"><i></i>|ψ_A|² + |ψ_B|²</span><span class="l-teal"><i></i><span data-l="en">single slit</span><span data-l="it">fenditura singola</span></span><span class="l-mut"><span data-l="en">hover the plot to pick y</span><span data-l="it">passa sul grafico per scegliere y</span></span></div>
       </div>
       <div class="pane">
-        <h3>Fasori al punto y dello schermo</h3>
-        <div class="cv sq"><canvas id="c3b" aria-label="Somma dei fasori sulle due fenditure"></canvas></div>
-        <div class="legend"><span class="l-acc"><i></i>contributi da A</span><span class="l-teal"><i></i>da B</span><span class="l-fg"><i></i>ψ(y)</span></div>
+        <h3><span data-l="en">Phasors at screen point y</span><span data-l="it">Fasori al punto y dello schermo</span></h3>
+        <div class="cv sq"><canvas id="c3b" aria-label="Phasor sum over the two slits"></canvas></div>
+        <div class="legend"><span class="l-acc"><i></i><span data-l="en">contributions from A</span><span data-l="it">contributi da A</span></span><span class="l-teal"><i></i><span data-l="en">from B</span><span data-l="it">da B</span></span><span class="l-fg"><i></i>ψ(y)</span></div>
       </div>
     </div>
     <div class="ctl">
       <label for="L3"><span class="row">L₁ = L₂ = L  [λ]<output for="L3" id="o_L3"></output></span><input type="range" id="L3" min="200" max="6000" step="50" value="2000"></label>
-      <label for="d3"><span class="row">separazione d  [λ]<output for="d3" id="o_d3"></output></span><input type="range" id="d3" min="6" max="80" step="1" value="30"></label>
-      <label for="w3"><span class="row">larghezza fenditura w  [λ]<output for="w3" id="o_w3"></output></span><input type="range" id="w3" min="1" max="40" step="0.5" value="8"></label>
-      <label for="f3"><span class="row">flusso Φ/Φ₀<output for="f3" id="o_f3"></output></span><input type="range" id="f3" min="0" max="2" step="0.01" value="0"></label>
-      <label for="y3"><span class="row">punto sullo schermo y<output for="y3" id="o_y3"></output></span><input type="range" id="y3" min="-1" max="1" step="0.001" value="0.12"></label>
+      <label for="d3"><span class="row"><span><span data-l="en">separation d  [λ]</span><span data-l="it">separazione d  [λ]</span></span><output for="d3" id="o_d3"></output></span><input type="range" id="d3" min="6" max="80" step="1" value="30"></label>
+      <label for="w3"><span class="row"><span><span data-l="en">slit width w  [λ]</span><span data-l="it">larghezza fenditura w  [λ]</span></span><output for="w3" id="o_w3"></output></span><input type="range" id="w3" min="1" max="40" step="0.5" value="8"></label>
+      <label for="f3"><span class="row"><span><span data-l="en">flux Φ/Φ₀</span><span data-l="it">flusso Φ/Φ₀</span></span><output for="f3" id="o_f3"></output></span><input type="range" id="f3" min="0" max="2" step="0.01" value="0"></label>
+      <label for="y3"><span class="row"><span><span data-l="en">screen point y</span><span data-l="it">punto sullo schermo y</span></span><output for="y3" id="o_y3"></output></span><input type="range" id="y3" min="-1" max="1" step="0.001" value="0.12"></label>
       <div class="btns">
-        <label class="chk" for="A3"><input type="checkbox" id="A3" checked>A aperta</label>
-        <label class="chk" for="B3"><input type="checkbox" id="B3" checked>B aperta</label>
+        <label class="chk" for="A3"><input type="checkbox" id="A3" checked><span data-l="en">A open</span><span data-l="it">A aperta</span></label>
+        <label class="chk" for="B3"><input type="checkbox" id="B3" checked><span data-l="en">B open</span><span data-l="it">B aperta</span></label>
       </div>
     </div>
     <dl class="ro" id="r3"></dl>
-    <p class="cap">Con una sola fenditura le catene di fasori disegnano una spirale di Cornu aperta (diffrazione di Fresnel). Con entrambe, la fase relativa tra le due catene è k·d·y/L più 2πΦ/Φ₀: il flusso ruota rigidamente la catena B e trasla le frange. Per Φ/Φ₀ intero la figura è indistinguibile da quella a flusso nullo.</p>
+    <p class="cap" data-l="en">With a single slit the phasor chain traces an open Cornu spiral (Fresnel diffraction). With both slits, the relative phase between the two chains is k·d·y/L plus 2πΦ/Φ₀: the flux rigidly rotates chain B and shifts the fringes. For integer Φ/Φ₀ the pattern is indistinguishable from the zero-flux one.</p>
+    <p class="cap" data-l="it">Con una sola fenditura le catene di fasori disegnano una spirale di Cornu aperta (diffrazione di Fresnel). Con entrambe, la fase relativa tra le due catene è k·d·y/L più 2πΦ/Φ₀: il flusso ruota rigidamente la catena B e trasla le frange. Per Φ/Φ₀ intero la figura è indistinguibile da quella a flusso nullo.</p>
   </div>
 </section>
 
 <!-- §4 -->
 <section id="sec4">
-  <h2><span class="n">§4</span>Tempo immaginario: Monte Carlo sui cammini</h2>
-  <div class="prose">
+  <h2><span class="n">§4</span><span data-l="en">Imaginary time: Monte Carlo over paths</span><span data-l="it">Tempo immaginario: Monte Carlo sui cammini</span></h2>
+  <div class="prose" data-l="en">
+    <p>The Wick rotation \(t=-i\tau\) turns the oscillating weight into a positive one, \(e^{iS/\hbar}\to e^{-S_E/\hbar}\), with \(S_E=\int d\tau\,[\tfrac m2\dot x^2+V(x)]\). The partition function is an integral over periodic paths of period \(\beta\hbar\):</p>
+    <div class="eq">\[ Z(\beta)=\mathrm{Tr}\,e^{-\beta H}=\oint\mathcal Dx\,e^{-S_E[x]/\hbar},\qquad
+    G(\tau)=\langle x(\tau)x(0)\rangle\;\xrightarrow{\beta\to\infty}\;\sum_n|\langle 0|x|n\rangle|^2e^{-(E_n-E_0)\tau/\hbar}. \]</div>
+    <p>On a lattice of \(N\) sites with spacing \(a\) (\(\beta=Na\)) the Metropolis algorithm samples configurations with probability \(\propto e^{-S_E}\). The position histogram converges to \(|\psi_0(x)|^2\), the decay of \(G\) gives \(E_1-E_0\), and the virial estimator \(\langle V+\tfrac12xV'\rangle\) gives \(E_0\). In the double well \(V=\lambda(x^2-\eta^2)^2\) the dominant configurations contain instantons, localized jumps between the minima with action \(S_0=\tfrac43\sqrt{2\lambda}\,\eta^3\); the tunnel splitting is \(\propto e^{-S_0/\hbar}\).</p>
+  </div>
+  <div class="prose" data-l="it">
     <p>La rotazione di Wick \(t=-i\tau\) trasforma il peso oscillante in un peso positivo, \(e^{iS/\hbar}\to e^{-S_E/\hbar}\), con \(S_E=\int d\tau\,[\tfrac m2\dot x^2+V(x)]\). La funzione di partizione è un integrale su cammini periodici di periodo \(\beta\hbar\):</p>
     <div class="eq">\[ Z(\beta)=\mathrm{Tr}\,e^{-\beta H}=\oint\mathcal Dx\,e^{-S_E[x]/\hbar},\qquad
     G(\tau)=\langle x(\tau)x(0)\rangle\;\xrightarrow{\beta\to\infty}\;\sum_n|\langle 0|x|n\rangle|^2e^{-(E_n-E_0)\tau/\hbar}. \]</div>
@@ -268,37 +314,44 @@ footer { font-size: 12.5px; color: var(--muted); font-family: var(--mono); }
   <div class="fig">
     <div class="fig-grid g-3-2">
       <div class="pane">
-        <h3>V(x) · configurazione corrente x(τ) · densità campionata vs |ψ₀(x)|²</h3>
-        <div class="cv grow" style="min-height:540px"><canvas id="c4a" aria-label="Cammino euclideo e istogramma"></canvas></div>
-        <div class="legend"><span class="l-acc"><i></i>x(τ) corrente</span><span class="l-mut"><i></i>istogramma Monte Carlo</span><span class="l-hot"><i></i>|ψ₀|² esatto (diagonalizzazione)</span></div>
+        <h3><span data-l="en">V(x) · current configuration x(τ) · sampled density vs |ψ₀(x)|²</span><span data-l="it">V(x) · configurazione corrente x(τ) · densità campionata vs |ψ₀(x)|²</span></h3>
+        <div class="cv grow" style="min-height:540px"><canvas id="c4a" aria-label="Euclidean path and histogram"></canvas></div>
+        <div class="legend"><span class="l-acc"><i></i><span data-l="en">current x(τ)</span><span data-l="it">x(τ) corrente</span></span><span class="l-mut"><i></i><span data-l="en">Monte Carlo histogram</span><span data-l="it">istogramma Monte Carlo</span></span><span class="l-hot"><i></i><span data-l="en">exact |ψ₀|² (diagonalization)</span><span data-l="it">|ψ₀|² esatto (diagonalizzazione)</span></span></div>
       </div>
       <div class="col">
         <div class="pane">
-          <h3>Correlatore G(τ), scala logaritmica</h3>
-          <div class="cv" style="height:260px"><canvas id="c4b" aria-label="Correlatore euclideo"></canvas></div>
-          <div class="legend"><span class="l-acc"><i></i>G(τ) misurato</span><span class="l-hot"><i></i>pendenza −(E₁−E₀) esatta</span></div>
+          <h3><span data-l="en">Correlator G(τ), log scale</span><span data-l="it">Correlatore G(τ), scala logaritmica</span></h3>
+          <div class="cv" style="height:260px"><canvas id="c4b" aria-label="Euclidean correlator"></canvas></div>
+          <div class="legend"><span class="l-acc"><i></i><span data-l="en">measured G(τ)</span><span data-l="it">G(τ) misurato</span></span><span class="l-hot"><i></i><span data-l="en">exact slope −(E₁−E₀)</span><span data-l="it">pendenza −(E₁−E₀) esatta</span></span></div>
         </div>
         <dl class="ro" id="r4" style="border-top:0"></dl>
       </div>
     </div>
     <div class="ctl">
-      <label for="v4"><span class="row">potenziale</span>
-        <select id="v4"><option value="ho">armonico ½x²</option><option value="dw">doppia buca λ(x²−η²)²</option></select></label>
-      <label for="e4"><span class="row">η (doppia buca, λ = 1)<output for="e4" id="o_e4"></output></span><input type="range" id="e4" min="0.8" max="1.8" step="0.01" value="1.4"></label>
-      <label for="N4"><span class="row">siti del reticolo N<output for="N4" id="o_N4"></output></span><input type="range" id="N4" min="40" max="400" step="10" value="200"></label>
-      <label for="a4"><span class="row">passo a<output for="a4" id="o_a4"></output></span><input type="range" id="a4" min="0.05" max="0.5" step="0.01" value="0.25"></label>
-      <label for="d4"><span class="row">ampiezza mossa δ<output for="d4" id="o_d4"></output></span><input type="range" id="d4" min="0.05" max="2" step="0.01" value="0.7"></label>
-      <label for="k4"><span class="row">sweep per frame<output for="k4" id="o_k4"></output></span><input type="range" id="k4" min="1" max="50" step="1" value="6"></label>
-      <div class="btns"><button id="p4" type="button" class="on">Pausa</button><button id="z4" type="button">Riavvia</button></div>
+      <label for="v4"><span class="row"><span><span data-l="en">potential</span><span data-l="it">potenziale</span></span></span>
+        <select id="v4"><option value="ho" data-en="harmonic ½x²" data-it="armonico ½x²">harmonic ½x²</option><option value="dw" data-en="double well λ(x²−η²)²" data-it="doppia buca λ(x²−η²)²">double well λ(x²−η²)²</option></select></label>
+      <label for="e4"><span class="row"><span><span data-l="en">η (double well, λ = 1)</span><span data-l="it">η (doppia buca, λ = 1)</span></span><output for="e4" id="o_e4"></output></span><input type="range" id="e4" min="0.8" max="1.8" step="0.01" value="1.4"></label>
+      <label for="N4"><span class="row"><span><span data-l="en">lattice sites N</span><span data-l="it">siti del reticolo N</span></span><output for="N4" id="o_N4"></output></span><input type="range" id="N4" min="40" max="400" step="10" value="200"></label>
+      <label for="a4"><span class="row"><span><span data-l="en">spacing a</span><span data-l="it">passo a</span></span><output for="a4" id="o_a4"></output></span><input type="range" id="a4" min="0.05" max="0.5" step="0.01" value="0.25"></label>
+      <label for="d4"><span class="row"><span><span data-l="en">move size δ</span><span data-l="it">ampiezza mossa δ</span></span><output for="d4" id="o_d4"></output></span><input type="range" id="d4" min="0.05" max="2" step="0.01" value="0.7"></label>
+      <label for="k4"><span class="row"><span><span data-l="en">sweeps per frame</span><span data-l="it">sweep per frame</span></span><output for="k4" id="o_k4"></output></span><input type="range" id="k4" min="1" max="50" step="1" value="6"></label>
+      <div class="btns"><button id="p4" type="button" class="on">Pause</button><button id="z4" type="button"><span data-l="en">Restart</span><span data-l="it">Riavvia</span></button></div>
     </div>
-    <p class="cap">Gli stimatori convergono per β ≫ 1/(E₁ − E₀) e a → 0 (errore O(a²)). Nella doppia buca la prima condizione è violata di proposito: la configurazione è una sequenza di istantoni e anti-istantoni, l'istogramma resta simmetrico solo dopo molti tunnel, e G(τ) decade con lo splitting esponenzialmente piccolo.</p>
+    <p class="cap" data-l="en">The estimators converge for β ≫ 1/(E₁ − E₀) and a → 0 (O(a²) error). In the double well the first condition is violated on purpose: the configuration is a sequence of instantons and anti-instantons, the histogram becomes symmetric only after many tunnelling events, and G(τ) decays with the exponentially small splitting.</p>
+    <p class="cap" data-l="it">Gli stimatori convergono per β ≫ 1/(E₁ − E₀) e a → 0 (errore O(a²)). Nella doppia buca la prima condizione è violata di proposito: la configurazione è una sequenza di istantoni e anti-istantoni, l'istogramma resta simmetrico solo dopo molti tunnel, e G(τ) decade con lo splitting esponenzialmente piccolo.</p>
   </div>
 </section>
 
 <!-- §5 -->
 <section id="sec5">
-  <h2><span class="n">§5</span>Caustiche, punti coniugati e indice di Maslov</h2>
-  <div class="prose">
+  <h2><span class="n">§5</span><span data-l="en">Caustics, conjugate points and the Maslov index</span><span data-l="it">Caustiche, punti coniugati e indice di Maslov</span></h2>
+  <div class="prose" data-l="en">
+    <p>For the harmonic oscillator the action is exactly quadratic around \(x_{\rm cl}\), \(S=S_{\rm cl}+\tfrac12\int\eta\,(-m\partial_t^2-m\omega^2)\eta\,dt\), with \(\eta(0)=\eta(T)=0\). The eigenvalues of the second-variation operator on the modes \(\sin(n\pi t/T)\) are \(\lambda_n=m[(n\pi/T)^2-\omega^2]\). Each Fresnel integral over mode \(n\) contributes \(\lambda_n^{-1/2}\), with phase \(e^{-i\pi/2}\) when \(\lambda_n<0\). The number \(\nu\) of negative eigenvalues (Morse index) equals the number of conjugate points in \((0,T)\), here \(\nu=\lfloor\omega T/\pi\rfloor\):</p>
+    <div class="eq">\[ K=\sqrt{\frac{m\omega}{2\pi i\hbar\,|\sin\omega T|}}\;e^{-i\pi\nu/2}\,
+    \exp\Big\{\frac{im\omega}{2\hbar\sin\omega T}\big[(x_a^2+x_b^2)\cos\omega T-2x_ax_b\big]\Big\}. \]</div>
+    <p>The prefactor is the Van Vleck–Pauli–Morette determinant \(|\partial^2S_{\rm cl}/\partial x_a\partial x_b|^{1/2}\). At \(T=n\pi/\omega\) every trajectory leaving \(x_a\) refocuses at \((-1)^nx_a\): the map \(p_a\mapsto x_b\) is singular, the prefactor diverges, and crossing the caustic the phase jumps by \(-\pi/2\).</p>
+  </div>
+  <div class="prose" data-l="it">
     <p>Attorno a \(x_{\rm cl}\) l'azione è quadratica per l'oscillatore armonico, \(S=S_{\rm cl}+\tfrac12\int\eta\,(-m\partial_t^2-m\omega^2)\eta\,dt\), con \(\eta(0)=\eta(T)=0\). Gli autovalori dell'operatore di seconda variazione sui modi \(\sin(n\pi t/T)\) sono \(\lambda_n=m[(n\pi/T)^2-\omega^2]\). Ogni integrale di Fresnel sul modo \(n\) contribuisce \(\lambda_n^{-1/2}\), con fase \(e^{-i\pi/2}\) se \(\lambda_n<0\). Il numero \(\nu\) di autovalori negativi (indice di Morse) è il numero di punti coniugati in \((0,T)\), qui \(\nu=\lfloor\omega T/\pi\rfloor\):</p>
     <div class="eq">\[ K=\sqrt{\frac{m\omega}{2\pi i\hbar\,|\sin\omega T|}}\;e^{-i\pi\nu/2}\,
     \exp\Big\{\frac{im\omega}{2\hbar\sin\omega T}\big[(x_a^2+x_b^2)\cos\omega T-2x_ax_b\big]\Big\}. \]</div>
@@ -307,18 +360,18 @@ footer { font-size: 12.5px; color: var(--muted); font-family: var(--mono); }
   <div class="fig">
     <div class="fig-grid g-3-2">
       <div class="pane">
-        <h3>Ventaglio di traiettorie classiche da x_a (ω = 1)</h3>
-        <div class="cv grow" style="min-height:400px"><canvas id="c5a" aria-label="Ventaglio di traiettorie e caustiche"></canvas></div>
-        <div class="legend"><span class="l-hot"><i></i>traiettoria x_a → x_b in tempo T</span><span class="l-mut"><i></i>p_a variabile</span><span class="l-mut">trascina per fissare T e x_b</span></div>
+        <h3><span data-l="en">Fan of classical trajectories from x_a (ω = 1)</span><span data-l="it">Ventaglio di traiettorie classiche da x_a (ω = 1)</span></h3>
+        <div class="cv grow" style="min-height:400px"><canvas id="c5a" aria-label="Fan of trajectories and caustics"></canvas></div>
+        <div class="legend"><span class="l-hot"><i></i><span data-l="en">trajectory x_a → x_b in time T</span><span data-l="it">traiettoria x_a → x_b in tempo T</span></span><span class="l-mut"><i></i><span data-l="en">varying p_a</span><span data-l="it">p_a variabile</span></span><span class="l-mut"><span data-l="en">drag to set T and x_b</span><span data-l="it">trascina per fissare T e x_b</span></span></div>
       </div>
       <div class="col">
         <div class="pane">
-          <h3>|prefattore| e fase arg K − S_cl/ħ</h3>
-          <div class="cv" style="height:220px"><canvas id="c5b" aria-label="Prefattore e fase di Maslov"></canvas></div>
+          <h3><span data-l="en">|prefactor| and phase arg K − S_cl/ħ</span><span data-l="it">|prefattore| e fase arg K − S_cl/ħ</span></h3>
+          <div class="cv" style="height:220px"><canvas id="c5b" aria-label="Prefactor and Maslov phase"></canvas></div>
         </div>
         <div class="pane">
-          <h3>Spettro della seconda variazione λₙ</h3>
-          <div class="cv" style="height:170px"><canvas id="c5c" aria-label="Autovalori della seconda variazione"></canvas></div>
+          <h3><span data-l="en">Second-variation spectrum λₙ</span><span data-l="it">Spettro della seconda variazione λₙ</span></h3>
+          <div class="cv" style="height:170px"><canvas id="c5c" aria-label="Second-variation eigenvalues"></canvas></div>
         </div>
       </div>
     </div>
@@ -332,7 +385,7 @@ footer { font-size: 12.5px; color: var(--muted); font-family: var(--mono); }
 </section>
 
 <section>
-  <h2>Riferimenti</h2>
+  <h2><span data-l="en">References</span><span data-l="it">Riferimenti</span></h2>
   <ol class="refs">
     <li>R. P. Feynman, Space-time approach to non-relativistic quantum mechanics, Rev. Mod. Phys. 20, 367 (1948).</li>
     <li>R. P. Feynman, A. R. Hibbs, Quantum Mechanics and Path Integrals, McGraw-Hill (1965).</li>
@@ -341,7 +394,7 @@ footer { font-size: 12.5px; color: var(--muted); font-family: var(--mono); }
     <li>M. Creutz, B. Freedman, A statistical approach to quantum mechanics, Ann. Phys. 132, 427 (1981).</li>
     <li>S. Coleman, The uses of instantons, in Aspects of Symmetry, Cambridge University Press (1985).</li>
   </ol>
-  <footer>Unità: m = 1; in §3 lunghezze in unità di λ; in §4 e §5 ħ = ω = 1. Tutti i calcoli sono eseguiti nel browser.</footer>
+  <footer><span data-l="en">Units: m = 1; in §3 lengths in units of λ; in §4 and §5 ħ = ω = 1. All computations run in the browser.</span><span data-l="it">Unità: m = 1; in §3 lunghezze in unità di λ; in §4 e §5 ħ = ω = 1. Tutti i calcoli sono eseguiti nel browser.</span></footer>
 </section>
 
 </div>
@@ -430,6 +483,7 @@ function complexPlane(ctx, w, h, R, labels = true) {
   ctx.restore();
   return { cx, cy };
 }
+const tr = (en, it) => document.documentElement.getAttribute('data-ui') === 'it' ? it : en;
 function setOut(id, txt) { const o = $('o_' + id); if (o) o.textContent = txt; }
 
 /* ================================================================ §1 */
@@ -505,9 +559,9 @@ function draw1() {
   }
   // readouts
   const mean = ph.reduce((s, v) => s + v, 0) / ph.length, sd = Math.sqrt(ph.reduce((s, v) => s + (v - mean) ** 2, 0) / ph.length);
-  const rows = [['S_cl (discretizzata)', mfmt(F1.Scl, 4)], ['⟨ΔS⟩/ħ', mfmt(mean, 2)], ['σ(ΔS)/ħ', mfmt(sd, 2)],
-    ['|⟨exp(iΔS/ħ)⟩| campione', mfmt(Math.hypot(zx, zy), 4), 'acc']];
-  if (p.pot === 'free') rows.push(['atteso: (1 + σ⁴/ħ²)^−(N−1)/4', mfmt(Math.pow(1 + Math.pow(p.sig, 4) / (p.hb * p.hb), -(p.N - 1) / 4), 4), 'hot']);
+  const rows = [[tr('S_cl (discretized)', 'S_cl (discretizzata)'), mfmt(F1.Scl, 4)], ['⟨ΔS⟩/ħ', mfmt(mean, 2)], ['σ(ΔS)/ħ', mfmt(sd, 2)],
+    [tr('|⟨exp(iΔS/ħ)⟩| sample', '|⟨exp(iΔS/ħ)⟩| campione'), mfmt(Math.hypot(zx, zy), 4), 'acc']];
+  if (p.pot === 'free') rows.push([tr('expected: (1 + σ⁴/ħ²)^−(N−1)/4', 'atteso: (1 + σ⁴/ħ²)^−(N−1)/4'), mfmt(Math.pow(1 + Math.pow(p.sig, 4) / (p.hb * p.hb), -(p.N - 1) / 4), 4), 'hot']);
   else rows.push(['ε = T/N', mfmt(T1 / p.N, 4)]);
   readouts($('r1'), rows);
 }
@@ -598,14 +652,14 @@ function draw2() {
     pl(t => t + p.a * Math.sin(PI * t), P.acc, 1.8);
     ctx.restore();
     ctx.fillStyle = P.mut; ctx.font = '10px ' + MONO; ctx.textAlign = 'right'; ctx.textBaseline = 'top';
-    ctx.fillText(Number.isFinite(xcl2(p, .5)) ? 'tratteggio: x_cl esatta' : '', b.x + b.w - 4, b.y + 3);
+    ctx.fillText(Number.isFinite(xcl2(p, .5)) ? tr('dashed: exact x_cl', 'tratteggio: x_cl esatta') : '', b.x + b.w - 4, b.y + 3);
   }
   const Fe = [Fr[NA - 1], Fi[NA - 1]];
-  const rows = [['punti stazionari a*', st.length ? st.map(s => mfmt(s.a, 3)).join(', ') : 'nessuno in [−A, A]', 'hot'],
+  const rows = [[tr('stationary points a*', 'punti stazionari a*'), st.length ? st.map(s => mfmt(s.a, 3)).join(', ') : tr('none in [−A, A]', 'nessuno in [−A, A]'), 'hot'],
     ['S″(a*)', st.length ? st.map(s => mfmt(s.s2, 3)).join(', ') : '—'],
-    ['|F(A)|, arg  (numerico)', `${mfmt(Math.hypot(...Fe), 4)}, ${mfmt(Math.atan2(Fe[1], Fe[0]) / PI, 3)}π`],
-    ['|I_sp|, arg  (fase staz.)', st.length ? `${mfmt(Math.hypot(C2.Ir, C2.Ii), 4)}, ${mfmt(Math.atan2(C2.Ii, C2.Ir) / PI, 3)}π` : '—', 'hot'],
-    ['S(a) − S_ref al cursore', mfmt(S[ia] - Sref, 4), 'acc']];
+    [tr('|F(A)|, arg  (numerical)', '|F(A)|, arg  (numerico)'), `${mfmt(Math.hypot(...Fe), 4)}, ${mfmt(Math.atan2(Fe[1], Fe[0]) / PI, 3)}π`],
+    [tr('|I_sp|, arg  (stat. phase)', '|I_sp|, arg  (fase staz.)'), st.length ? `${mfmt(Math.hypot(C2.Ir, C2.Ii), 4)}, ${mfmt(Math.atan2(C2.Ii, C2.Ir) / PI, 3)}π` : '—', 'hot'],
+    [tr('S(a) − S_ref at cursor', 'S(a) − S_ref al cursore'), mfmt(S[ia] - Sref, 4), 'acc']];
   readouts($('r2'), rows);
 }
 ['h2', 'v2', 'w2', 'g2', 'a2'].forEach(id => $(id).addEventListener('input', draw2));
@@ -634,7 +688,7 @@ function comp3(p) {
 }
 function draw3() {
   const p = p3(); comp3(p);
-  setOut('L3', p.L); setOut('d3', p.d); setOut('w3', mfmt(p.w, 1) + (p.w < +$('w3').value ? ' (lim. 0.85 d)' : '')); setOut('f3', mfmt(p.f, 2));
+  setOut('L3', p.L); setOut('d3', p.d); setOut('w3', mfmt(p.w, 1) + (p.w < +$('w3').value ? tr(' (capped 0.85 d)', ' (lim. 0.85 d)') : '')); setOut('f3', mfmt(p.f, 2));
   const yS = p.ys * C3.Ymax; setOut('y3', mfmt(yS, 1) + ' λ');
   const { ys, A, B, norm, Ymax } = C3;
   const I = j => { let re = 0, im = 0; if (p.A) { re += A[j][0]; im += A[j][1]; } if (p.B) { re += B[j][0]; im += B[j][1]; } return (re * re + im * im) / norm; };
@@ -662,7 +716,7 @@ function draw3() {
     ctx.fillStyle = P.fg; ctx.beginPath(); ctx.arc(xs0, cy, 4, 0, TAU); ctx.fill();
     ctx.strokeStyle = P.rule; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(xscr + .5, top); ctx.lineTo(xscr + .5, bot); ctx.stroke();
     ctx.fillStyle = P.mut; ctx.font = '10.5px ' + MONO; ctx.textBaseline = 'top'; ctx.textAlign = 'center';
-    ctx.fillText('sorgente', xs0 + 18, bot + 6); ctx.fillText('L₁', (xs0 + xbar) / 2, bot + 6); ctx.fillText('L₂', (xbar + xscr) / 2, bot + 6);
+    ctx.fillText(tr('source', 'sorgente'), xs0 + 18, bot + 6); ctx.fillText('L₁', (xs0 + xbar) / 2, bot + 6); ctx.fillText('L₂', (xbar + xscr) / 2, bot + 6);
     ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; ctx.fillStyle = P.fg;
     ctx.fillText('A', xbar + 6, ySl(p.d / 2 + p.w / 2) - 8); ctx.fillText('B', xbar + 6, ySl(-p.d / 2 - p.w / 2) + 8);
     ctx.fillStyle = P.hot; ctx.fillText('Φ', xbar + 2 * sr + 10, cy);
@@ -693,9 +747,9 @@ function draw3() {
     ctx.fillText('|ψ(y)|² = ' + (zx * zx + zy * zy).toFixed(3), 10, h - 8);
   }
   const fr = p.L / p.d;
-  readouts($('r3'), [['passo delle frange λL/d', mfmt(fr, 1) + ' λ'], ['primo zero inviluppo ≈ λL/w', mfmt(p.L / p.w, 1) + ' λ'],
-    ['numero di Fresnel w²/(λL_eff), L_eff = L/2', mfmt(p.w * p.w / (p.L / 2), 3)], ['fase AB relativa 2πΦ/Φ₀', mfmt(2 * p.f, 2) + 'π', 'hot'],
-    ['traslazione frange (Φ/Φ₀)·λL/d', mfmt(p.f * fr, 1) + ' λ', 'hot'], ['I(y) / I_max classica', mfmt(I(jS), 4), 'acc']]);
+  readouts($('r3'), [[tr('fringe spacing λL/d', 'passo delle frange λL/d'), mfmt(fr, 1) + ' λ'], [tr('first envelope zero ≈ λL/w', 'primo zero inviluppo ≈ λL/w'), mfmt(p.L / p.w, 1) + ' λ'],
+    [tr('Fresnel number w²/(λL_eff), L_eff = L/2', 'numero di Fresnel w²/(λL_eff), L_eff = L/2'), mfmt(p.w * p.w / (p.L / 2), 3)], [tr('relative AB phase 2πΦ/Φ₀', 'fase AB relativa 2πΦ/Φ₀'), mfmt(2 * p.f, 2) + 'π', 'hot'],
+    [tr('fringe shift (Φ/Φ₀)·λL/d', 'traslazione frange (Φ/Φ₀)·λL/d'), mfmt(p.f * fr, 1) + ' λ', 'hot'], [tr('I(y) / classical I_max', 'I(y) / I_max classica'), mfmt(I(jS), 4), 'acc']]);
 }
 ['L3', 'd3', 'w3', 'f3', 'y3', 'A3', 'B3'].forEach(id => $(id).addEventListener('input', draw3));
 (() => { const cv = $('c3a'); const mv = e => { if (!C3.map) return; const r = cv.getBoundingClientRect(), y = e.clientY - r.top, bp = C3.map.bp;
@@ -793,17 +847,17 @@ function draw4() {
     let s = 0, c = 0; for (let l = i1; l <= i2; l++) if (G[l] > 0 && G[l + 1] > 0) { s += Math.log(G[l] / G[l + 1]) / MC.a; c++; } if (c) Eeff = s / c;
   }
   const S0 = (4 / 3) * Math.sqrt(2 * MC.lam) * MC.eta ** 3;
-  const rows = [['β = N a', mfmt(MC.N * MC.a, 2)], ['sweep / accettazione', `${MC.sw} / ${MC.tr ? (100 * MC.acc / MC.tr).toFixed(1) : '—'}%`],
-    ['E₀ viriale (MC)', MC.vN ? mfmt(MC.vir / MC.vN, 4) : '—', 'acc'], ['E₀ esatto', mfmt(MC.ex.E0, 4), 'hot'],
-    ['E₁ − E₀ da G(τ) (MC)', mfmt(Eeff, 3), 'acc'], ['E₁ − E₀ esatto', MC.ex.E1 - MC.ex.E0 < 1e-3 ? (MC.ex.E1 - MC.ex.E0).toExponential(2) : mfmt(MC.ex.E1 - MC.ex.E0, 4), 'hot']];
-  if (MC.pot === 'dw') rows.push(['azione istantone S₀', mfmt(S0, 3)]); else rows.push(['⟨x²⟩ (MC) / esatto ½', MC.vN ? mfmt(MC.x2 / MC.vN, 4) : '—']);
+  const rows = [['β = N a', mfmt(MC.N * MC.a, 2)], [tr('sweeps / acceptance', 'sweep / accettazione'), `${MC.sw} / ${MC.tr ? (100 * MC.acc / MC.tr).toFixed(1) : '—'}%`],
+    [tr('E₀ virial (MC)', 'E₀ viriale (MC)'), MC.vN ? mfmt(MC.vir / MC.vN, 4) : '—', 'acc'], [tr('E₀ exact', 'E₀ esatto'), mfmt(MC.ex.E0, 4), 'hot'],
+    ['E₁ − E₀ da G(τ) (MC)', mfmt(Eeff, 3), 'acc'], [tr('E₁ − E₀ exact', 'E₁ − E₀ esatto'), MC.ex.E1 - MC.ex.E0 < 1e-3 ? (MC.ex.E1 - MC.ex.E0).toExponential(2) : mfmt(MC.ex.E1 - MC.ex.E0, 4), 'hot']];
+  if (MC.pot === 'dw') rows.push([tr('instanton action S₀', 'azione istantone S₀'), mfmt(S0, 3)]); else rows.push([tr('⟨x²⟩ (MC) / exact ½', '⟨x²⟩ (MC) / esatto ½'), MC.vN ? mfmt(MC.x2 / MC.vN, 4) : '—']);
   readouts($('r4'), rows);
 }
 let mcVisible = true, mcRAF = 0;
 function mcLoop() { mcRAF = 0; if (!MC.run || !mcVisible) return; const k = +$('k4').value; for (let i = 0; i < k; i++) mcSweep(); draw4(); mcRAF = requestAnimationFrame(mcLoop); }
 function mcKick() { if (!mcRAF && MC.run && mcVisible) mcRAF = requestAnimationFrame(mcLoop); }
 function mcRestart() { mcReset(); for (let i = 0; i < 600; i++) mcSweep(); draw4(); mcKick(); }
-$('p4').addEventListener('click', () => { MC.run = !MC.run; $('p4').textContent = MC.run ? 'Pausa' : 'Avvia'; $('p4').classList.toggle('on', MC.run); if (!MC.run) draw4(); mcKick(); });
+$('p4').addEventListener('click', () => { MC.run = !MC.run; $('p4').textContent = MC.run ? tr('Pause', 'Pausa') : tr('Run', 'Avvia'); $('p4').classList.toggle('on', MC.run); if (!MC.run) draw4(); mcKick(); });
 $('z4').addEventListener('click', mcRestart);
 ['v4', 'e4', 'N4', 'a4'].forEach(id => $(id).addEventListener('change', mcRestart));
 ['e4', 'N4', 'a4', 'k4'].forEach(id => $(id).addEventListener('input', () => { if (!MC.run) draw4(); else draw4(); }));
@@ -863,9 +917,9 @@ function draw5() {
       if (lam > yhi) { ctx.fillStyle = P.panel; ctx.fillRect(f.X(n) - bwp / 2, f.Y(yhi) + 5, bwp, 2); } }
   }
   const Scl = near ? NaN : ((p.xa ** 2 + p.xb ** 2) * c - 2 * p.xa * p.xb) / (2 * s);
-  readouts($('r5'), [['indice di Morse ν = ⌊ωT/π⌋', near ? 'caustica' : String(nu), 'hot'], ['fase di Maslov −π/4 − νπ/2', near ? '—' : `${mfmt(-(0.25 + nu * 0.5), 2)}π`, 'hot'],
-    ['∂²S/∂x_a∂x_b = −1/sin ωT', near ? '∞' : mfmt(-1 / s, 4)], ['p_a della traiettoria', mfmt(C5.pa, 4)], ['S_cl', mfmt(Scl, 4), 'acc'],
-    ['autovalori λₙ < 0', near ? '—' : String(Array.from({ length: 20 }, (_, i) => ((i + 1) * PI / p.T) ** 2 - 1).filter(v => v < 0).length)]]);
+  readouts($('r5'), [[tr('Morse index ν = ⌊ωT/π⌋', 'indice di Morse ν = ⌊ωT/π⌋'), near ? tr('caustic', 'caustica') : String(nu), 'hot'], [tr('Maslov phase −π/4 − νπ/2', 'fase di Maslov −π/4 − νπ/2'), near ? '—' : `${mfmt(-(0.25 + nu * 0.5), 2)}π`, 'hot'],
+    ['∂²S/∂x_a∂x_b = −1/sin ωT', near ? '∞' : mfmt(-1 / s, 4)], [tr('p_a of the trajectory', 'p_a della traiettoria'), mfmt(C5.pa, 4)], ['S_cl', mfmt(Scl, 4), 'acc'],
+    [tr('eigenvalues λₙ < 0', 'autovalori λₙ < 0'), near ? '—' : String(Array.from({ length: 20 }, (_, i) => ((i + 1) * PI / p.T) ** 2 - 1).filter(v => v < 0).length)]]);
 }
 ['T5', 'xa5', 'xb5'].forEach(id => $(id).addEventListener('input', draw5));
 (() => { const cv = $('c5a'); const mv = e => { if (!C5.map || !(e.buttons & 1)) return; const r = cv.getBoundingClientRect(), { b, yr } = C5.map;
@@ -881,8 +935,28 @@ new ResizeObserver(sched).observe(document.querySelector('.wrap'));
 matchMedia('(prefers-color-scheme: dark)').addEventListener('change', sched);
 new MutationObserver(sched).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme', 'class', 'style'] });
 if (document.fonts && document.fonts.ready) document.fonts.ready.then(sched);
+function setLang(l) {
+  document.documentElement.setAttribute('data-ui', l); document.documentElement.lang = l;
+  try { localStorage.setItem('pi-lang', l); } catch (e) {}
+  document.querySelectorAll('.lang button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.set === l)));
+  document.querySelectorAll('option[data-en]').forEach(o => { o.textContent = o.dataset[l]; });
+  $('p4').textContent = MC.run ? tr('Pause', 'Pausa') : tr('Run', 'Avvia');
+  document.querySelectorAll('#theme button').forEach(b => { b.title = { auto: tr('System theme', 'Tema di sistema'), light: tr('Light', 'Chiaro'), dark: tr('Dark', 'Scuro') }[b.dataset.themeSet]; b.setAttribute('aria-label', b.title); });
+  sched();
+}
+document.querySelectorAll('.lang button').forEach(b => b.addEventListener('click', () => setLang(b.dataset.set)));
+function setTheme(t) {
+  const root = document.documentElement;
+  if (t === 'light' || t === 'dark') root.setAttribute('data-theme', t); else root.removeAttribute('data-theme');
+  try { t === 'auto' ? localStorage.removeItem('pi-theme') : localStorage.setItem('pi-theme', t); } catch (e) {}
+  document.querySelectorAll('#theme button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.themeSet === t)));
+}
+document.querySelectorAll('#theme button').forEach(b => {
+  b.addEventListener('click', () => setTheme(b.dataset.themeSet)); });
+{ const t0 = document.documentElement.getAttribute('data-theme'); setTheme(t0 === 'light' || t0 === 'dark' ? t0 : 'auto'); }
 readPal(); mcReset(); for (let i = 0; i < 600; i++) mcSweep();
-$('p4').textContent = MC.run ? 'Pausa' : 'Avvia'; $('p4').classList.toggle('on', MC.run);
+$('p4').textContent = MC.run ? tr('Pause', 'Pausa') : tr('Run', 'Avvia'); $('p4').classList.toggle('on', MC.run);
 drawAll(); mcKick();
+setLang(document.documentElement.getAttribute('data-ui') === 'it' ? 'it' : 'en');
 })();
 </script>

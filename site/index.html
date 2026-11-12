@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Physics Artifacts</title>
+<meta name="description" content="Interactive physics explainers that run in the browser.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<script>
+(function(){var r=document.documentElement,l='en',t=null;try{var v=localStorage.getItem('pi-lang');if(v==='it'||v==='en')l=v;t=localStorage.getItem('pi-theme');}catch(e){}r.setAttribute('data-ui',l);r.lang=l;if(t==='dark'||t==='light')r.setAttribute('data-theme',t);})();
+</script>
+<style>
+:root {
+  --bg: #f5f6f7; --panel: #ffffff; --fg: #14171c; --muted: #5b6371; --rule: #d3d8de; --accent: #2443bd;
+  --sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --bg: #0c0e12; --panel: #13161c; --fg: #e3e6eb; --muted: #8b94a3; --rule: #2a2f39; --accent: #8099ff; color-scheme: dark; }
+}
+:root[data-theme="dark"] { --bg: #0c0e12; --panel: #13161c; --fg: #e3e6eb; --muted: #8b94a3; --rule: #2a2f39; --accent: #8099ff; color-scheme: dark; }
+* { box-sizing: border-box; }
+html[data-ui="it"] [data-l="en"], html:not([data-ui="it"]) [data-l="it"] { display: none !important; }
+body {
+  margin: 0; background: var(--bg); color: var(--fg); font-family: var(--sans); font-size: 15.5px; line-height: 1.6;
+  padding: 40px max(16px, env(safe-area-inset-right, 0px)) 64px max(16px, env(safe-area-inset-left, 0px));
+  -webkit-font-smoothing: antialiased;
+}
+.wrap { max-width: 960px; margin: 0 auto; display: flex; flex-direction: column; gap: 40px; }
+.topbar { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+.eyebrow { font-family: var(--mono); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.tools { display: inline-flex; gap: 10px; flex-wrap: wrap; }
+.seg { display: inline-flex; border: 1px solid var(--rule); border-radius: 3px; overflow: hidden; font: 500 12px var(--mono); }
+.seg button { border: 0; background: transparent; color: var(--muted); padding: 5px 12px; cursor: pointer; font: inherit; letter-spacing: .06em; }
+.seg button + button { border-left: 1px solid var(--rule); }
+.seg button[aria-pressed="true"] { background: var(--accent); color: var(--panel); }
+header { display: flex; flex-direction: column; gap: 14px; }
+h1 { font-size: clamp(28px, 4vw, 40px); line-height: 1.12; font-weight: 600; margin: 0; letter-spacing: -.01em; }
+.lead { margin: 0; max-width: 68ch; font-size: 17px; }
+.list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; border-top: 1px solid var(--rule); }
+.card { border-bottom: 1px solid var(--rule); }
+.card a { display: grid; grid-template-columns: 1fr auto; gap: 6px 24px; padding: 22px 4px; color: inherit; text-decoration: none; }
+.card a:hover h2, .card a:focus-visible h2 { color: var(--accent); }
+.card h2 { grid-column: 1; margin: 0; font-size: 21px; font-weight: 600; letter-spacing: -.005em; }
+.card p { grid-column: 1; margin: 0; max-width: 70ch; color: var(--muted); font-size: 14.5px; }
+.card .meta { grid-column: 2; grid-row: 1 / span 2; align-self: center; font: 12px var(--mono); color: var(--muted); text-align: right; white-space: nowrap; }
+.card .go { color: var(--accent); }
+footer { font: 12.5px var(--mono); color: var(--muted); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+@media (max-width: 640px) {
+  body { padding-top: 24px; }
+  .card a { grid-template-columns: 1fr; }
+  .card .meta { grid-column: 1; grid-row: auto; text-align: left; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="topbar">
+      <div class="eyebrow"><span data-l="en">Interactive physics · runs in the browser</span><span data-l="it">Fisica interattiva · eseguita nel browser</span></div>
+      <div class="tools">
+        <div class="seg" id="theme" role="group" aria-label="Theme / Tema">
+          <button type="button" data-theme-set="auto" aria-pressed="true">AUTO</button>
+          <button type="button" data-theme-set="light" aria-pressed="false">☀</button>
+          <button type="button" data-theme-set="dark" aria-pressed="false">☾</button>
+        </div>
+        <div class="seg" id="lang" role="group" aria-label="Language / Lingua">
+          <button type="button" data-set="en" aria-pressed="true">EN</button>
+          <button type="button" data-set="it" aria-pressed="false">IT</button>
+        </div>
+      </div>
+    </div>
+    <h1><span data-l="en">Physics Artifacts</span><span data-l="it">Artefatti di fisica</span></h1>
+    <p class="lead" data-l="en">Interactive explainers for an expert audience. Every figure is computed live from the formulas stated in the text.</p>
+    <p class="lead" data-l="it">Spiegazioni interattive per un pubblico esperto. Ogni figura è calcolata in tempo reale dalle formule riportate nel testo.</p>
+  </header>
+
+  <ul class="list">
+<!-- ARTIFACTS -->
+  </ul>
+
+  <footer><span data-l="en">All computations run in the browser. Preferences for language and theme are shared across pages.</span><span data-l="it">Tutti i calcoli sono eseguiti nel browser. Le preferenze di lingua e tema valgono per tutte le pagine.</span></footer>
+</div>
+<script>
+(() => {
+  const root = document.documentElement;
+  const tr = (en, it) => root.getAttribute('data-ui') === 'it' ? it : en;
+  function setTheme(t) {
+    if (t === 'light' || t === 'dark') root.setAttribute('data-theme', t); else root.removeAttribute('data-theme');
+    try { t === 'auto' ? localStorage.removeItem('pi-theme') : localStorage.setItem('pi-theme', t); } catch (e) {}
+    document.querySelectorAll('#theme button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.themeSet === t)));
+  }
+  function setLang(l) {
+    root.setAttribute('data-ui', l); root.lang = l;
+    try { localStorage.setItem('pi-lang', l); } catch (e) {}
+    document.querySelectorAll('#lang button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.set === l)));
+    document.querySelectorAll('#theme button').forEach(b => { b.title = { auto: tr('System theme', 'Tema di sistema'), light: tr('Light', 'Chiaro'), dark: tr('Dark', 'Scuro') }[b.dataset.themeSet]; b.setAttribute('aria-label', b.title); });
+  }
+  document.querySelectorAll('#theme button').forEach(b => b.addEventListener('click', () => setTheme(b.dataset.themeSet)));
+  document.querySelectorAll('#lang button').forEach(b => b.addEventListener('click', () => setLang(b.dataset.set)));
+  const t0 = root.getAttribute('data-theme'); setTheme(t0 === 'light' || t0 === 'dark' ? t0 : 'auto');
+  setLang(root.getAttribute('data-ui') === 'it' ? 'it' : 'en');
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,866 @@
+<title>Spin Glasses Explained</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
+<script>
+(function(){var l='en';try{var v=localStorage.getItem('pi-lang');if(v==='it'||v==='en')l=v;}catch(e){}document.documentElement.setAttribute('data-ui',l);document.documentElement.lang=l;var t=null;try{t=localStorage.getItem('pi-theme');}catch(e){}if(t==='dark'||t==='light')document.documentElement.setAttribute('data-theme',t);})();
+window.MathJax = {
+  tex: { inlineMath: [['\\(', '\\)']], displayMath: [['\\[', '\\]']] },
+  svg: { fontCache: 'global' }
+};
+</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-svg.js"></script>
+<style>
+:root {
+  --bg: #f4f3ee;
+  --panel: #fcfbf8;
+  --fg: #141413;
+  --muted: #67655d;
+  --rule: #dddacf;
+  --grid: #ebe8df;
+  --accent: #b9542f;
+  --hot: #2e66a3;
+  --teal: #2f7a68;
+  --phaseL: 48%;
+  --sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #1f1e1c; --panel: #292826; --fg: #eceae3; --muted: #a29f96; --rule: #3e3c38; --grid: #33312e;
+    --accent: #e28a68; --hot: #74a9e0; --teal: #5dc1ac; --phaseL: 62%; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #1f1e1c; --panel: #292826; --fg: #eceae3; --muted: #a29f96; --rule: #3e3c38; --grid: #33312e;
+  --accent: #e28a68; --hot: #74a9e0; --teal: #5dc1ac; --phaseL: 62%; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html[data-ui="it"] [data-l="en"], html:not([data-ui="it"]) [data-l="it"] { display: none !important; }
+.topbar { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+.tools { display: inline-flex; gap: 10px; flex-wrap: wrap; }
+.lang, .seg { display: inline-flex; border: 1px solid var(--rule); border-radius: 3px; overflow: hidden; font: 500 12px var(--mono); }
+.lang button, .seg button { border: 0; background: transparent; color: var(--muted); padding: 5px 12px; cursor: pointer; font: inherit; letter-spacing: .06em; }
+.lang button + button, .seg button + button { border-left: 1px solid var(--rule); }
+.lang button[aria-pressed="true"], .seg button[aria-pressed="true"] { background: var(--accent); color: var(--panel); }
+body {
+  background: var(--bg); color: var(--fg);
+  font-family: var(--sans); font-size: 15.5px; line-height: 1.6;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 40px 64px;
+  -webkit-font-smoothing: antialiased;
+}
+.wrap { max-width: 1160px; margin: 0 auto; display: flex; flex-direction: column; gap: 56px; }
+header { display: flex; flex-direction: column; gap: 14px; }
+.eyebrow { font-family: var(--mono); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+h1 { font-size: clamp(28px, 4vw, 40px); line-height: 1.12; font-weight: 600; margin: 0; letter-spacing: -.01em; text-wrap: balance; }
+h2 { font-size: 22px; font-weight: 600; margin: 0; letter-spacing: -.005em; text-wrap: balance; display: flex; gap: 14px; align-items: baseline; }
+h2 .n { font-family: var(--mono); font-weight: 400; font-size: 14px; color: var(--accent); }
+h3 { font-size: 13px; font-family: var(--mono); font-weight: 500; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); margin: 0; }
+p { margin: 0; max-width: 70ch; }
+.lead { font-size: 17px; color: var(--fg); max-width: 72ch; }
+.prose { display: flex; flex-direction: column; gap: 12px; }
+.eq { overflow-x: auto; overflow-y: hidden; padding: 6px 0; max-width: 100%; }
+mjx-container { color: var(--fg); }
+mjx-container[display="true"] { margin: 0.4em 0 !important; }
+section { display: flex; flex-direction: column; gap: 18px; border-top: 1px solid var(--rule); padding-top: 28px; }
+.keys { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); background: var(--panel); border: 1px solid var(--rule); border-width: 1px 0 0 1px; }
+.keys div { border: solid var(--rule); border-width: 0 1px 1px 0; padding: 14px 16px; display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.keys b { font-family: var(--mono); font-weight: 500; font-size: 12px; color: var(--accent); }
+.keys span { font-size: 14px; color: var(--muted); }
+
+.fig { background: var(--panel); border: 1px solid var(--rule); display: flex; flex-direction: column; }
+.fig-grid { display: grid; gap: 1px; background: var(--rule); }
+.fig-grid > * { background: var(--panel); min-width: 0; }
+.g-2-1 { grid-template-columns: 2fr 1fr; }
+.g-3-2 { grid-template-columns: 3fr 2fr; }
+.col { display: flex; flex-direction: column; gap: 1px; background: var(--rule); }
+.col > * { background: var(--panel); }
+.pane { position: relative; padding: 10px 12px 8px; display: flex; flex-direction: column; gap: 6px; }
+.pane h3 { font-size: 11px; }
+.cv { position: relative; width: 100%; }
+.cv canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; }
+.cv.grow { flex: 1 1 auto; }
+.sq { aspect-ratio: 1 / 1; max-width: 100%; }
+.cap { font-size: 13px; color: var(--muted); padding: 10px 14px; border-top: 1px solid var(--rule); max-width: none; }
+.cap b { color: var(--fg); font-weight: 500; }
+
+.ctl { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px 22px; padding: 14px 16px; border-top: 1px solid var(--rule); }
+.ctl label { display: flex; flex-direction: column; gap: 4px; font-size: 12.5px; color: var(--muted); min-width: 0; }
+.ctl .row { display: flex; justify-content: space-between; gap: 8px; }
+.ctl output { font-family: var(--mono); font-size: 12px; color: var(--fg); font-variant-numeric: tabular-nums; }
+.ctl input[type=range] { width: 100%; accent-color: var(--accent); margin: 0; }
+.ctl select, .ctl button {
+  font: 500 12.5px var(--mono); color: var(--fg); background: var(--bg);
+  border: 1px solid var(--rule); padding: 6px 10px; border-radius: 3px; cursor: pointer;
+}
+.ctl button:hover, .ctl select:hover { border-color: var(--accent); }
+.ctl button.on { background: var(--accent); color: var(--panel); border-color: var(--accent); }
+.ctl .chk { flex-direction: row; align-items: center; gap: 8px; color: var(--fg); }
+.ctl .chk input { accent-color: var(--accent); margin: 0; }
+.ctl .btns { display: flex; gap: 8px; flex-wrap: wrap; align-items: flex-end; flex-direction: row; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.ro { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); background: var(--panel); border-top: 1px solid var(--rule); margin: 0; }
+.ro div { border: solid var(--rule); border-width: 0 1px 1px 0; padding: 9px 14px; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.ro dt { font-size: 11.5px; color: var(--muted); }
+.ro dd { margin: 0; font-family: var(--mono); font-size: 13.5px; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.ro dd.hot { color: var(--hot); }
+.ro dd.acc { color: var(--accent); }
+
+.legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-family: var(--mono); font-size: 11.5px; color: var(--muted); }
+.legend i { display: inline-block; width: 16px; height: 2px; vertical-align: middle; margin-right: 6px; background: currentColor; }
+.l-acc { color: var(--accent); } .l-hot { color: var(--hot); } .l-teal { color: var(--teal); } .l-fg { color: var(--fg); } .l-mut { color: var(--muted); }
+.phbar { display: inline-block; width: 64px; height: 8px; vertical-align: middle; margin-right: 6px; border-radius: 1px; }
+
+.refs { font-size: 13.5px; color: var(--muted); display: flex; flex-direction: column; gap: 6px; padding-left: 1.2em; margin: 0; }
+.refs li { max-width: 90ch; }
+footer { font-size: 12.5px; color: var(--muted); font-family: var(--mono); }
+
+@media (max-width: 820px) {
+  .g-2-1, .g-3-2 { grid-template-columns: 1fr; }
+  body { font-size: 15px; padding-block: 24px 48px; }
+}
+.col > .pane:last-child { flex: 1 1 auto; }
+.ex { background: var(--panel); border: 1px solid var(--rule); border-left: 3px solid var(--accent); padding: 12px 16px; display: flex; flex-direction: column; gap: 6px; max-width: 76ch; }
+.ex b.t { font: 500 11.5px var(--mono); letter-spacing: .07em; text-transform: uppercase; color: var(--accent); }
+.ex p { max-width: none; }
+.short { border-left: 3px solid var(--teal); padding: 2px 0 2px 14px; max-width: 72ch; }
+.short b { color: var(--teal); font-weight: 600; }
+.xlink { font: 13px var(--mono); color: var(--muted); }
+.xlink a { color: var(--accent); }
+.apps { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1px; background: var(--rule); border: 1px solid var(--rule); }
+.apps div { background: var(--panel); padding: 14px 16px; display: flex; flex-direction: column; gap: 6px; }
+.apps b { font-weight: 600; }
+.apps span { font-size: 14px; color: var(--muted); }
+</style>
+
+<div class="wrap">
+
+<header>
+  <div class="topbar">
+    <div class="eyebrow"><span data-l="en">Popular science · statistical physics · Nobel Prize 2021</span><span data-l="it">Divulgazione · fisica statistica · Premio Nobel 2021</span></div>
+    <div class="tools">
+      <div class="seg" id="theme" role="group" aria-label="Theme / Tema">
+        <button type="button" data-theme-set="auto" aria-pressed="true">AUTO</button>
+        <button type="button" data-theme-set="light" aria-pressed="false">☀</button>
+        <button type="button" data-theme-set="dark" aria-pressed="false">☾</button>
+      </div>
+      <div class="lang" role="group" aria-label="Language / Lingua">
+        <button type="button" id="lang-en" data-set="en" aria-pressed="true">EN</button>
+        <button type="button" id="lang-it" data-set="it" aria-pressed="false">IT</button>
+      </div>
+    </div>
+  </div>
+  <h1><span data-l="en">Spin glasses and Parisi's broken symmetry</span><span data-l="it">I vetri di spin e la simmetria rotta di Parisi</span></h1>
+  <p class="lead" data-l="en">In 2021 Giorgio Parisi received the Nobel Prize in Physics “for the discovery of the interplay of disorder and fluctuations in physical systems from atomic to planetary scales”. The core of that work is the solution, found in 1979, of a model of a strange magnet: the spin glass. This page explains what it is about, step by step, with five small experiments you can run in the browser. Nothing in the figures is drawn by hand: every number comes from a real calculation.</p>
+  <p class="lead" data-l="it">Nel 2021 Giorgio Parisi ha ricevuto il Premio Nobel per la Fisica “per la scoperta dell'interazione tra disordine e fluttuazioni nei sistemi fisici, dalla scala atomica a quella planetaria”. Il cuore di quel lavoro è la soluzione, trovata nel 1979, di un modello di uno strano magnete: il vetro di spin. Questa pagina spiega di che cosa si tratta, un passo alla volta, con cinque piccoli esperimenti che si possono eseguire nel browser. Nulla nelle figure è disegnato a mano: ogni numero viene da un calcolo vero.</p>
+  <p data-l="en">A magnet is made of a huge number of tiny compass needles, the <i>spins</i> of the atoms. In iron neighbouring spins like to point the same way; below a certain temperature they all line up and the material becomes magnetic. That is a simple kind of order, described by one number, the magnetization. Now dissolve a few atoms of manganese in copper. The interaction between two manganese atoms changes sign with their distance: some pairs want to be parallel, others antiparallel, at random. Cooled down, the spins freeze in directions that look random, with no net magnetization, yet they no longer move. Like the atoms in window glass, disorder is frozen in place: hence the name <i>spin glass</i>. The question Parisi answered is how to describe the order of something that looks completely disordered.</p>
+  <p data-l="it">Un magnete è fatto di un numero enorme di minuscoli aghi di bussola, gli <i>spin</i> degli atomi. Nel ferro gli spin vicini preferiscono puntare nello stesso verso; sotto una certa temperatura si allineano tutti e il materiale diventa magnetico. È un tipo semplice di ordine, descritto da un solo numero, la magnetizzazione. Si sciolgano ora pochi atomi di manganese nel rame. L'interazione tra due atomi di manganese cambia segno con la distanza: alcune coppie vogliono essere parallele, altre antiparallele, a caso. Raffreddati, gli spin si congelano in direzioni che sembrano casuali, senza magnetizzazione totale, eppure non si muovono più. Come gli atomi nel vetro di una finestra, il disordine resta congelato sul posto: da qui il nome <i>vetro di spin</i>. La domanda a cui Parisi ha risposto è come descrivere l'ordine di qualcosa che sembra del tutto disordinato.</p>
+  <div class="keys">
+    <div><b><span data-l="en">1 Frustration</span><span data-l="it">1 Frustrazione</span></b><span data-l="en">Not every pair can be satisfied at once.</span><span data-l="it">Non tutte le coppie possono essere accontentate insieme.</span></div>
+    <div><b><span data-l="en">2 Many valleys</span><span data-l="it">2 Tante valli</span></b><span data-l="en">Each cooling ends in a different low-energy state.</span><span data-l="it">Ogni raffreddamento finisce in uno stato diverso.</span></div>
+    <div><b><span data-l="en">3 Copies and overlap</span><span data-l="it">3 Copie e sovrapposizione</span></b><span data-l="en">Order is measured by comparing two copies.</span><span data-l="it">L'ordine si misura confrontando due copie.</span></div>
+    <div><b><span data-l="en">4 A family tree</span><span data-l="it">4 Un albero genealogico</span></b><span data-l="en">The states form a hierarchy: ultrametricity.</span><span data-l="it">Gli stati formano una gerarchia: ultrametricità.</span></div>
+    <div><b><span data-l="en">5 A function, not a number</span><span data-l="it">5 Una funzione, non un numero</span></b><span data-l="en">Parisi's order parameter q(x).</span><span data-l="it">Il parametro d'ordine di Parisi q(x).</span></div>
+  </div>
+  <p class="xlink"><span data-l="en">Technical version for specialists: </span><span data-l="it">Versione tecnica per specialisti: </span><a href="https://marcomauro.github.io/physics-artifact/replica-symmetry-breaking/"><span data-l="en">Parisi replica symmetry breaking →</span><span data-l="it">Rottura della simmetria di replica di Parisi →</span></a></p>
+</header>
+
+<!-- 1 -->
+<section id="sec1">
+  <h2><span class="n">1</span><span data-l="en">Frustration: you cannot please everyone</span><span data-l="it">Frustrazione: non si può accontentare tutti</span></h2>
+  <div class="prose" data-l="en">
+    <p>Each pair of spins is joined by a bond of one of two kinds. A <b>friendly</b> bond (F) is satisfied when the two spins point the same way; a <b>hostile</b> bond (A, for antiparallel) is satisfied when they point in opposite directions. Every satisfied bond lowers the energy by one unit, every violated bond raises it by one. The system would like to satisfy all of them.</p>
+    <p>Sometimes that is impossible. Go around a closed loop of bonds: if the number of hostile bonds on it is odd, no arrangement of the spins satisfies the whole loop. Physicists call such a loop <b>frustrated</b>. The check is simple: give each friendly bond the sign + and each hostile bond the sign −; the loop is frustrated when the product of the signs is negative.</p>
+  </div>
+  <div class="prose" data-l="it">
+    <p>Ogni coppia di spin è unita da un legame di uno di due tipi. Un legame <b>amichevole</b> (F) è soddisfatto quando i due spin puntano nello stesso verso; un legame <b>ostile</b> (A, da antiparallelo) è soddisfatto quando puntano in versi opposti. Ogni legame soddisfatto abbassa l'energia di un'unità, ogni legame violato la alza di uno. Il sistema vorrebbe soddisfarli tutti.</p>
+    <p>A volte è impossibile. Si percorra un anello chiuso di legami: se il numero di legami ostili è dispari, nessuna disposizione degli spin soddisfa tutto l'anello. I fisici chiamano un anello così <b>frustrato</b>. La verifica è semplice: si dia a ogni legame amichevole il segno + e a ogni legame ostile il segno −; l'anello è frustrato quando il prodotto dei segni è negativo.</p>
+  </div>
+  <div class="ex" data-l="en"><b class="t">Example</b><p>Three people who all dislike each other must be split between two rooms. Whatever you do, two of them end up in the same room: at least one pair is unhappy. There are 8 ways to assign the rooms; 6 of them leave exactly one unhappy pair, and they are all equally good. Frustration does two things at once: it makes the perfect solution impossible, and it creates many equivalent compromises.</p></div>
+  <div class="ex" data-l="it"><b class="t">Esempio</b><p>Tre persone che si detestano a vicenda devono essere divise tra due stanze. Comunque si faccia, due di loro finiscono nella stessa stanza: almeno una coppia è scontenta. Ci sono 8 modi di assegnare le stanze; 6 lasciano esattamente una coppia scontenta, e sono tutti ugualmente buoni. La frustrazione fa due cose insieme: rende impossibile la soluzione perfetta e crea molti compromessi equivalenti.</p></div>
+  <div class="fig">
+    <div class="fig-grid g-3-2">
+      <div class="pane">
+        <h3><span data-l="en">Click a spin to flip it, click a bond to change its kind</span><span data-l="it">Clicca uno spin per invertirlo, un legame per cambiarne il tipo</span></h3>
+        <div class="cv grow" style="min-height:340px"><canvas id="c1a" aria-label="Interactive loop of spins and bonds"></canvas></div>
+        <div class="legend"><span class="l-teal"><i></i><span data-l="en">satisfied bond</span><span data-l="it">legame soddisfatto</span></span><span class="l-acc"><i></i><span data-l="en">violated bond</span><span data-l="it">legame violato</span></span><span class="l-mut">F = <span data-l="en">friendly</span><span data-l="it">amichevole</span> · A = <span data-l="en">hostile</span><span data-l="it">ostile</span></span></div>
+      </div>
+      <div class="pane">
+        <h3><span data-l="en">All arrangements, from lowest to highest energy</span><span data-l="it">Tutte le disposizioni, dall'energia più bassa alla più alta</span></h3>
+        <div class="cv grow" style="min-height:340px"><canvas id="c1b" aria-label="All configurations sorted by energy"></canvas></div>
+      </div>
+    </div>
+    <div class="ctl">
+      <label for="g1"><span class="row"><span><span data-l="en">loop</span><span data-l="it">anello</span></span></span>
+        <select id="g1"><option value="3" data-en="triangle (3 spins)" data-it="triangolo (3 spin)">triangle (3 spins)</option><option value="4" data-en="square (4 spins)" data-it="quadrato (4 spin)">square (4 spins)</option></select></label>
+      <div class="btns"><button id="b1a" type="button"><span data-l="en">All hostile</span><span data-l="it">Tutti ostili</span></button><button id="b1f" type="button"><span data-l="en">All friendly</span><span data-l="it">Tutti amichevoli</span></button></div>
+    </div>
+    <dl class="ro" id="r1"></dl>
+  </div>
+  <p class="short" data-l="en"><b>In short.</b> In a spin glass the bonds are friendly or hostile at random, so frustrated loops are everywhere. There is no arrangement that satisfies everybody, and there are very many arrangements that are almost equally good.</p>
+  <p class="short" data-l="it"><b>In breve.</b> In un vetro di spin i legami sono amichevoli od ostili a caso, quindi gli anelli frustrati sono ovunque. Non esiste una disposizione che accontenti tutti, ed esistono moltissime disposizioni quasi ugualmente buone.</p>
+</section>
+
+<!-- 2 -->
+<section id="sec2">
+  <h2><span class="n">2</span><span data-l="en">A landscape with many valleys</span><span data-l="it">Un paesaggio con tante valli</span></h2>
+  <div class="prose" data-l="en">
+    <p>Think of the energy of all possible arrangements as a landscape: each point is an arrangement, its height is the energy. For a ferromagnet the landscape is a single large bowl with two lowest points, all spins up or all spins down. For a spin glass, frustration crumples the landscape into a mountain range with an enormous number of valleys of similar depth, separated by high passes. Counting only the arrangements that cannot be improved by flipping a single spin, their number grows like \(e^{0.2N}\) with the number of spins \(N\): for a thousand spins, about \(10^{86}\).</p>
+    <p>The figure uses the model that Parisi solved, introduced by Sherrington and Kirkpatrick in 1975: every spin interacts with every other spin, with a random strength that is friendly or hostile with equal probability. It cools the same sample six times, starting each time from a different random arrangement and lowering the temperature slowly. At every step a spin is flipped if this lowers the energy, and sometimes even if it raises it, with a probability that decreases as the temperature drops (the Metropolis rule). This is how the material itself explores its landscape.</p>
+  </div>
+  <div class="prose" data-l="it">
+    <p>Si immagini l'energia di tutte le disposizioni possibili come un paesaggio: ogni punto è una disposizione, la sua altezza è l'energia. Per un ferromagnete il paesaggio è un'unica grande conca con due punti più bassi, tutti gli spin in su o tutti in giù. Per un vetro di spin la frustrazione accartoccia il paesaggio in una catena montuosa con un numero enorme di valli di profondità simile, separate da passi elevati. Contando solo le disposizioni che non si possono migliorare invertendo un singolo spin, il loro numero cresce come \(e^{0.2N}\) con il numero di spin \(N\): per mille spin, circa \(10^{86}\).</p>
+    <p>La figura usa il modello risolto da Parisi, introdotto da Sherrington e Kirkpatrick nel 1975: ogni spin interagisce con tutti gli altri, con un'intensità casuale che è amichevole od ostile con uguale probabilità. Raffredda lo stesso campione sei volte, partendo ogni volta da una disposizione casuale diversa e abbassando lentamente la temperatura. A ogni passo uno spin viene invertito se questo abbassa l'energia, e talvolta anche se la alza, con una probabilità che diminuisce al calare della temperatura (la regola di Metropolis). È così che il materiale stesso esplora il suo paesaggio.</p>
+  </div>
+  <div class="ex" data-l="en"><b class="t">Example</b><p>Pour a bag of marbles on a hilly field: each marble stops in the nearest hollow, and different marbles stop in different hollows. Switch the figure to <b>ferromagnet</b>: all six coolings end in the same state, up to flipping every spin (similarity |q| = 1). Switch back to <b>spin glass</b>: each run stops in a different valley, with different energies. Cooling more slowly gives each run more time to escape shallow valleys, as in the annealing of metals, but even very slow cooling does not bring the runs to the same state.</p></div>
+  <div class="ex" data-l="it"><b class="t">Esempio</b><p>Si rovesci un sacchetto di biglie su un prato collinoso: ogni biglia si ferma nella conca più vicina, e biglie diverse si fermano in conche diverse. Si passi la figura a <b>ferromagnete</b>: tutti e sei i raffreddamenti finiscono nello stesso stato, a meno di invertire tutti gli spin (somiglianza |q| = 1). Si torni a <b>vetro di spin</b>: ogni corsa si ferma in una valle diversa, con energie diverse. Raffreddare più lentamente dà a ogni corsa più tempo per uscire dalle valli poco profonde, come nella ricottura dei metalli, ma anche un raffreddamento molto lento non porta le corse allo stesso stato.</p></div>
+  <div class="fig">
+    <div class="fig-grid g-3-2">
+      <div class="pane">
+        <h3><span data-l="en">Energy per spin during six coolings of the same sample</span><span data-l="it">Energia per spin durante sei raffreddamenti dello stesso campione</span></h3>
+        <div class="cv grow" style="min-height:360px"><canvas id="c2a" aria-label="Energy during cooling for six runs"></canvas></div>
+        <div class="legend"><span class="l-mut"><span data-l="en">temperature falls from 2 to 0.05 from left to right</span><span data-l="it">la temperatura scende da 2 a 0.05 da sinistra a destra</span></span></div>
+      </div>
+      <div class="col">
+        <div class="pane">
+          <h3><span data-l="en">Similarity |q| between the final states</span><span data-l="it">Somiglianza |q| tra gli stati finali</span></h3>
+          <div class="cv sq" style="max-height:230px"><canvas id="c2b" aria-label="Similarity between final states"></canvas></div>
+        </div>
+        <div class="pane">
+          <h3><span data-l="en">Final energy of each run</span><span data-l="it">Energia finale di ogni corsa</span></h3>
+          <div class="cv" style="height:130px"><canvas id="c2c" aria-label="Final energies"></canvas></div>
+        </div>
+      </div>
+    </div>
+    <div class="ctl">
+      <label for="m2"><span class="row"><span><span data-l="en">material</span><span data-l="it">materiale</span></span></span>
+        <select id="m2"><option value="sg" data-en="spin glass" data-it="vetro di spin">spin glass</option><option value="fm" data-en="ferromagnet" data-it="ferromagnete">ferromagnet</option></select></label>
+      <label for="n2"><span class="row"><span><span data-l="en">spins N</span><span data-l="it">spin N</span></span><output for="n2" id="o_n2"></output></span><input type="range" id="n2" min="32" max="160" step="16" value="96"></label>
+      <label for="s2"><span class="row"><span><span data-l="en">cooling time (sweeps)</span><span data-l="it">tempo di raffreddamento (passate)</span></span><output for="s2" id="o_s2"></output></span><input type="range" id="s2" min="1.7" max="3.7" step="0.05" value="2.7"></label>
+      <div class="btns"><button id="b2c" type="button"><span data-l="en">Cool again</span><span data-l="it">Raffredda di nuovo</span></button><button id="b2n" type="button"><span data-l="en">New sample</span><span data-l="it">Nuovo campione</span></button></div>
+    </div>
+    <dl class="ro" id="r2"></dl>
+    <p class="cap" data-l="en">A sweep is one attempted flip per spin. Bond strengths are Gaussian with variance 1/N, so the energy per spin stays finite as N grows; the lowest possible value for N → ∞ is −0.763 (Parisi). For the ferromagnet every bond is 1/N and the lowest value is −0.5.</p>
+    <p class="cap" data-l="it">Una passata è un tentativo di inversione per ogni spin. Le intensità dei legami sono gaussiane con varianza 1/N, quindi l'energia per spin resta finita al crescere di N; il valore più basso possibile per N → ∞ è −0.763 (Parisi). Per il ferromagnete ogni legame vale 1/N e il valore più basso è −0.5.</p>
+  </div>
+  <p class="short" data-l="en"><b>In short.</b> A spin glass has a huge number of stable states that are unrelated to each other. Which one the system reaches depends on its history. This is why spin glasses show slow dynamics and “memory” effects in experiments.</p>
+  <p class="short" data-l="it"><b>In breve.</b> Un vetro di spin ha un numero enorme di stati stabili che non si somigliano tra loro. Quale raggiunga il sistema dipende dalla sua storia. Per questo negli esperimenti i vetri di spin mostrano dinamiche lente ed effetti di “memoria”.</p>
+</section>
+
+<!-- 3 -->
+<section id="sec3">
+  <h2><span class="n">3</span><span data-l="en">Two copies and their overlap</span><span data-l="it">Due copie e la loro sovrapposizione</span></h2>
+  <div class="prose" data-l="en">
+    <p>If the frozen arrangement looks random, how can we tell that there is order? Parisi's idea, which is at the heart of the <i>replica method</i>, is to compare. Take two identical copies of the same sample, with the same bonds, let them reach equilibrium independently at the same temperature, and count how many spins point the same way in both. The <b>overlap</b> is</p>
+    <div class="eq">\[ q=\frac{(\text{spins that agree})-(\text{spins that disagree})}{N}, \]</div>
+    <p>between −1 and 1. At high temperature the copies are unrelated and \(q\) is close to 0. In a frozen ferromagnet both copies are almost fully aligned and \(q\) is close to ±1. In a spin glass at low temperature something new happens: sometimes the two copies end up in the same valley and \(q\) is large; sometimes they end up in different valleys and \(q\) takes intermediate values. The whole histogram of \(q\), called \(P(q)\), is the order parameter of the spin glass. Flipping every spin does not change the energy, so \(q\) and \(-q\) are equivalent and the histogram is symmetric.</p>
+    <p>The histogram also depends on the particular sample: two pieces of the same alloy, with bonds drawn from the same rules, have different \(P(q)\). Physicists say that the order parameter is <b>not self-averaging</b>. For a ferromagnet the magnetization is the same in every piece of iron.</p>
+  </div>
+  <div class="prose" data-l="it">
+    <p>Se la disposizione congelata sembra casuale, come si fa a dire che c'è un ordine? L'idea di Parisi, che sta al cuore del <i>metodo delle repliche</i>, è confrontare. Si prendano due copie identiche dello stesso campione, con gli stessi legami, le si lasci arrivare all'equilibrio in modo indipendente alla stessa temperatura, e si conti quanti spin puntano nello stesso verso in entrambe. La <b>sovrapposizione</b> è</p>
+    <div class="eq">\[ q=\frac{(\text{spin concordi})-(\text{spin discordi})}{N}, \]</div>
+    <p>compresa tra −1 e 1. Ad alta temperatura le copie non hanno relazione e \(q\) è vicino a 0. In un ferromagnete congelato entrambe le copie sono quasi del tutto allineate e \(q\) è vicino a ±1. In un vetro di spin a bassa temperatura succede qualcosa di nuovo: a volte le due copie finiscono nella stessa valle e \(q\) è grande; a volte finiscono in valli diverse e \(q\) assume valori intermedi. L'intero istogramma di \(q\), chiamato \(P(q)\), è il parametro d'ordine del vetro di spin. Invertire tutti gli spin non cambia l'energia, quindi \(q\) e \(-q\) sono equivalenti e l'istogramma è simmetrico.</p>
+    <p>L'istogramma dipende anche dal campione particolare: due pezzi della stessa lega, con legami estratti con le stesse regole, hanno \(P(q)\) diverse. I fisici dicono che il parametro d'ordine <b>non è automediante</b>. Per un ferromagnete la magnetizzazione è la stessa in ogni pezzo di ferro.</p>
+  </div>
+  <div class="ex" data-l="en"><b class="t">Example</b><p>Two students answer the same 12 true/false questions. If they guess at random, about half of the answers coincide and q ≈ 0. If they studied from the same notes, almost all coincide and q ≈ 1. In the figure, two copies of a 12-spin sample are drawn from the exact Boltzmann distribution, all 4096 arrangements included. Draw many pairs at T = 1.5 and then at T = 0.1, and compare the histograms. Then press <b>New sample</b>: at low temperature the peaks move.</p></div>
+  <div class="ex" data-l="it"><b class="t">Esempio</b><p>Due studenti rispondono alle stesse 12 domande vero/falso. Se tirano a indovinare, circa metà delle risposte coincide e q ≈ 0. Se hanno studiato sugli stessi appunti, quasi tutte coincidono e q ≈ 1. Nella figura due copie di un campione di 12 spin sono estratte dalla distribuzione di Boltzmann esatta, comprese tutte le 4096 disposizioni. Si estraggano molte coppie a T = 1.5 e poi a T = 0.1, e si confrontino gli istogrammi. Poi si prema <b>Nuovo campione</b>: a bassa temperatura i picchi si spostano.</p></div>
+  <div class="fig">
+    <div class="fig-grid g-3-2">
+      <div class="pane">
+        <h3><span data-l="en">The last pair of copies drawn</span><span data-l="it">L'ultima coppia di copie estratta</span></h3>
+        <div class="cv" style="height:200px"><canvas id="c3a" aria-label="Two copies of the system and their agreement"></canvas></div>
+        <h3><span data-l="en">Histogram of q from the pairs drawn, and the exact P(q)</span><span data-l="it">Istogramma di q dalle coppie estratte, e P(q) esatta</span></h3>
+        <div class="cv grow" style="min-height:260px"><canvas id="c3b" aria-label="Histogram of overlaps"></canvas></div>
+        <div class="legend"><span class="l-acc"><i></i><span data-l="en">pairs drawn</span><span data-l="it">coppie estratte</span></span><span class="l-fg"><i></i><span data-l="en">exact, this sample</span><span data-l="it">esatta, questo campione</span></span></div>
+      </div>
+      <div class="pane">
+        <h3><span data-l="en">How P(q) changes with temperature (this sample)</span><span data-l="it">Come cambia P(q) con la temperatura (questo campione)</span></h3>
+        <div class="cv grow" style="min-height:420px"><canvas id="c3c" aria-label="Exact overlap distribution versus temperature"></canvas></div>
+        <div class="legend"><span class="l-mut"><span data-l="en">each row is the exact P(q) at one temperature; darker = more probable</span><span data-l="it">ogni riga è la P(q) esatta a una temperatura; più scuro = più probabile</span></span></div>
+      </div>
+    </div>
+    <div class="ctl">
+      <label for="t3"><span class="row"><span><span data-l="en">temperature T</span><span data-l="it">temperatura T</span></span><output for="t3" id="o_t3"></output></span><input type="range" id="t3" min="0.05" max="2" step="0.05" value="0.1"></label>
+      <div class="btns"><button id="b3a" type="button"><span data-l="en">Draw a pair</span><span data-l="it">Estrai una coppia</span></button><button id="b3b" type="button"><span data-l="en">Draw 500 pairs</span><span data-l="it">Estrai 500 coppie</span></button><button id="b3n" type="button"><span data-l="en">New sample</span><span data-l="it">Nuovo campione</span></button></div>
+    </div>
+    <dl class="ro" id="r3"></dl>
+    <p class="cap" data-l="en">With only 12 spins the energy gaps between the lowest arrangements are small, so the frozen behaviour appears clearly only well below the critical temperature T_c = 1 of the infinite system. Each sample has its own couplings, drawn with the same rules as in section 2.</p>
+    <p class="cap" data-l="it">Con soli 12 spin i salti di energia tra le disposizioni più basse sono piccoli, quindi il comportamento congelato appare chiaramente solo ben sotto la temperatura critica T_c = 1 del sistema infinito. Ogni campione ha i propri legami, estratti con le stesse regole del paragrafo 2.</p>
+  </div>
+  <p class="short" data-l="en"><b>In short.</b> The order of a spin glass is not visible in a single snapshot. It shows up in how similar two equilibrium copies are, and the answer is not one number but a whole distribution, which changes from sample to sample.</p>
+  <p class="short" data-l="it"><b>In breve.</b> L'ordine di un vetro di spin non si vede in una singola istantanea. Emerge da quanto si somigliano due copie in equilibrio, e la risposta non è un numero ma un'intera distribuzione, che cambia da campione a campione.</p>
+</section>
+
+<!-- 4 -->
+<section id="sec4">
+  <h2><span class="n">4</span><span data-l="en">States organized like a family tree</span><span data-l="it">Stati organizzati come un albero genealogico</span></h2>
+  <div class="prose" data-l="en">
+    <p>Parisi's solution says more than “there are many valleys”. The valleys, called <i>pure states</i>, are organized in a hierarchy, like a family tree: states group into families, families into clans, and so on. The similarity between two states depends only on how far back their closest common ancestor is: siblings are more alike than cousins, cousins more than second cousins.</p>
+    <p>This has a striking consequence for any three states A, B, C: of the three overlaps, the two smallest are always equal. In terms of distances, every triangle is isosceles, and the odd side is the shortest one. A space with this property is called <b>ultrametric</b>; biologists know it well, because the classification of species into genera, families and orders has exactly this structure. The weights of the states, that is, how often the system is found in each of them, are also random: a few states carry most of the weight, many others are tiny, and which ones are large changes from sample to sample.</p>
+  </div>
+  <div class="prose" data-l="it">
+    <p>La soluzione di Parisi dice di più di “ci sono tante valli”. Le valli, chiamate <i>stati puri</i>, sono organizzate in una gerarchia, come un albero genealogico: gli stati si raggruppano in famiglie, le famiglie in clan, e così via. La somiglianza tra due stati dipende solo da quanto indietro si trova il loro antenato comune più vicino: i fratelli si somigliano più dei cugini, i cugini più dei cugini di secondo grado.</p>
+    <p>Ne discende una conseguenza sorprendente per tre stati qualsiasi A, B, C: delle tre sovrapposizioni, le due più piccole sono sempre uguali. In termini di distanze, ogni triangolo è isoscele, e il lato diverso è il più corto. Uno spazio con questa proprietà si chiama <b>ultrametrico</b>; i biologi lo conoscono bene, perché la classificazione delle specie in generi, famiglie e ordini ha proprio questa struttura. Anche i pesi degli stati, cioè quanto spesso il sistema si trova in ciascuno, sono aleatori: pochi stati portano la maggior parte del peso, molti altri sono minuscoli, e quali siano i grandi cambia da campione a campione.</p>
+  </div>
+  <div class="ex" data-l="en"><b class="t">Example</b><p>You, your sister and your cousin. You and your sister share parents; each of you is a first cousin of the third person, to exactly the same degree. It is impossible for A to be a sibling of B and B a sibling of C while A is only a cousin of C. Now take three towns on a map: their distances almost never form an isosceles triangle. In the figure, <b>Pick three states</b> draws three states with probability proportional to their weight and draws their triangle; the counter compares them with three random points in a square.</p></div>
+  <div class="ex" data-l="it"><b class="t">Esempio</b><p>Tu, tua sorella e tuo cugino. Tu e tua sorella avete gli stessi genitori; ciascuno di voi è cugino di primo grado della terza persona, esattamente allo stesso grado. È impossibile che A sia fratello di B e B fratello di C mentre A è solo cugino di C. Si prendano ora tre città su una carta: le loro distanze quasi mai formano un triangolo isoscele. Nella figura, <b>Scegli tre stati</b> estrae tre stati con probabilità proporzionale al loro peso e ne disegna il triangolo; il contatore li confronta con tre punti casuali in un quadrato.</p></div>
+  <div class="fig">
+    <div class="fig-grid g-3-2">
+      <div class="pane">
+        <h3><span data-l="en">States grouped in families; area of each disc = weight of the state</span><span data-l="it">Stati raggruppati in famiglie; area di ogni disco = peso dello stato</span></h3>
+        <div class="cv grow" style="min-height:360px"><canvas id="c4a" aria-label="Pure states grouped in families"></canvas></div>
+        <div class="legend"><span class="l-mut"><span data-l="en">same family: q = 0.55 · different families: q = 0.15 · the largest 6 families and 6 states per family are shown</span><span data-l="it">stessa famiglia: q = 0.55 · famiglie diverse: q = 0.15 · sono mostrate le 6 famiglie e i 6 stati per famiglia più grandi</span></span></div>
+      </div>
+      <div class="col">
+        <div class="pane">
+          <h3><span data-l="en">Triangle of the three states, side = distance √(2(1 − q))</span><span data-l="it">Triangolo dei tre stati, lato = distanza √(2(1 − q))</span></h3>
+          <div class="cv" style="height:200px"><canvas id="c4b" aria-label="Triangle formed by three states"></canvas></div>
+        </div>
+        <div class="pane">
+          <h3><span data-l="en">Three random points in a square, for comparison</span><span data-l="it">Tre punti casuali in un quadrato, per confronto</span></h3>
+          <div class="cv" style="height:200px"><canvas id="c4c" aria-label="Triangle of three random points"></canvas></div>
+        </div>
+      </div>
+    </div>
+    <div class="ctl">
+      <div class="btns"><button id="b4p" type="button"><span data-l="en">Pick three states</span><span data-l="it">Scegli tre stati</span></button><button id="b4m" type="button"><span data-l="en">Pick 1000 triples</span><span data-l="it">Scegli 1000 terne</span></button><button id="b4n" type="button"><span data-l="en">New sample</span><span data-l="it">Nuovo campione</span></button></div>
+    </div>
+    <dl class="ro" id="r4"></dl>
+    <p class="cap" data-l="en">The weights are drawn from the probability law that Parisi's solution predicts for the pure states (a Ruelle cascade with two levels, parameters m₁ = 0.35 and m₂ = 0.7); the overlap values are illustrative. The distance √(2(1 − q)) is the ordinary distance between two arrangements of ±1 spins, divided by √N.</p>
+    <p class="cap" data-l="it">I pesi sono estratti dalla legge di probabilità che la soluzione di Parisi prevede per gli stati puri (una cascata di Ruelle a due livelli, parametri m₁ = 0.35 e m₂ = 0.7); i valori delle sovrapposizioni sono illustrativi. La distanza √(2(1 − q)) è la distanza ordinaria tra due disposizioni di spin ±1, divisa per √N.</p>
+  </div>
+  <p class="short" data-l="en"><b>In short.</b> The many valleys of a spin glass are not scattered at random: they form a tree. This hierarchical organization, predicted by Parisi, was proved mathematically by Dmitry Panchenko in 2013.</p>
+  <p class="short" data-l="it"><b>In breve.</b> Le tante valli di un vetro di spin non sono sparse a caso: formano un albero. Questa organizzazione gerarchica, prevista da Parisi, è stata dimostrata matematicamente da Dmitry Panchenko nel 2013.</p>
+</section>
+
+<!-- 5 -->
+<section id="sec5">
+  <h2><span class="n">5</span><span data-l="en">An order parameter that is a whole function</span><span data-l="it">Un parametro d'ordine che è un'intera funzione</span></h2>
+  <div class="prose" data-l="en">
+    <p>To compute the properties of a disordered material one must average over all possible samples, and the quantity to average is the logarithm of the partition function, which is hard to handle. The <i>replica trick</i> replaces it with \(n\) identical copies of the system, a calculation that can be done for whole numbers \(n\), and then lets \(n\) go to zero. The obvious assumption, that all copies play the same role (<i>replica symmetry</i>), gives wrong answers at low temperature, such as a negative entropy. Parisi found the right way to break this symmetry: the copies are divided into groups, groups into subgroups, and so on without end. In the limit \(n\to0\) the nested groups become the family tree of section 4.</p>
+    <p>The outcome is an order parameter that is not a number but a function \(q(x)\) on the interval from 0 to 1: \(x\) is the probability that two copies have overlap smaller than \(q(x)\). The figure computes \(q(x)\) from Parisi's formula for the Sherrington–Kirkpatrick model, approximating it with a staircase of 4 steps. Above the critical temperature \(T=1\) the function is zero. Below it, it rises and ends in a flat stretch at height \(q_{\rm EA}\), the overlap of two copies in the same valley. The length of that flat stretch, \(1-x_{\max}\), is the probability that two copies land in the same valley.</p>
+  </div>
+  <div class="prose" data-l="it">
+    <p>Per calcolare le proprietà di un materiale disordinato bisogna fare la media su tutti i campioni possibili, e la quantità da mediare è il logaritmo della funzione di partizione, difficile da trattare. Il <i>trucco delle repliche</i> la sostituisce con \(n\) copie identiche del sistema, un calcolo che si sa fare per \(n\) intero, e poi fa tendere \(n\) a zero. L'ipotesi ovvia, che tutte le copie abbiano lo stesso ruolo (<i>simmetria di replica</i>), dà risposte sbagliate a bassa temperatura, come un'entropia negativa. Parisi ha trovato il modo giusto di rompere questa simmetria: le copie si dividono in gruppi, i gruppi in sottogruppi, e così via senza fine. Nel limite \(n\to0\) i gruppi annidati diventano l'albero genealogico del paragrafo 4.</p>
+    <p>Il risultato è un parametro d'ordine che non è un numero ma una funzione \(q(x)\) sull'intervallo da 0 a 1: \(x\) è la probabilità che due copie abbiano sovrapposizione minore di \(q(x)\). La figura calcola \(q(x)\) dalla formula di Parisi per il modello di Sherrington–Kirkpatrick, approssimandola con una scala di 4 gradini. Sopra la temperatura critica \(T=1\) la funzione è nulla. Sotto, cresce e termina in un tratto piatto ad altezza \(q_{\rm EA}\), la sovrapposizione di due copie nella stessa valle. La lunghezza di quel tratto piatto, \(1-x_{\max}\), è la probabilità che due copie cadano nella stessa valle.</p>
+  </div>
+  <div class="ex" data-l="en"><b class="t">Example</b><p>A thermometer gives one number; a weather map gives a whole field. A ferromagnet is described by one number, the magnetization. A spin glass needs the full curve q(x). Move the temperature: just below T = 1 the curve is low and short; at T = 0.3 it covers a wide range of overlaps. Every intermediate value of the overlap is possible, because the family tree has branches at every level.</p></div>
+  <div class="ex" data-l="it"><b class="t">Esempio</b><p>Un termometro dà un numero; una carta meteorologica dà un intero campo. Un ferromagnete è descritto da un numero, la magnetizzazione. Un vetro di spin ha bisogno dell'intera curva q(x). Si muova la temperatura: appena sotto T = 1 la curva è bassa e corta; a T = 0.3 copre un ampio intervallo di sovrapposizioni. Ogni valore intermedio della sovrapposizione è possibile, perché l'albero genealogico ha rami a ogni livello.</p></div>
+  <div class="fig">
+    <div class="fig-grid g-3-2">
+      <div class="pane">
+        <h3><span data-l="en">Parisi's function q(x) (staircase with 4 steps)</span><span data-l="it">Funzione di Parisi q(x) (scala con 4 gradini)</span></h3>
+        <div class="cv grow" style="min-height:340px"><canvas id="c5a" aria-label="Parisi function"></canvas></div>
+        <div class="legend"><span class="l-acc"><i></i>q(x)</span><span class="l-mut"><i></i><span data-l="en">replica-symmetric answer (wrong below T = 1)</span><span data-l="it">risposta a simmetria di replica (sbagliata sotto T = 1)</span></span></div>
+      </div>
+      <div class="pane">
+        <h3><span data-l="en">Probability of each overlap value, P(q)</span><span data-l="it">Probabilità di ogni valore della sovrapposizione, P(q)</span></h3>
+        <div class="cv grow" style="min-height:340px"><canvas id="c5b" aria-label="Overlap distribution"></canvas></div>
+      </div>
+    </div>
+    <div class="ctl">
+      <label for="t5"><span class="row"><span><span data-l="en">temperature T</span><span data-l="it">temperatura T</span></span><output for="t5" id="o_t5"></output></span><input type="range" id="t5" min="0.25" max="1.2" step="0.01" value="0.4"></label>
+      <div class="btns"><span class="stat" id="st5"></span></div>
+    </div>
+    <dl class="ro" id="r5"></dl>
+    <p class="cap" data-l="en">The steps are found by minimizing Parisi's free-energy formula in the rigorous form of Guerra and Talagrand; with more steps the staircase approaches a smooth curve. The full derivation is on the technical page.</p>
+    <p class="cap" data-l="it">I gradini si trovano minimizzando la formula dell'energia libera di Parisi nella forma rigorosa di Guerra e Talagrand; con più gradini la scala si avvicina a una curva continua. La derivazione completa è nella pagina tecnica.</p>
+  </div>
+  <p class="short" data-l="en"><b>In short.</b> Parisi's discovery is that in a spin glass the order is described by a function, which encodes the whole hierarchy of states. It took 25 years to prove it rigorously: Francesco Guerra in 2003 and Michel Talagrand in 2006 (Abel Prize 2024).</p>
+  <p class="short" data-l="it"><b>In breve.</b> La scoperta di Parisi è che in un vetro di spin l'ordine è descritto da una funzione, che codifica l'intera gerarchia degli stati. Ci sono voluti 25 anni per dimostrarlo con rigore: Francesco Guerra nel 2003 e Michel Talagrand nel 2006 (Premio Abel 2024).</p>
+</section>
+
+<section>
+  <h2><span data-l="en">Why it matters beyond magnets</span><span data-l="it">Perché conta oltre i magneti</span></h2>
+  <p data-l="en">Spin glasses themselves have few practical uses. The ideas developed to understand them, however, apply to any system with many interacting parts, conflicting constraints and a rugged landscape.</p>
+  <p data-l="it">I vetri di spin in sé hanno poche applicazioni pratiche. Le idee sviluppate per capirli, però, si applicano a ogni sistema con molte parti interagenti, vincoli in conflitto e un paesaggio accidentato.</p>
+  <div class="apps">
+    <div><b><span data-l="en">Hard optimization problems</span><span data-l="it">Problemi di ottimizzazione difficili</span></b><span data-l="en">The travelling salesman problem and random satisfiability problems have spin-glass landscapes. The same methods predict where they become hard and inspired algorithms such as survey propagation.</span><span data-l="it">Il problema del commesso viaggiatore e i problemi di soddisfacibilità casuali hanno paesaggi da vetro di spin. Gli stessi metodi prevedono dove diventano difficili e hanno ispirato algoritmi come la survey propagation.</span></span></div>
+    <div><b><span data-l="en">Neural networks and memory</span><span data-l="it">Reti neurali e memoria</span></b><span data-l="en">In the Hopfield model, memories are valleys of a spin-glass-like energy. The replica method gives its capacity: about 0.14 patterns per neuron (Amit, Gutfreund, Sompolinsky, 1985).</span><span data-l="it">Nel modello di Hopfield i ricordi sono valli di un'energia simile a quella di un vetro di spin. Il metodo delle repliche ne dà la capacità: circa 0.14 ricordi per neurone (Amit, Gutfreund, Sompolinsky, 1985).</span></span></div>
+    <div><b><span data-l="en">Machine learning</span><span data-l="it">Apprendimento automatico</span></b><span data-l="en">Training a model means descending a high-dimensional landscape. Replica calculations describe how much data a model needs to learn in simplified settings.</span><span data-l="it">Addestrare un modello significa scendere in un paesaggio ad alta dimensione. I calcoli con le repliche descrivono di quanti dati un modello ha bisogno per imparare in contesti semplificati.</span></span></div>
+    <div><b><span data-l="en">Glasses and proteins</span><span data-l="it">Vetri e proteine</span></b><span data-l="en">Ordinary glasses and the folding of proteins are studied with rugged energy landscapes. For hard spheres in infinite dimensions the glass transition has been solved with replica symmetry breaking.</span><span data-l="it">I vetri ordinari e il ripiegamento delle proteine si studiano con paesaggi energetici accidentati. Per le sfere dure in dimensione infinita la transizione vetrosa è stata risolta con la rottura della simmetria di replica.</span></span></div>
+  </div>
+</section>
+
+<section>
+  <h2><span data-l="en">To read more</span><span data-l="it">Per approfondire</span></h2>
+  <ol class="refs">
+    <li><span data-l="en">G. Parisi, In a Flight of Starlings: The Wonders of Complex Systems, Penguin Press (2023).</span><span data-l="it">G. Parisi, In un volo di storni. Le meraviglie dei sistemi complessi, Rizzoli (2021).</span></li>
+    <li><span data-l="en">The Nobel Prize in Physics 2021, popular information, nobelprize.org.</span><span data-l="it">Premio Nobel per la Fisica 2021, informazioni divulgative, nobelprize.org.</span></li>
+    <li>D. L. Stein, C. M. Newman, Spin Glasses and Complexity, Princeton University Press (2013).</li>
+    <li>P. Charbonneau et al. (eds.), Spin Glass Theory and Far Beyond, World Scientific (2023).</li>
+    <li>G. Parisi, Infinite number of order parameters for spin-glasses, Phys. Rev. Lett. 43, 1754 (1979).</li>
+  </ol>
+  <p class="xlink"><span data-l="en">All the formulas and five more figures: </span><span data-l="it">Tutte le formule e altre cinque figure: </span><a href="https://marcomauro.github.io/physics-artifact/replica-symmetry-breaking/"><span data-l="en">technical page →</span><span data-l="it">pagina tecnica →</span></a></p>
+  <footer><span data-l="en">All computations run in the browser. Energies in units of the bond strength, temperature in the same units (k_B = 1).</span><span data-l="it">Tutti i calcoli sono eseguiti nel browser. Energie in unità dell'intensità dei legami, temperatura nelle stesse unità (k_B = 1).</span></footer>
+</section>
+
+</div>
+
+<script>
+(() => {
+'use strict';
+const TAU = Math.PI * 2, PI = Math.PI;
+const MONO = '"IBM Plex Mono", ui-monospace, Menlo, monospace';
+const $ = id => document.getElementById(id);
+let P = {};
+function readPal() {
+  const s = getComputedStyle(document.documentElement), g = n => s.getPropertyValue(n).trim();
+  P = { bg: g('--bg'), panel: g('--panel'), fg: g('--fg'), mut: g('--muted'), rule: g('--rule'), grid: g('--grid'),
+        acc: g('--accent'), hot: g('--hot'), teal: g('--teal'), L: g('--phaseL') || '50%' };
+}
+const phaseCol = (phi, a = 1) => `hsla(${((((phi % TAU) + TAU) % TAU) * 180 / PI).toFixed(1)},70%,${P.L},${a})`;
+const mfmt = (v, d = 3) => (Number.isFinite(v) ? v.toFixed(d) : '∞').replace('-', '−');
+
+function fit(cv) {
+  const r = cv.getBoundingClientRect(), dpr = window.devicePixelRatio || 1;
+  const w = Math.max(10, Math.round(r.width)), h = Math.max(10, Math.round(r.height));
+  if (cv.width !== Math.round(w * dpr) || cv.height !== Math.round(h * dpr)) { cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr); }
+  const ctx = cv.getContext('2d');
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.clearRect(0, 0, w, h);
+  ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+  return { ctx, w, h };
+}
+function ticks(a, b, n) {
+  const span = b - a; if (!(span > 0)) return [a];
+  const s0 = span / n, mag = Math.pow(10, Math.floor(Math.log10(s0))), r = s0 / mag;
+  const step = (r < 1.5 ? 1 : r < 3 ? 2 : r < 7 ? 5 : 10) * mag;
+  const out = []; for (let v = Math.ceil(a / step - 1e-9) * step; v <= b + 1e-9 * span; v += step) out.push(+v.toFixed(10));
+  return out;
+}
+function tfmt(v) {
+  if (Math.abs(v) < 1e-12) return '0';
+  const a = Math.abs(v); let s = (a >= 1e4 || a < 1e-3) ? v.toExponential(0) : String(+v.toPrecision(3));
+  return s.replace('-', '−');
+}
+function frame(ctx, b, xr, yr, o = {}) {
+  const X = v => b.x + (v - xr[0]) / (xr[1] - xr[0]) * b.w;
+  const Y = v => b.y + b.h - (v - yr[0]) / (yr[1] - yr[0]) * b.h;
+  ctx.save();
+  ctx.lineWidth = 1; ctx.font = '10.5px ' + MONO; ctx.fillStyle = P.mut;
+  const xt = o.xt || ticks(xr[0], xr[1], o.nx || 5), yt = o.yt || ticks(yr[0], yr[1], o.ny || 4);
+  const fx = o.fx || tfmt, fy = o.fy || tfmt;
+  ctx.strokeStyle = P.grid;
+  for (const v of xt) { const px = Math.round(X(v)) + .5; if (px < b.x - 1 || px > b.x + b.w + 1) continue;
+    if (!o.nogrid) { ctx.beginPath(); ctx.moveTo(px, b.y); ctx.lineTo(px, b.y + b.h); ctx.stroke(); }
+    if (!o.noxl) { ctx.textAlign = 'center'; ctx.textBaseline = 'top'; ctx.fillText(fx(v), px, b.y + b.h + 4); } }
+  for (const v of yt) { const py = Math.round(Y(v)) + .5; if (py < b.y - 1 || py > b.y + b.h + 1) continue;
+    if (!o.nogrid) { ctx.beginPath(); ctx.moveTo(b.x, py); ctx.lineTo(b.x + b.w, py); ctx.stroke(); }
+    if (!o.noyl) { ctx.textAlign = 'right'; ctx.textBaseline = 'middle'; ctx.fillText(fy(v), b.x - 5, py); } }
+  ctx.strokeStyle = P.rule; ctx.strokeRect(b.x + .5, b.y + .5, b.w - 1, b.h - 1);
+  ctx.fillStyle = P.mut; ctx.font = 'italic 11.5px ' + MONO;
+  if (o.xl) { ctx.textAlign = 'right'; ctx.textBaseline = 'top'; ctx.fillText(o.xl, b.x + b.w, b.y + b.h + 17); }
+  if (o.yl) { ctx.textAlign = 'left'; ctx.textBaseline = 'top'; ctx.fillText(o.yl, b.x + 5, b.y + 4); }
+  ctx.restore();
+  return { X, Y };
+}
+function arrow(ctx, x0, y0, x1, y1, col, lw = 2, hd = 8) {
+  const ang = Math.atan2(y1 - y0, x1 - x0), len = Math.hypot(x1 - x0, y1 - y0);
+  ctx.save(); ctx.strokeStyle = col; ctx.fillStyle = col; ctx.lineWidth = lw;
+  ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x1 - Math.cos(ang) * Math.min(hd, len) * .6, y1 - Math.sin(ang) * Math.min(hd, len) * .6); ctx.stroke();
+  if (len > 3) { ctx.beginPath(); ctx.moveTo(x1, y1);
+    ctx.lineTo(x1 - hd * Math.cos(ang - .38), y1 - hd * Math.sin(ang - .38));
+    ctx.lineTo(x1 - hd * Math.cos(ang + .38), y1 - hd * Math.sin(ang + .38)); ctx.closePath(); ctx.fill(); }
+  ctx.restore();
+}
+function rng(seed) { return () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed);
+  t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+function gauss(r) { let u = 0; while (u === 0) u = r(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(TAU * r()); }
+function readouts(el, rows) {
+  el.innerHTML = rows.map(([k, v, c]) => `<div><dt>${k}</dt><dd class="${c || ''}">${v}</dd></div>`).join('');
+}
+const tr = (en, it) => document.documentElement.getAttribute('data-ui') === 'it' ? it : en;
+function setOut(id, txt) { const o = $('o_' + id); if (o) o.textContent = txt; }
+function gauss(R) { let u = 0; while (u === 0) u = R(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(TAU * R()); }
+function hex2rgb(h) { h = h.replace('#', ''); if (h.length === 3) h = h.split('').map(c => c + c).join(''); return [0, 2, 4].map(i => parseInt(h.slice(i, i + 2), 16)); }
+function mix(a, b, t) { const A = hex2rgb(a), B = hex2rgb(b); return `rgb(${A.map((v, i) => Math.round(v + (B[i] - v) * t)).join(',')})`; }
+function msg(ctx, w, h, s) { ctx.fillStyle = P.mut; ctx.font = '12px ' + MONO; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(s, w / 2, h / 2); }
+function runTask(gen, done, budget = 14) {
+  let alive = true;
+  const step = () => { if (!alive) return; const t0 = performance.now(); let r;
+    do { r = gen.next(); } while (!r.done && performance.now() - t0 < budget);
+    if (r.done) { alive = false; done(r.value); } else setTimeout(step, 0); };
+  setTimeout(step, 0);
+  return () => { alive = false; };
+}
+function spinGlyph(ctx, x, y, r, s, col) {   // arrow up (s = +1) or down (s = -1)
+  ctx.save(); ctx.strokeStyle = col; ctx.fillStyle = col; ctx.lineWidth = Math.max(1.5, r * 0.16);
+  const L = r * 0.62; ctx.beginPath(); ctx.moveTo(x, y + s * L); ctx.lineTo(x, y - s * L * 0.35); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(x, y - s * L); ctx.lineTo(x - r * 0.32, y - s * L * 0.3); ctx.lineTo(x + r * 0.32, y - s * L * 0.3); ctx.closePath(); ctx.fill(); ctx.restore();
+}
+
+/* ================================================================ 1 frustration */
+const S1 = { n: 3, J: [-1, -1, -1], s: [1, 1, 1], hit: null };
+const edges1 = n => Array.from({ length: n }, (_, i) => [i, (i + 1) % n]);
+const energy1 = (J, s, n) => edges1(n).reduce((e, [a, b], k) => e - J[k] * s[a] * s[b], 0);
+function draw1() {
+  const p = S1, n = p.n, E = edges1(n);
+  { const { ctx, w, h } = fit($('c1a')), R = Math.min(w, h) * 0.34, cx = w / 2, cy = h / 2 + (n === 3 ? R * 0.15 : 0), rn = Math.max(20, Math.min(30, R * 0.2));
+    const pos = Array.from({ length: n }, (_, i) => { const a = -PI / 2 + TAU * i / n + (n === 4 ? PI / 4 : 0); return [cx + R * Math.cos(a), cy + R * Math.sin(a)]; });
+    p.hit = { pos, rn, mids: E.map(([a, b]) => [(pos[a][0] + pos[b][0]) / 2, (pos[a][1] + pos[b][1]) / 2]) };
+    E.forEach(([a, b], k) => { const ok = p.J[k] * p.s[a] * p.s[b] > 0; ctx.strokeStyle = ok ? P.teal : P.acc; ctx.lineWidth = 4; ctx.setLineDash(ok ? [] : [9, 6]);
+      ctx.beginPath(); ctx.moveTo(...pos[a]); ctx.lineTo(...pos[b]); ctx.stroke(); ctx.setLineDash([]);
+      const [mx, my] = p.hit.mids[k]; ctx.fillStyle = P.panel; ctx.strokeStyle = ok ? P.teal : P.acc; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(mx, my, 15, 0, TAU); ctx.fill(); ctx.stroke();
+      ctx.fillStyle = P.fg; ctx.font = '500 13px ' + MONO; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(p.J[k] > 0 ? 'F' : 'A', mx, my + 0.5); });
+    pos.forEach(([x, y], i) => { ctx.fillStyle = P.panel; ctx.strokeStyle = P.fg; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(x, y, rn, 0, TAU); ctx.fill(); ctx.stroke(); spinGlyph(ctx, x, y, rn, p.s[i], P.fg); });
+  }
+  const conf = []; for (let c = 0; c < 1 << n; c++) { const s = Array.from({ length: n }, (_, i) => (c >> i) & 1 ? -1 : 1); conf.push({ s, e: energy1(p.J, s, n) }); }
+  conf.sort((a, b) => a.e - b.e); const emin = conf[0].e, ng = conf.filter(c => c.e === emin).length, cur = energy1(p.J, p.s, n);
+  { const { ctx, w, h } = fit($('c1b')), rows = conf.length, rh = Math.min(34, (h - 8) / rows), r = Math.min(11, rh * 0.38);
+    const bx = 30 + n * 2.6 * r + 18, bw = w - bx - 70, emax = n;
+    conf.forEach((c, k) => { const y = 4 + k * rh + rh / 2, isCur = c.s.every((v, i) => v === p.s[i]), gnd = c.e === emin;
+      if (isCur) { ctx.fillStyle = P.grid; ctx.fillRect(0, y - rh / 2, w, rh); }
+      c.s.forEach((v, i) => spinGlyph(ctx, 24 + i * 2.6 * r, y, r * 1.6, v, gnd ? P.teal : P.mut));
+      const x0 = bx + bw / 2, x1 = x0 + c.e / emax * bw / 2; ctx.fillStyle = gnd ? P.teal : mix(P.panel, P.fg, 0.3); ctx.fillRect(Math.min(x0, x1), y - rh * 0.25, Math.abs(x1 - x0) || 1, rh * 0.5);
+      ctx.fillStyle = P.fg; ctx.font = '11.5px ' + MONO; ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; ctx.fillText(`E = ${c.e > 0 ? '+' : c.e < 0 ? '−' : ''}${Math.abs(c.e)}`, bx + bw + 8, y); });
+    ctx.strokeStyle = P.rule; ctx.beginPath(); ctx.moveTo(bx + bw / 2 + .5, 0); ctx.lineTo(bx + bw / 2 + .5, h); ctx.stroke();
+  }
+  const sat = E.filter(([a, b], k) => p.J[k] * p.s[a] * p.s[b] > 0).length, prod = p.J.reduce((a, b) => a * b, 1);
+  readouts($('r1'), [[tr('satisfied bonds', 'legami soddisfatti'), `${sat} / ${n}`, sat === n ? 'acc' : ''], [tr('energy', 'energia'), (cur > 0 ? '+' : '') + mfmt(cur, 0)],
+    [tr('product of the signs', 'prodotto dei segni'), prod > 0 ? '+1' : '−1'], [tr('loop', 'anello'), prod < 0 ? tr('frustrated', 'frustrato') : tr('not frustrated', 'non frustrato'), prod < 0 ? 'hot' : ''],
+    [tr('best possible: satisfied bonds', 'migliore possibile: legami soddisfatti'), `${(n - emin) / 2} / ${n}`],
+    [tr('arrangements with lowest energy', 'disposizioni con energia minima'), `${ng} / ${1 << n}`, 'acc']]);
+}
+$('c1a').addEventListener('pointerdown', e => { const h = S1.hit; if (!h) return; const r = $('c1a').getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top;
+  const i = h.pos.findIndex(([px, py]) => Math.hypot(x - px, y - py) < h.rn + 4); if (i >= 0) { S1.s[i] = -S1.s[i]; draw1(); return; }
+  const k = h.mids.findIndex(([px, py]) => Math.hypot(x - px, y - py) < 20); if (k >= 0) { S1.J[k] = -S1.J[k]; draw1(); } });
+$('g1').addEventListener('change', () => { S1.n = +$('g1').value; S1.J = new Array(S1.n).fill(-1); S1.s = new Array(S1.n).fill(1); if (S1.n === 4) S1.J = [1, 1, 1, -1]; draw1(); });
+$('b1a').addEventListener('click', () => { S1.J = new Array(S1.n).fill(-1); draw1(); });
+$('b1f').addEventListener('click', () => { S1.J = new Array(S1.n).fill(1); draw1(); });
+
+/* ================================================================ 2 annealing */
+const RUNS = 6, T0 = 2, TF = 0.05;
+const S2 = { mode: 'sg', N: 96, sweeps: 500, seed: 5, run: 0, J: null, runs: [], t: 0, cancel: null };
+function couplings2() { const N = S2.N, R = rng(S2.seed * 31 + N), J = new Float64Array(N * N), sd = 1 / Math.sqrt(N);
+  for (let i = 0; i < N; i++) for (let j = i + 1; j < N; j++) J[i * N + j] = J[j * N + i] = S2.mode === 'fm' ? 1 / N : gauss(R) * sd;
+  S2.J = J; }
+function start2() {
+  if (S2.cancel) S2.cancel(); const N = S2.N, J = S2.J, R = rng(S2.seed * 7 + (S2.run++) * 977 + 3);
+  S2.runs = Array.from({ length: RUNS }, () => { const s = new Int8Array(N); for (let i = 0; i < N; i++) s[i] = R() < 0.5 ? -1 : 1;
+    const hf = new Float64Array(N); let e = 0; for (let i = 0; i < N; i++) { let a = 0; for (let j = 0; j < N; j++) a += J[i * N + j] * s[j]; hf[i] = a; e -= 0.5 * s[i] * a; }
+    return { s, hf, e, hist: [e / N] }; });
+  S2.t = 0; const S = S2.sweeps;
+  function* go() { let last = performance.now();
+    for (let t = 1; t <= S; t++) { const T = T0 + (TF - T0) * t / S;
+      for (const r of S2.runs) { const { s, hf } = r;
+        for (let k = 0; k < N; k++) { const i = Math.floor(R() * N), dE = 2 * s[i] * hf[i];
+          if (dE <= 0 || R() < Math.exp(-dE / T)) { s[i] = -s[i]; r.e += dE; const d = 2 * s[i]; for (let j = 0; j < N; j++) hf[j] += d * J[j * N + i]; } }
+        r.hist.push(r.e / N); }
+      S2.t = t; if (performance.now() - last > 60) { last = performance.now(); draw2(); } yield; }
+    // final quench at T = 0: flip any spin that lowers the energy, until none does
+    for (const r of S2.runs) { const { s, hf } = r; let ch = true; while (ch) { ch = false; for (let i = 0; i < N; i++) if (s[i] * hf[i] < 0) { r.e += 2 * s[i] * hf[i]; s[i] = -s[i]; const d = 2 * s[i]; for (let j = 0; j < N; j++) hf[j] += d * J[j * N + i]; ch = true; } } r.hist[r.hist.length - 1] = r.e / N; }
+  }
+  S2.cancel = runTask(go(), () => { S2.cancel = null; draw2(); });
+}
+const runCol = k => mix(P.hot, P.acc, k / (RUNS - 1));
+function draw2() {
+  const p = S2, N = p.N, S = p.sweeps; setOut('n2', String(N)); setOut('s2', String(S));
+  { const { ctx, w, h } = fit($('c2a')), b = { x: 46, y: 10, w: w - 58, h: h - 42 };
+    const lo = p.mode === 'fm' ? -0.55 : -0.8, f = frame(ctx, b, [0, S], [lo, 0.1], { xl: tr('sweeps', 'passate'), yl: 'E/N' });
+    ctx.setLineDash([4, 3]); ctx.strokeStyle = P.mut; ctx.lineWidth = 1; const eg = p.mode === 'fm' ? -0.5 : -0.7632; ctx.beginPath(); ctx.moveTo(b.x, f.Y(eg)); ctx.lineTo(b.x + b.w, f.Y(eg)); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle = P.mut; ctx.font = '10.5px ' + MONO; ctx.textAlign = 'right'; ctx.textBaseline = 'bottom'; ctx.fillText(p.mode === 'fm' ? '−0.5' : 'N → ∞: −0.763', b.x + b.w - 4, f.Y(eg) - 2);
+    p.runs.forEach((r, k) => { ctx.strokeStyle = runCol(k); ctx.lineWidth = 1.4; ctx.beginPath(); const st = Math.max(1, Math.floor(r.hist.length / 600));
+      for (let t = 0; t < r.hist.length; t += st) t ? ctx.lineTo(f.X(t), f.Y(r.hist[t])) : ctx.moveTo(f.X(t), f.Y(r.hist[t])); ctx.lineTo(f.X(r.hist.length - 1), f.Y(r.hist[r.hist.length - 1])); ctx.stroke(); });
+  }
+  const done = !p.cancel && p.runs.length, qm = [];
+  for (let a = 0; a < p.runs.length; a++) { qm.push([]); for (let c = 0; c < p.runs.length; c++) { let s = 0; for (let i = 0; i < N; i++) s += p.runs[a].s[i] * p.runs[c].s[i]; qm[a].push(Math.abs(s / N)); } }
+  { const { ctx, w, h } = fit($('c2b')), L = RUNS, sz = Math.min(w, h) - 26, c = sz / L, x0 = (w - sz) / 2 + 10, y0 = 4;
+    for (let a = 0; a < L; a++) for (let d = 0; d < L; d++) { ctx.fillStyle = mix(P.panel, P.acc, qm[a] ? qm[a][d] : 0); ctx.fillRect(x0 + d * c, y0 + a * c, c - 2, c - 2);
+      if (qm[a] && c > 34) { ctx.fillStyle = qm[a][d] > 0.6 ? P.panel : P.fg; ctx.font = '10.5px ' + MONO; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(qm[a][d].toFixed(2), x0 + d * c + c / 2 - 1, y0 + a * c + c / 2 - 1); } }
+    for (let a = 0; a < L; a++) { ctx.fillStyle = runCol(a); ctx.fillRect(x0 - 12, y0 + a * c + c * 0.2, 7, c * 0.6 - 2); ctx.fillRect(x0 + a * c + c * 0.2, y0 + sz + 4, c * 0.6 - 2, 6); }
+  }
+  { const { ctx, w, h } = fit($('c2c')), b = { x: 46, y: 6, w: w - 56, h: h - 26 }; const es = p.runs.map(r => r.e / N);
+    const lo = Math.min(...es, p.mode === 'fm' ? -0.5 : -0.7632) - 0.01, hi = Math.max(...es) + 0.01;
+    const f = frame(ctx, b, [-0.5, RUNS - 0.5], [lo, hi], { xt: [], ny: 3 });
+    es.forEach((e, k) => { ctx.fillStyle = runCol(k); const x = f.X(k), bw = b.w / RUNS * 0.55; ctx.fillRect(x - bw / 2, f.Y(e), bw, b.y + b.h - f.Y(e)); });
+  }
+  if (!done) { readouts($('r2'), [[tr('cooling', 'raffreddamento'), `${p.t} / ${S}`]]); return; }
+  const es = p.runs.map(r => r.e / N); let offs = 0, nq = 0; for (let a = 0; a < RUNS; a++) for (let c = a + 1; c < RUNS; c++) { offs += qm[a][c]; nq++; }
+  const cls = []; for (let a = 0; a < RUNS; a++) if (!cls.some(c => qm[a][c] > 0.999)) cls.push(a);
+  readouts($('r2'), [[tr('lowest energy found E/N', 'energia più bassa trovata E/N'), mfmt(Math.min(...es), 4), 'acc'], [tr('highest final E/N', 'E/N finale più alta'), mfmt(Math.max(...es), 4)],
+    [tr('distinct final states (of 6)', 'stati finali distinti (su 6)'), String(cls.length), cls.length > 1 ? 'hot' : ''], [tr('mean similarity |q| between runs', 'somiglianza media |q| tra corse'), mfmt(offs / nq, 3)]]);
+}
+const sweepsOf = () => Math.round(Math.pow(10, +$('s2').value));
+$('m2').addEventListener('change', () => { S2.mode = $('m2').value; couplings2(); start2(); });
+$('n2').addEventListener('input', () => { S2.N = +$('n2').value; setOut('n2', String(S2.N)); clearTimeout(S2.db); S2.db = setTimeout(() => { couplings2(); start2(); }, 250); });
+$('s2').addEventListener('input', () => { S2.sweeps = sweepsOf(); setOut('s2', String(S2.sweeps)); clearTimeout(S2.db); S2.db = setTimeout(start2, 250); });
+$('b2c').addEventListener('click', start2);
+$('b2n').addEventListener('click', () => { S2.seed++; couplings2(); start2(); });
+
+/* ================================================================ 3 copies, exact enumeration N = 12 */
+const N3 = 12, M3 = 1 << N3, PC3 = new Uint8Array(M3); for (let i = 1; i < M3; i++) PC3[i] = PC3[i >> 1] + (i & 1);
+const S3 = { T: 0.3, seed: 2, E: null, emin: 0, cw: null, Pq: null, hist: new Float64Array(N3 + 1), draws: 0, last: null, map: null, R: rng(99) };
+function sample3() {
+  const R = rng(S3.seed * 6151 + 1), J = new Float64Array(N3 * N3), sd = 1 / Math.sqrt(N3);
+  for (let i = 0; i < N3; i++) for (let j = i + 1; j < N3; j++) J[i * N3 + j] = J[j * N3 + i] = gauss(R) * sd;
+  const E = new Float64Array(M3);
+  for (let c = 0; c < M3; c++) { let e = 0; for (let i = 0; i < N3; i++) for (let j = i + 1; j < N3; j++) e -= J[i * N3 + j] * (((c >> i) ^ (c >> j)) & 1 ? -1 : 1); E[c] = e; }
+  S3.E = E; S3.emin = Math.min(...E); S3.map = null;
+}
+function wht(a) { const M = a.length; for (let h = 1; h < M; h <<= 1) for (let i = 0; i < M; i += h << 1) for (let j = i; j < i + h; j++) { const x = a[j], y = a[j + h]; a[j] = x + y; a[j + h] = x - y; } }
+function pq3(T) { const w = new Float64Array(M3); let Z = 0; for (let i = 0; i < M3; i++) { w[i] = Math.exp(-(S3.E[i] - S3.emin) / T); Z += w[i]; }
+  for (let i = 0; i < M3; i++) w[i] /= Z; const cw = new Float64Array(M3); let c = 0; for (let i = 0; i < M3; i++) { c += w[i]; cw[i] = c; }
+  wht(w); for (let i = 0; i < M3; i++) w[i] *= w[i]; wht(w); const Pq = new Float64Array(N3 + 1); for (let u = 0; u < M3; u++) Pq[PC3[u]] += w[u] / M3;
+  return { Pq, cw }; }
+function update3() { const r = pq3(S3.T); S3.Pq = r.Pq; S3.cw = r.cw; S3.hist.fill(0); S3.draws = 0; S3.last = null; }
+function pick3() { const u = S3.R() * S3.cw[M3 - 1]; let lo = 0, hi = M3 - 1; while (lo < hi) { const m = (lo + hi) >> 1; S3.cw[m] < u ? lo = m + 1 : hi = m; } return lo; }
+function drawPairs(k) { for (let i = 0; i < k; i++) { const a = pick3(), b = pick3(), d = PC3[a ^ b]; S3.hist[d]++; S3.draws++; S3.last = [a, b]; } draw3(); }
+function heat3() { if (S3.map) return S3.map; const Ts = Array.from({ length: 40 }, (_, k) => 0.05 + 1.95 * k / 39); S3.map = { Ts, rows: Ts.map(T => pq3(T).Pq) }; return S3.map; }
+function draw3() {
+  const p = S3; setOut('t3', p.T.toFixed(2));
+  { const { ctx, w, h } = fit($('c3a')), cw = Math.min(46, (w - 90) / N3), x0 = (w - cw * N3) / 2 + 30, r = cw * 0.42;
+    ctx.font = '11.5px ' + MONO; ctx.textBaseline = 'middle';
+    if (!p.last) msg(ctx, w, h, tr('press “Draw a pair”', 'premi “Estrai una coppia”'));
+    else { const [a, b] = p.last, ys = [h * 0.26, h * 0.6]; let ag = 0;
+      for (let i = 0; i < N3; i++) { const sa = (a >> i) & 1 ? -1 : 1, sb = (b >> i) & 1 ? -1 : 1, same = sa === sb; if (same) ag++;
+        ctx.fillStyle = same ? mix(P.panel, P.teal, 0.22) : mix(P.panel, P.acc, 0.18); ctx.fillRect(x0 + i * cw + 1, ys[0] - cw * 0.55, cw - 2, ys[1] - ys[0] + cw * 1.1);
+        spinGlyph(ctx, x0 + i * cw + cw / 2, ys[0], r * 2, sa, P.fg); spinGlyph(ctx, x0 + i * cw + cw / 2, ys[1], r * 2, sb, P.fg); }
+      ctx.fillStyle = P.mut; ctx.textAlign = 'right'; ctx.fillText(tr('copy 1', 'copia 1'), x0 - 8, ys[0]); ctx.fillText(tr('copy 2', 'copia 2'), x0 - 8, ys[1]);
+      ctx.textAlign = 'center'; ctx.fillStyle = P.fg; ctx.fillText(`${tr('agree', 'concordi')} ${ag}, ${tr('disagree', 'discordi')} ${N3 - ag}  →  q = (${ag} − ${N3 - ag})/${N3} = ${mfmt((2 * ag - N3) / N3, 3)}`, w / 2, h * 0.88); }
+  }
+  { const { ctx, w, h } = fit($('c3b')), b = { x: 46, y: 10, w: w - 58, h: h - 42 };
+    const emp = Array.from(p.hist, v => p.draws ? v / p.draws : 0), ym = Math.max(...p.Pq, ...emp) * 1.15;
+    const f = frame(ctx, b, [-1.1, 1.1], [0, ym], { xl: 'q', yl: tr('probability', 'probabilità'), xt: [-1, -0.5, 0, 0.5, 1] }), bw = b.w / (N3 + 1) * 0.45;
+    for (let d = 0; d <= N3; d++) { const x = f.X(1 - 2 * d / N3);
+      if (p.draws) { ctx.fillStyle = P.acc; const y = f.Y(emp[d]); ctx.fillRect(x - bw / 2, y, bw, f.Y(0) - y); }
+      ctx.strokeStyle = P.fg; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(x - bw * 0.7, f.Y(p.Pq[d])); ctx.lineTo(x + bw * 0.7, f.Y(p.Pq[d])); ctx.stroke(); }
+  }
+  { const { ctx, w, h } = fit($('c3c')), b = { x: 46, y: 10, w: w - 58, h: h - 42 }, m = heat3();
+    const f = frame(ctx, b, [-1.1, 1.1], [0.05 - 0.025, 2.025], { xl: 'q', yl: 'T', xt: [-1, 0, 1], nogrid: true });
+    const rh = b.h / m.Ts.length, cwd = b.w / 2.2 * 2 / N3;
+    m.rows.forEach((row, k) => { const mx = Math.max(...row); for (let d = 0; d <= N3; d++) { ctx.fillStyle = mix(P.panel, P.acc, Math.pow(row[d] / mx, 0.8)); const x = f.X(1 - 2 * d / N3); ctx.fillRect(x - cwd / 2, f.Y(m.Ts[k]) - rh / 2, cwd - 1, rh - 0.5); } });
+    ctx.strokeStyle = P.fg; ctx.lineWidth = 1.2; ctx.beginPath(); ctx.moveTo(b.x, f.Y(p.T)); ctx.lineTo(b.x + b.w, f.Y(p.T)); ctx.stroke();
+    ctx.setLineDash([4, 3]); ctx.strokeStyle = P.mut; ctx.beginPath(); ctx.moveTo(b.x, f.Y(1)); ctx.lineTo(b.x + b.w, f.Y(1)); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle = P.mut; ctx.font = '10.5px ' + MONO; ctx.textAlign = 'left'; ctx.textBaseline = 'bottom'; ctx.fillText('T_c (N → ∞)', b.x + 4, f.Y(1) - 2);
+  }
+  let q2e = 0, q2d = 0; for (let d = 0; d <= N3; d++) { const q = 1 - 2 * d / N3; q2e += q * q * p.Pq[d]; if (p.draws) q2d += q * q * p.hist[d] / p.draws; }
+  readouts($('r3'), [[tr('pairs drawn', 'coppie estratte'), String(p.draws)], [tr('q of the last pair', 'q dell\'ultima coppia'), p.last ? mfmt(1 - 2 * PC3[p.last[0] ^ p.last[1]] / N3, 3) : '—', 'acc'],
+    [tr('mean q², pairs drawn', 'q² medio, coppie estratte'), p.draws ? mfmt(q2d, 3) : '—', 'acc'], [tr('mean q², exact', 'q² medio, esatto'), mfmt(q2e, 3)],
+    [tr('probability that |q| ≥ 0.8, exact', 'probabilità che |q| ≥ 0.8, esatta'), mfmt(p.Pq.reduce((s, v, d) => s + (Math.abs(1 - 2 * d / N3) >= 0.8 - 1e-9 ? v : 0), 0), 3)]]);
+}
+$('t3').addEventListener('input', () => { S3.T = +$('t3').value; update3(); draw3(); });
+$('b3a').addEventListener('click', () => drawPairs(1));
+$('b3b').addEventListener('click', () => drawPairs(500));
+$('b3n').addEventListener('click', () => { S3.seed++; sample3(); update3(); draw3(); });
+
+/* ================================================================ 4 ultrametric families (two-level Ruelle cascade) */
+const M1 = 0.35, M2 = 0.7, QF = 0.55, QD = 0.15;
+function gammaR(a, R) { if (a < 1) { const u = R(); return gammaR(a + 1, R) * Math.pow(u > 0 ? u : 1e-300, 1 / a); }
+  const d = a - 1 / 3, c = 1 / Math.sqrt(9 * d);
+  for (;;) { let x, v; do { x = gauss(R); v = 1 + c * x; } while (v <= 0); v = v * v * v; const u = R(); if (Math.log(u) < 0.5 * x * x + d - d * v + d * Math.log(v)) return d * v; } }
+function betaR(a, b, R) { if (b <= 1e-12) return 1; const x = gammaR(a, R), y = gammaR(b, R); return x + y > 0 ? x / (x + y) : 1; }
+function stick(alpha, theta, R, eps = 1e-5) { const w = []; let r = 1, i = 0; while (r > eps && i < 5000) { i++; const u = r * betaR(1 - alpha, theta + i * alpha, R); w.push(u); r -= u; } return w.sort((a, b) => b - a); }
+const S4 = { seed: 4, fam: [], pick: null, n: 0, iso: 0, eq: 0, rnd: 0, rtri: null, R: rng(4242) };
+function gen4() { const R = rng(S4.seed * 7717 + 5);
+  S4.fam = stick(M1, 0, R).slice(0, 6).map(W => ({ W, st: stick(M2, -M1, R).slice(0, 6).map(u => W * u) }));
+  S4.states = []; S4.fam.forEach((f, fi) => f.st.forEach((w, si) => S4.states.push({ fi, si, w })));
+  S4.pick = null; S4.n = S4.iso = S4.eq = S4.rnd = 0; S4.rtri = null; }
+function pickState(ex) { const tot = S4.states.reduce((s, x, i) => s + (ex.includes(i) ? 0 : x.w), 0); let u = S4.R() * tot;
+  for (let i = 0; i < S4.states.length; i++) { if (ex.includes(i)) continue; u -= S4.states[i].w; if (u <= 0) return i; } return S4.states.findIndex((_, i) => !ex.includes(i)); }
+const qOf = (a, b) => S4.states[a].fi === S4.states[b].fi ? QF : QD, dist = q => Math.sqrt(2 * (1 - q));
+function triple4(k) { for (let t = 0; t < k; t++) { if (S4.states.length < 3) return; const a = pickState([]), b = pickState([a]), c = pickState([a, b]);
+    const qs = [qOf(a, b), qOf(b, c), qOf(a, c)].sort((x, y) => x - y); S4.n++; if (Math.abs(qs[0] - qs[1]) < 1e-12) S4.iso++; if (Math.abs(qs[0] - qs[2]) < 1e-12) S4.eq++; S4.pick = [a, b, c];
+    const pts = Array.from({ length: 3 }, () => [S4.R(), S4.R()]), ds = [0, 1, 2].map(i => Math.hypot(pts[i][0] - pts[(i + 1) % 3][0], pts[i][1] - pts[(i + 1) % 3][1])).sort((x, y) => x - y);
+    if ((ds[2] - ds[1]) / ds[2] < 0.01) S4.rnd++; S4.rtri = pts; }
+  draw4(); }
+function drawTri(ctx, w, h, P3, d3, labels, col) {   // place triangle with side lengths d3 = [dAB, dBC, dAC]
+  const [c, a, b] = d3; // AB = c, BC = a, AC = b
+  const A = [0, 0], B = [c, 0], x = (b * b - a * a + c * c) / (2 * c), C = [x, Math.sqrt(Math.max(0, b * b - x * x))];
+  const pts = [A, B, C], mnx = Math.min(...pts.map(p => p[0])), mxx = Math.max(...pts.map(p => p[0])), mxy = Math.max(...pts.map(p => p[1]));
+  const s = Math.min((w - 70) / (mxx - mnx || 1), (h - 50) / (mxy || 1)), ox = (w - (mxx - mnx) * s) / 2 - mnx * s, oy = h - 24;
+  const X = p => [ox + p[0] * s, oy - p[1] * s];
+  ctx.strokeStyle = col; ctx.lineWidth = 2; ctx.beginPath(); pts.forEach((p, i) => i ? ctx.lineTo(...X(p)) : ctx.moveTo(...X(p))); ctx.closePath(); ctx.stroke();
+  ctx.font = '11px ' + MONO; ctx.fillStyle = P.fg; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  pts.forEach((p, i) => { const [px, py] = X(p); ctx.beginPath(); ctx.arc(px, py, 3.5, 0, TAU); ctx.fill(); ctx.fillText(labels[i], px + (i === 1 ? 12 : i === 0 ? -12 : 0), py + (i === 2 ? -12 : 10)); });
+  const sides = [[0, 1, c], [1, 2, a], [0, 2, b]]; ctx.fillStyle = P.mut; ctx.font = '10.5px ' + MONO;
+  for (const [i, j, L] of sides) { const [x1, y1] = X(pts[i]), [x2, y2] = X(pts[j]); ctx.fillText(L.toFixed(2), (x1 + x2) / 2 + (j === 2 ? (i === 0 ? -20 : 20) : 0), (y1 + y2) / 2 + (j === 1 && i === 0 ? 12 : 0)); }
+}
+function draw4() {
+  const p = S4;
+  { const { ctx, w, h } = fit($('c4a')), nf = p.fam.length, gw = (w - 16) / Math.max(1, nf), maxw = Math.max(...p.states.map(s => s.w)), rmax = Math.min(gw * 0.3, 34);
+    p.fam.forEach((f, fi) => { const x0 = 8 + fi * gw;
+      ctx.strokeStyle = P.rule; ctx.lineWidth = 1; ctx.strokeRect(x0 + 4.5, 26.5, gw - 9, h - 34);
+      ctx.fillStyle = P.mut; ctx.font = '10.5px ' + MONO; ctx.textAlign = 'center'; ctx.textBaseline = 'top'; ctx.fillText(`${tr('family', 'famiglia')} ${fi + 1} · ${(f.W * 100).toFixed(1)}%`, x0 + gw / 2, 8);
+      f.st.forEach((wv, si) => { const r = Math.max(2, rmax * Math.sqrt(wv / maxw)), cy = 26 + (h - 34) * (si + 0.5) / 6, cx = x0 + gw / 2, idx = p.states.findIndex(s => s.fi === fi && s.si === si);
+        const sel = p.pick ? p.pick.indexOf(idx) : -1;
+        ctx.fillStyle = sel >= 0 ? P.acc : mix(P.panel, P.hot, 0.65); ctx.beginPath(); ctx.arc(cx, cy, r, 0, TAU); ctx.fill();
+        if (sel >= 0) { ctx.fillStyle = P.fg; ctx.font = '500 12px ' + MONO; ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; ctx.fillText('ABC'[sel], cx + r + 5, cy); } }); });
+  }
+  { const { ctx, w, h } = fit($('c4b'));
+    if (!p.pick) msg(ctx, w, h, tr('press “Pick three states”', 'premi “Scegli tre stati”'));
+    else { const [a, b, c] = p.pick; drawTri(ctx, w, h, null, [dist(qOf(a, b)), dist(qOf(b, c)), dist(qOf(a, c))], ['A', 'B', 'C'], P.acc); } }
+  { const { ctx, w, h } = fit($('c4c'));
+    if (!p.rtri) msg(ctx, w, h, '—');
+    else { const t = p.rtri, d = (i, j) => Math.hypot(t[i][0] - t[j][0], t[i][1] - t[j][1]); drawTri(ctx, w, h, null, [d(0, 1), d(1, 2), d(0, 2)], ['A', 'B', 'C'], P.mut); } }
+  const rows = [];
+  if (p.pick) { const [a, b, c] = p.pick; rows.push(['q_AB, q_BC, q_AC', [qOf(a, b), qOf(b, c), qOf(a, c)].map(v => v.toFixed(2)).join(', '), 'acc']); }
+  rows.push([tr('triples picked', 'terne scelte'), String(p.n)], [tr('isosceles, states', 'isosceli, stati'), `${p.iso} / ${p.n}`, 'acc'], [tr('of which equilateral', 'di cui equilateri'), String(p.eq)],
+    [tr('isosceles within 1%, random points', 'isosceli entro l\'1%, punti casuali'), `${p.rnd} / ${p.n}`], [tr('weight of the largest state', 'peso dello stato più grande'), p.states.length ? (Math.max(...p.states.map(s => s.w)) * 100).toFixed(1) + '%' : '—']);
+  readouts($('r4'), rows);
+}
+$('b4p').addEventListener('click', () => triple4(1));
+$('b4m').addEventListener('click', () => triple4(1000));
+$('b4n').addEventListener('click', () => { S4.seed++; gen4(); draw4(); });
+
+/* ================================================================ 5 Parisi function (same solver as the technical page) */
+const NU = 241, UMAX = 6, DU = 2 * UMAX / (NU - 1);
+const UG = Float64Array.from({ length: NU }, (_, i) => -UMAX + i * DU);
+const lncosh = x => { const a = Math.abs(x); return a + Math.log1p(Math.exp(-2 * a)) - Math.LN2; };
+function cub(X, u) {   // Catmull-Rom on the grid, linear extrapolation outside (X is asymptotically linear in u)
+  const t = (u + UMAX) / DU;
+  if (t <= 0) return X[0] + (X[1] - X[0]) * t;
+  if (t >= NU - 1) return X[NU - 1] + (X[NU - 1] - X[NU - 2]) * (t - NU + 1);
+  const i = Math.min(NU - 2, Math.floor(t)), f = t - i;
+  const p0 = i > 0 ? X[i - 1] : 2 * X[0] - X[1], p1 = X[i], p2 = X[i + 1], p3 = i + 2 < NU ? X[i + 2] : 2 * X[NU - 1] - X[NU - 2];
+  return p1 + 0.5 * f * (p2 - p0 + f * (2 * p0 - 5 * p1 + 4 * p2 - p3 + f * (3 * (p1 - p2) + p3 - p0)));
+}
+const ZR = new Map();
+function zrule(c, dz) {   // trapezoid nodes for E over z ~ N(0,1), range widened by the tilt c = m beta s
+  const L = 7.5 + c, n = Math.ceil(2 * L / dz), key = n * 1000 + Math.round(L * 10);
+  if (ZR.has(key)) return ZR.get(key);
+  const z = new Float64Array(n + 1), w = new Float64Array(n + 1), hh = 2 * L / n; let S = 0;
+  for (let i = 0; i <= n; i++) { z[i] = -L + i * hh; w[i] = Math.exp(-z[i] * z[i] / 2) * (i % n ? 1 : 0.5); S += w[i]; }
+  for (let i = 0; i <= n; i++) w[i] /= S;
+  const r = { z, w, A: new Float64Array(n + 1) }; if (ZR.size > 400) ZR.clear(); ZR.set(key, r); return r;
+}
+// Talagrand's P_k with k = K+1 levels: m = [m_1..m_K], q = [q_1..q_{K+1}]. Returns -beta f bound.
+function parisiP(beta, h, m, q) {
+  const k = q.length, qq = [0, ...q, 1], mm = [0, ...m, 1];
+  let F = u => lncosh(beta * (h + u)) + beta * beta * (1 - qq[k]) / 2;   // level k has m_k = 1: Gaussian average done exactly
+  for (let l = k - 1; l >= 1; l--) {
+    const s = Math.sqrt(Math.max(qq[l + 1] - qq[l], 0)), ml = mm[l], Y = new Float64Array(NU);
+    if (s < 1e-9 || ml < 1e-12) {
+      if (s < 1e-9) for (let i = 0; i < NU; i++) Y[i] = F(UG[i]);
+      else { const { z, w } = zrule(0, Math.min(0.2, 0.35 / (beta * s))); for (let i = 0; i < NU; i++) { let S = 0; for (let j = 0; j < z.length; j++) S += w[j] * F(UG[i] + s * z[j]); Y[i] = S; } }
+    } else {
+      const { z, w, A } = zrule(ml * beta * s, Math.min(0.2, 0.35 / (beta * s))), nz = z.length;
+      for (let i = 0; i < NU; i++) { let M = -Infinity;
+        for (let j = 0; j < nz; j++) { A[j] = ml * F(UG[i] + s * z[j]); if (A[j] > M) M = A[j]; }
+        let S = 0; for (let j = 0; j < nz; j++) S += w[j] * Math.exp(A[j] - M);
+        Y[i] = (M + Math.log(S)) / ml; }
+    }
+    F = u => cub(Y, u);
+  }
+  const s0 = Math.sqrt(qq[1]); let X0;
+  if (s0 < 1e-9) X0 = F(0); else { const { z, w } = zrule(0, Math.min(0.1, 0.35 / (beta * s0))); X0 = 0; for (let j = 0; j < z.length; j++) X0 += w[j] * F(s0 * z[j]); }
+  let pen = 0; for (let l = 1; l <= k; l++) pen += mm[l] * (qq[l + 1] ** 2 - qq[l] ** 2);
+  return Math.LN2 + X0 - beta * beta / 4 * pen;
+}
+function* nelderMead(f, x0, step, maxEval = 2500, tol = 1e-12) {
+  const n = x0.length; let S = [x0.slice()];
+  for (let i = 0; i < n; i++) { const v = x0.slice(); v[i] += step; S.push(v); }
+  let F = []; for (const v of S) { F.push(f(v)); yield; } let ev = n + 1;
+  while (ev < maxEval) {
+    const idx = F.map((v, i) => i).sort((a, b) => F[a] - F[b]); S = idx.map(i => S[i]); F = idx.map(i => F[i]);
+    if (Math.abs(F[n] - F[0]) < tol) break;
+    const c = new Array(n).fill(0); for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) c[j] += S[i][j] / n;
+    const pt = a => c.map((v, j) => v + a * (S[n][j] - v));
+    const xr = pt(-1), fr = f(xr); ev++; yield;
+    if (fr < F[0]) { const xe = pt(-2), fe = f(xe); ev++; yield; if (fe < fr) { S[n] = xe; F[n] = fe; } else { S[n] = xr; F[n] = fr; } }
+    else if (fr < F[n - 1]) { S[n] = xr; F[n] = fr; }
+    else { const xc = fr < F[n] ? pt(-0.5) : pt(0.5), fc = f(xc); ev++; yield;
+      if (fc < Math.min(fr, F[n])) { S[n] = xc; F[n] = fc; }
+      else for (let i = 1; i <= n; i++) { S[i] = S[i].map((v, j) => S[0][j] + 0.5 * (v - S[0][j])); F[i] = f(S[i]); ev++; yield; } }
+  }
+  const i0 = F.indexOf(Math.min(...F)); return { x: S[i0], f: F[i0], ev };
+}
+// unconstrained parameters: q increments and m increments as softmax weights (ordering automatic)
+const softmax = a => { const M = Math.max(...a), e = a.map(v => Math.exp(v - M)), s = e.reduce((x, y) => x + y); return e.map(v => v / s); };
+const cumsum = a => { let c = 0; return a.map(v => (c += v)); };
+function unpack(p, K) { const k = K + 1; return { q: cumsum(softmax(p.slice(0, k + 1))).slice(0, k), m: K ? cumsum(softmax(p.slice(k + 1))).slice(0, K) : [] }; }
+function pack(m, q) { const e = 1e-4, lg = v => Math.log(Math.max(v, e));
+  const dq = [q[0], ...q.slice(1).map((v, i) => v - q[i]), 1 - q[q.length - 1]].map(lg);
+  const dm = m.length ? [m[0], ...m.slice(1).map((v, i) => v - m[i]), 1 - m[m.length - 1]].map(lg) : [];
+  return [...dq, ...dm]; }
+function split(sol) {   // K-step solution -> (K+1)-step starting point: split the widest q step
+  const { m, q } = sol;
+  if (q.length === 1) return { q: [q[0] * 0.5, q[0]], m: [0.3] };
+  let j = 1, g = -1; for (let i = 1; i < q.length; i++) if (q[i] - q[i - 1] > g) { g = q[i] - q[i - 1]; j = i; }
+  const mlo = j >= 2 ? m[j - 2] : 0, mhi = m[j - 1];
+  return { q: [...q.slice(0, j), (q[j - 1] + q[j]) / 2, ...q.slice(j)], m: [...m.slice(0, j - 1), (mlo + mhi) / 2, ...m.slice(j - 1)] };
+}
+const S5 = { T: 0.4, sols: [], cache: {}, cancel: null, status: '' };
+const KMAX5 = 3;
+function* solveAll5(T) {
+  const beta = 1 / T, out = [];
+  for (let K = 0; K <= KMAX5; K++) {
+    const fK = p => { const { m, q } = unpack(p, K); return parisiP(beta, 0, m, q); };
+    const starts = [K === 0 ? { m: [], q: [0.5] } : split(out[K - 1])]; if (S5.cache[K]) starts.unshift(S5.cache[K]);
+    let best = null;
+    for (const st of starts) {
+      let r = yield* nelderMead(fK, pack(st.m, st.q), st === S5.cache[K] ? 0.3 : 0.7);
+      for (let i = 0; i < 3; i++) { const r2 = yield* nelderMead(fK, r.x, 0.2); const d = r.f - r2.f; r = r2; if (d < 1e-11) break; }
+      if (!best || r.f < best.f) best = r;
+      if (st === S5.cache[K] && K > 0 && best.f <= out[K - 1].P + 1e-12) break;
+    }
+    const { m, q } = unpack(best.x, K); out.push({ K, P: best.f, f: -T * best.f, m, q });
+  }
+  return out;
+}
+function solve5() { if (S5.cancel) S5.cancel(); S5.status = tr('computing…', 'calcolo…'); draw5();
+  S5.cancel = runTask(solveAll5(S5.T), out => { S5.cancel = null; S5.sols = out; out.forEach((s, K) => { S5.cache[K] = { m: s.m, q: s.q }; }); S5.status = ''; draw5(); }); }
+function draw5() {
+  const p = S5; setOut('t5', p.T.toFixed(2)); $('st5').textContent = p.status;
+  const s = p.sols[p.sols.length - 1], rs = p.sols[0];
+  { const { ctx, w, h } = fit($('c5a')), b = { x: 44, y: 10, w: w - 56, h: h - 42 };
+    const f = frame(ctx, b, [0, 1], [0, 1], { xl: 'x', yl: 'q(x)' });
+    if (rs) { ctx.setLineDash([5, 4]); ctx.strokeStyle = P.mut; ctx.lineWidth = 1.4; ctx.beginPath(); ctx.moveTo(f.X(0), f.Y(rs.q[0])); ctx.lineTo(f.X(1), f.Y(rs.q[0])); ctx.stroke(); ctx.setLineDash([]); }
+    if (s) { const M = [0, ...s.m, 1]; ctx.strokeStyle = P.acc; ctx.lineWidth = 2.6; ctx.beginPath();
+      for (let l = 1; l <= s.K + 1; l++) { const y = f.Y(s.q[l - 1]); l === 1 ? ctx.moveTo(f.X(0), y) : ctx.lineTo(f.X(M[l - 1]), y); ctx.lineTo(f.X(M[l]), y); } ctx.stroke();
+      const xm = s.m[s.K - 1], qe = s.q[s.K]; ctx.fillStyle = P.acc; ctx.font = '11px ' + MONO; ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
+      if (qe > 0.05) { ctx.fillText(`q_EA = ${qe.toFixed(2)}`, f.X((xm + 1) / 2), f.Y(qe) - 6);
+        ctx.strokeStyle = P.acc; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(f.X(xm), f.Y(qe) + 14); ctx.lineTo(f.X(1), f.Y(qe) + 14); ctx.stroke();
+        ctx.textBaseline = 'top'; ctx.fillText(`1 − x_max = ${(1 - xm).toFixed(2)}`, f.X((xm + 1) / 2), f.Y(qe) + 18); } }
+    else msg(ctx, w, h, p.status);
+  }
+  { const { ctx, w, h } = fit($('c5b')), b = { x: 44, y: 10, w: w - 56, h: h - 42 };
+    const f = frame(ctx, b, [-0.02, 1], [0, 1.05], { xl: 'q', ny: 4 });
+    if (s) { const M = [0, ...s.m, 1], bw = Math.max(4, b.w * 0.02); for (let l = 1; l <= s.K + 1; l++) { ctx.fillStyle = l === s.K + 1 ? P.acc : mix(P.hot, P.acc, (l - 1) / (s.K + 1)); const x = f.X(s.q[l - 1]), y = f.Y(M[l] - M[l - 1]); ctx.fillRect(x - bw / 2, y, bw, f.Y(0) - y); } }
+  }
+  if (!s) { readouts($('r5'), []); return; }
+  const qe = s.q[s.K], xm = s.m[s.K - 1];
+  readouts($('r5'), [[tr('temperature', 'temperatura'), p.T.toFixed(2)], [tr('overlap within a valley, q_EA', 'sovrapposizione in una valle, q_EA'), mfmt(qe, 3), 'acc'],
+    [tr('probability of the same valley, 1 − x_max', 'probabilità della stessa valle, 1 − x_max'), qe > 0.01 ? mfmt(1 - xm, 3) : '—', 'acc'],
+    [tr('replica-symmetric q (wrong)', 'q a simmetria di replica (sbagliato)'), mfmt(rs.q[0], 3)], [tr('free energy gained by breaking the symmetry', 'energia libera guadagnata rompendo la simmetria'), (s.f - rs.f).toExponential(1).replace('-', '−')]]);
+}
+$('t5').addEventListener('input', () => { S5.T = +$('t5').value; setOut('t5', S5.T.toFixed(2)); clearTimeout(S5.db); S5.db = setTimeout(solve5, 300); });
+
+/* ================================================================ global */
+function drawAll() { readPal(); draw1(); draw2(); draw3(); draw4(); draw5(); }
+let pend = 0; const sched = () => { if (!pend) pend = requestAnimationFrame(() => { pend = 0; drawAll(); }); };
+new ResizeObserver(sched).observe(document.querySelector('.wrap'));
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change', sched);
+new MutationObserver(sched).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme', 'class', 'style'] });
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(sched);
+function setLang(l) {
+  document.documentElement.setAttribute('data-ui', l); document.documentElement.lang = l;
+  try { localStorage.setItem('pi-lang', l); } catch (e) {}
+  document.querySelectorAll('.lang button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.set === l)));
+  document.querySelectorAll('option[data-en]').forEach(o => { o.textContent = o.dataset[l]; });
+  document.querySelectorAll('#theme button').forEach(b => { b.title = { auto: tr('System theme', 'Tema di sistema'), light: tr('Light', 'Chiaro'), dark: tr('Dark', 'Scuro') }[b.dataset.themeSet]; b.setAttribute('aria-label', b.title); });
+  sched();
+}
+document.querySelectorAll('.lang button').forEach(b => b.addEventListener('click', () => setLang(b.dataset.set)));
+function setTheme(t) {
+  const root = document.documentElement;
+  if (t === 'light' || t === 'dark') root.setAttribute('data-theme', t); else root.removeAttribute('data-theme');
+  try { t === 'auto' ? localStorage.removeItem('pi-theme') : localStorage.setItem('pi-theme', t); } catch (e) {}
+  document.querySelectorAll('#theme button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.themeSet === t)));
+}
+document.querySelectorAll('#theme button').forEach(b => b.addEventListener('click', () => setTheme(b.dataset.themeSet)));
+{ const t0 = document.documentElement.getAttribute('data-theme'); setTheme(t0 === 'light' || t0 === 'dark' ? t0 : 'auto'); }
+readPal();
+S1.n = +$('g1').value;
+S2.mode = $('m2').value; S2.N = +$('n2').value; S2.sweeps = sweepsOf(); couplings2();
+S3.T = +$('t3').value; sample3(); update3(); drawPairs(1);
+gen4(); triple4(1); S5.T = +$('t5').value;
+drawAll();
+setLang(document.documentElement.getAttribute('data-ui') === 'it' ? 'it' : 'en');
+start2(); solve5();
+})();
+</script>

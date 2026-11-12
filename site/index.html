@@ -13,15 +13,15 @@
 </script>
 <style>
 :root {
-  --bg: #f4f3ee; --panel: #fcfbf8; --fg: #141413; --muted: #67655d; --rule: #dddacf; --accent: #b9542f;
+  --bg: #f4f3ee; --panel: #fcfbf8; --fg: #141413; --muted: #67655d; --rule: #dddacf; --accent: #b9542f; --teal: #2f7a68;
   --sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   color-scheme: light;
 }
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) { --bg: #1f1e1c; --panel: #292826; --fg: #eceae3; --muted: #a29f96; --rule: #3e3c38; --accent: #e28a68; color-scheme: dark; }
+  :root:not([data-theme="light"]) { --bg: #1f1e1c; --panel: #292826; --fg: #eceae3; --muted: #a29f96; --rule: #3e3c38; --accent: #e28a68; --teal: #5dc1ac; color-scheme: dark; }
 }
-:root[data-theme="dark"] { --bg: #1f1e1c; --panel: #292826; --fg: #eceae3; --muted: #a29f96; --rule: #3e3c38; --accent: #e28a68; color-scheme: dark; }
+:root[data-theme="dark"] { --bg: #1f1e1c; --panel: #292826; --fg: #eceae3; --muted: #a29f96; --rule: #3e3c38; --accent: #e28a68; --teal: #5dc1ac; color-scheme: dark; }
 * { box-sizing: border-box; }
 html[data-ui="it"] [data-l="en"], html:not([data-ui="it"]) [data-l="it"] { display: none !important; }
 body {
@@ -48,6 +48,8 @@ h1 { font-size: clamp(28px, 4vw, 40px); line-height: 1.12; font-weight: 600; mar
 .card p { grid-column: 1; margin: 0; max-width: 70ch; color: var(--muted); font-size: 14.5px; }
 .card .meta { grid-column: 2; grid-row: 1 / span 2; align-self: center; font: 12px var(--mono); color: var(--muted); text-align: right; white-space: nowrap; }
 .card .go { color: var(--accent); }
+.badge { display: inline-block; vertical-align: middle; margin-right: 10px; padding: 1px 7px; border: 1px solid var(--rule); border-radius: 3px; font: 500 10.5px var(--mono); letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.badge.pop { border-color: var(--teal); color: var(--teal); }
 footer { font: 12.5px var(--mono); color: var(--muted); }
 :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 @media (max-width: 640px) {
@@ -75,8 +77,8 @@ footer { font: 12.5px var(--mono); color: var(--muted); }
       </div>
     </div>
     <h1><span data-l="en">Physics Artifacts</span><span data-l="it">Artefatti di fisica</span></h1>
-    <p class="lead" data-l="en">Interactive explainers for an expert audience. Every figure is computed live from the formulas stated in the text.</p>
-    <p class="lead" data-l="it">Spiegazioni interattive per un pubblico esperto. Ogni figura è calcolata in tempo reale dalle formule riportate nel testo.</p>
+    <p class="lead" data-l="en">Interactive explainers: technical pages for specialists and popular-science pages for everyone. Every figure is computed live from the formulas stated in the text.</p>
+    <p class="lead" data-l="it">Spiegazioni interattive: pagine tecniche per specialisti e pagine divulgative per tutti. Ogni figura è calcolata in tempo reale dalle formule riportate nel testo.</p>
   </header>
 
   <ul class="list">

@@ -14,7 +14,8 @@
       "quantum mechanics",
       "path integrals"
     ],
-    "updated": "2026-11-12"
+    "updated": "2026-11-12",
+    "level": "expert"
   },
   {
     "slug": "replica-symmetry-breaking",
@@ -26,6 +27,25 @@
     "summary": {
       "en": "Five interactive figures on the Sherrington–Kirkpatrick spin glass: exact enumeration of small samples, the failure of replica symmetry and the de Almeida–Thouless line, Parisi's hierarchical ansatz, the numerical solution of the Parisi variational problem, and Ruelle cascades of pure states.",
       "it": "Cinque figure interattive sul vetro di spin di Sherrington–Kirkpatrick: enumerazione esatta di campioni piccoli, fallimento della simmetria di replica e linea di de Almeida–Thouless, ansatz gerarchico di Parisi, soluzione numerica del problema variazionale di Parisi e cascate di Ruelle degli stati puri."
+    },
+    "topics": [
+      "statistical mechanics",
+      "spin glasses"
+    ],
+    "updated": "2026-11-12",
+    "level": "expert"
+  },
+  {
+    "slug": "spin-glasses-explained",
+    "source": "spin-glasses-explained.html",
+    "level": "popular",
+    "title": {
+      "en": "Spin Glasses and Parisi's Broken Symmetry",
+      "it": "I vetri di spin e la simmetria rotta di Parisi"
+    },
+    "summary": {
+      "en": "A non-technical introduction to the work behind the 2021 Nobel Prize: frustration, a landscape with many valleys, overlaps between copies, the family tree of states and Parisi's order parameter, with five experiments to run in the browser.",
+      "it": "Un'introduzione non tecnica al lavoro premiato con il Nobel 2021: frustrazione, un paesaggio con tante valli, sovrapposizione tra copie, l'albero genealogico degli stati e il parametro d'ordine di Parisi, con cinque esperimenti da eseguire nel browser."
     },
     "topics": [
       "statistical mechanics",

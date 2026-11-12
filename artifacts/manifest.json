@@ -18,6 +18,24 @@
     "level": "expert"
   },
   {
+    "slug": "path-integrals-explained",
+    "source": "path-integrals-explained.html",
+    "level": "popular",
+    "title": {
+      "en": "Feynman's Sum over Histories",
+      "it": "La somma su tutte le storie di Feynman"
+    },
+    "summary": {
+      "en": "A non-technical introduction to Feynman's path integral: every path contributes a rotating arrow. Four experiments to run in the browser: the mirror and the diffraction grating, why a ball follows a single path, electrons through two slits one at a time, and the lifeguard problem behind refraction.",
+      "it": "Un'introduzione non tecnica all'integrale sui cammini di Feynman: ogni percorso contribuisce con una freccia che ruota. Quattro esperimenti da eseguire nel browser: lo specchio e il reticolo di diffrazione, perché una palla segue un solo percorso, elettroni attraverso due fenditure uno alla volta e il problema del bagnino dietro la rifrazione."
+    },
+    "topics": [
+      "quantum mechanics",
+      "path integrals"
+    ],
+    "updated": "2026-11-12"
+  },
+  {
     "slug": "replica-symmetry-breaking",
     "source": "replica-symmetry-breaking.html",
     "title": {

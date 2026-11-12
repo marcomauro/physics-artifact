@@ -5,7 +5,7 @@ Collection of interactive, single-file HTML physics explainers for an expert aud
 First artifact: `artifacts/feynman-path-integral.html`. Also published as a private claude.ai artifact
 (working preview only): https://claude.ai/artifact/Fhxf9ktuZdNxm4f4eh2r6e
 Second artifact: `artifacts/replica-symmetry-breaking.html` (Parisi RSB in the SK model; same conventions).
-Third: `artifacts/spin-glasses-explained.html`, popular-science companion of the second (accessible language, "Example" and "In short" boxes, same rigor).
+Popular companions: `artifacts/path-integrals-explained.html` (Feynman) and `artifacts/spin-glasses-explained.html`, (accessible language, "Example" and "In short" boxes, same rigor).
 
 ## Distribution
 Public distribution is GitHub Pages, not claude.ai sharing.

@@ -1,0 +1,978 @@
+<title>Parisi Replica Symmetry Breaking</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
+<script>
+(function(){var l='en';try{var v=localStorage.getItem('pi-lang');if(v==='it'||v==='en')l=v;}catch(e){}document.documentElement.setAttribute('data-ui',l);document.documentElement.lang=l;var t=null;try{t=localStorage.getItem('pi-theme');}catch(e){}if(t==='dark'||t==='light')document.documentElement.setAttribute('data-theme',t);})();
+window.MathJax = {
+  tex: { inlineMath: [['\\(', '\\)']], displayMath: [['\\[', '\\]']] },
+  svg: { fontCache: 'global' }
+};
+</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-svg.js"></script>
+<style>
+:root {
+  --bg: #f4f3ee;
+  --panel: #fcfbf8;
+  --fg: #141413;
+  --muted: #67655d;
+  --rule: #dddacf;
+  --grid: #ebe8df;
+  --accent: #b9542f;
+  --hot: #2e66a3;
+  --teal: #2f7a68;
+  --phaseL: 48%;
+  --sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #1f1e1c; --panel: #292826; --fg: #eceae3; --muted: #a29f96; --rule: #3e3c38; --grid: #33312e;
+    --accent: #e28a68; --hot: #74a9e0; --teal: #5dc1ac; --phaseL: 62%; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #1f1e1c; --panel: #292826; --fg: #eceae3; --muted: #a29f96; --rule: #3e3c38; --grid: #33312e;
+  --accent: #e28a68; --hot: #74a9e0; --teal: #5dc1ac; --phaseL: 62%; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html[data-ui="it"] [data-l="en"], html:not([data-ui="it"]) [data-l="it"] { display: none !important; }
+.topbar { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+.tools { display: inline-flex; gap: 10px; flex-wrap: wrap; }
+.lang, .seg { display: inline-flex; border: 1px solid var(--rule); border-radius: 3px; overflow: hidden; font: 500 12px var(--mono); }
+.lang button, .seg button { border: 0; background: transparent; color: var(--muted); padding: 5px 12px; cursor: pointer; font: inherit; letter-spacing: .06em; }
+.lang button + button, .seg button + button { border-left: 1px solid var(--rule); }
+.lang button[aria-pressed="true"], .seg button[aria-pressed="true"] { background: var(--accent); color: var(--panel); }
+body {
+  background: var(--bg); color: var(--fg);
+  font-family: var(--sans); font-size: 15.5px; line-height: 1.6;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 40px 64px;
+  -webkit-font-smoothing: antialiased;
+}
+.wrap { max-width: 1160px; margin: 0 auto; display: flex; flex-direction: column; gap: 56px; }
+header { display: flex; flex-direction: column; gap: 14px; }
+.eyebrow { font-family: var(--mono); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+h1 { font-size: clamp(28px, 4vw, 40px); line-height: 1.12; font-weight: 600; margin: 0; letter-spacing: -.01em; text-wrap: balance; }
+h2 { font-size: 22px; font-weight: 600; margin: 0; letter-spacing: -.005em; text-wrap: balance; display: flex; gap: 14px; align-items: baseline; }
+h2 .n { font-family: var(--mono); font-weight: 400; font-size: 14px; color: var(--accent); }
+h3 { font-size: 13px; font-family: var(--mono); font-weight: 500; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); margin: 0; }
+p { margin: 0; max-width: 70ch; }
+.lead { font-size: 17px; color: var(--fg); max-width: 72ch; }
+.prose { display: flex; flex-direction: column; gap: 12px; }
+.eq { overflow-x: auto; overflow-y: hidden; padding: 6px 0; max-width: 100%; }
+mjx-container { color: var(--fg); }
+mjx-container[display="true"] { margin: 0.4em 0 !important; }
+section { display: flex; flex-direction: column; gap: 18px; border-top: 1px solid var(--rule); padding-top: 28px; }
+.keys { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); background: var(--panel); border: 1px solid var(--rule); border-width: 1px 0 0 1px; }
+.keys div { border: solid var(--rule); border-width: 0 1px 1px 0; padding: 14px 16px; display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.keys b { font-family: var(--mono); font-weight: 500; font-size: 12px; color: var(--accent); }
+.keys span { font-size: 14px; color: var(--muted); }
+
+.fig { background: var(--panel); border: 1px solid var(--rule); display: flex; flex-direction: column; }
+.fig-grid { display: grid; gap: 1px; background: var(--rule); }
+.fig-grid > * { background: var(--panel); min-width: 0; }
+.g-2-1 { grid-template-columns: 2fr 1fr; }
+.g-3-2 { grid-template-columns: 3fr 2fr; }
+.col { display: flex; flex-direction: column; gap: 1px; background: var(--rule); }
+.col > * { background: var(--panel); }
+.pane { position: relative; padding: 10px 12px 8px; display: flex; flex-direction: column; gap: 6px; }
+.pane h3 { font-size: 11px; }
+.cv { position: relative; width: 100%; }
+.cv canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; }
+.cv.grow { flex: 1 1 auto; }
+.sq { aspect-ratio: 1 / 1; max-width: 100%; }
+.cap { font-size: 13px; color: var(--muted); padding: 10px 14px; border-top: 1px solid var(--rule); max-width: none; }
+.cap b { color: var(--fg); font-weight: 500; }
+
+.ctl { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px 22px; padding: 14px 16px; border-top: 1px solid var(--rule); }
+.ctl label { display: flex; flex-direction: column; gap: 4px; font-size: 12.5px; color: var(--muted); min-width: 0; }
+.ctl .row { display: flex; justify-content: space-between; gap: 8px; }
+.ctl output { font-family: var(--mono); font-size: 12px; color: var(--fg); font-variant-numeric: tabular-nums; }
+.ctl input[type=range] { width: 100%; accent-color: var(--accent); margin: 0; }
+.ctl select, .ctl button {
+  font: 500 12.5px var(--mono); color: var(--fg); background: var(--bg);
+  border: 1px solid var(--rule); padding: 6px 10px; border-radius: 3px; cursor: pointer;
+}
+.ctl button:hover, .ctl select:hover { border-color: var(--accent); }
+.ctl button.on { background: var(--accent); color: var(--panel); border-color: var(--accent); }
+.ctl .chk { flex-direction: row; align-items: center; gap: 8px; color: var(--fg); }
+.ctl .chk input { accent-color: var(--accent); margin: 0; }
+.ctl .btns { display: flex; gap: 8px; flex-wrap: wrap; align-items: flex-end; flex-direction: row; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.ro { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); background: var(--panel); border-top: 1px solid var(--rule); margin: 0; }
+.ro div { border: solid var(--rule); border-width: 0 1px 1px 0; padding: 9px 14px; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.ro dt { font-size: 11.5px; color: var(--muted); }
+.ro dd { margin: 0; font-family: var(--mono); font-size: 13.5px; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.ro dd.hot { color: var(--hot); }
+.ro dd.acc { color: var(--accent); }
+
+.legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-family: var(--mono); font-size: 11.5px; color: var(--muted); }
+.legend i { display: inline-block; width: 16px; height: 2px; vertical-align: middle; margin-right: 6px; background: currentColor; }
+.l-acc { color: var(--accent); } .l-hot { color: var(--hot); } .l-teal { color: var(--teal); } .l-fg { color: var(--fg); } .l-mut { color: var(--muted); }
+.phbar { display: inline-block; width: 64px; height: 8px; vertical-align: middle; margin-right: 6px; border-radius: 1px; }
+
+.refs { font-size: 13.5px; color: var(--muted); display: flex; flex-direction: column; gap: 6px; padding-left: 1.2em; margin: 0; }
+.refs li { max-width: 90ch; }
+footer { font-size: 12.5px; color: var(--muted); font-family: var(--mono); }
+
+@media (max-width: 820px) {
+  .g-2-1, .g-3-2 { grid-template-columns: 1fr; }
+  body { font-size: 15px; padding-block: 24px 48px; }
+}
+.col > .pane:last-child { flex: 1 1 auto; }
+.ctl .stat { font: 12px var(--mono); color: var(--muted); align-self: end; }
+</style>
+
+<div class="wrap">
+
+<header>
+  <div class="topbar">
+    <div class="eyebrow"><span data-l="en">Statistical mechanics · disordered systems · mean-field spin glasses</span><span data-l="it">Meccanica statistica · sistemi disordinati · vetri di spin di campo medio</span></div>
+    <div class="tools">
+      <div class="seg" id="theme" role="group" aria-label="Theme / Tema">
+        <button type="button" data-theme-set="auto" aria-pressed="true">AUTO</button>
+        <button type="button" data-theme-set="light" aria-pressed="false">☀</button>
+        <button type="button" data-theme-set="dark" aria-pressed="false">☾</button>
+      </div>
+      <div class="lang" role="group" aria-label="Language / Lingua">
+        <button type="button" id="lang-en" data-set="en" aria-pressed="true">EN</button>
+        <button type="button" id="lang-it" data-set="it" aria-pressed="false">IT</button>
+      </div>
+    </div>
+  </div>
+  <h1><span data-l="en">Parisi Replica Symmetry Breaking</span><span data-l="it">Rottura della simmetria di replica di Parisi</span></h1>
+  <p class="lead" data-l="en">In the Sherrington–Kirkpatrick model the low-temperature phase is not described by a single order parameter but by a function \(q(x)\) on \([0,1]\): the distribution of overlaps between equilibrium states, organized in an ultrametric hierarchy. The five figures below compute this structure from the model: exact enumeration of small samples, the failure of the replica-symmetric solution, the hierarchical ansatz, the numerical solution of the Parisi variational problem, and the random cascade of pure states that it implies.</p>
+  <p class="lead" data-l="it">Nel modello di Sherrington–Kirkpatrick la fase di bassa temperatura non è descritta da un singolo parametro d'ordine ma da una funzione \(q(x)\) su \([0,1]\): la distribuzione delle sovrapposizioni tra stati di equilibrio, organizzata in una gerarchia ultrametrica. Le cinque figure che seguono calcolano questa struttura a partire dal modello: enumerazione esatta di campioni piccoli, fallimento della soluzione a simmetria di replica, ansatz gerarchico, soluzione numerica del problema variazionale di Parisi e cascata aleatoria di stati puri che ne consegue.</p>
+  <div class="eq">\[
+  H_J(\sigma)=-\sum_{i\lt j}J_{ij}\,\sigma_i\sigma_j-h\sum_i\sigma_i,\qquad J_{ij}\sim\mathcal N(0,1/N),\qquad
+  -\beta f=\lim_{N\to\infty}\frac1N\,\mathbb E\ln Z_J=\lim_{N\to\infty}\lim_{n\to0}\frac{\ln\mathbb E Z_J^{\,n}}{nN}
+  \]</div>
+  <p data-l="en">The quenched average of \(\ln Z\) is computed with replicas. For integer \(n\) the Gaussian average of \(Z^n\) couples the replicas through their overlaps \(q_{ab}=N^{-1}\sum_i\sigma_i^a\sigma_i^b\), and a Hubbard–Stratonovich transformation leaves an integral over an \(n\times n\) matrix \(Q\) dominated by a saddle point:</p>
+  <p data-l="it">La media quenched di \(\ln Z\) si calcola con le repliche. Per \(n\) intero la media gaussiana di \(Z^n\) accoppia le repliche attraverso le loro sovrapposizioni \(q_{ab}=N^{-1}\sum_i\sigma_i^a\sigma_i^b\), e una trasformazione di Hubbard–Stratonovich lascia un integrale su una matrice \(n\times n\) \(Q\) dominato da un punto di sella:</p>
+  <div class="eq">\[
+  \mathbb E Z^n\simeq\int\prod_{a\lt b}dQ_{ab}\;\exp N\Big[\frac{\beta^2n}{4}-\frac{\beta^2}{2}\sum_{a\lt b}Q_{ab}^2+\ln\!\!\sum_{s^1\dots s^n=\pm1}\!\!\exp\Big(\beta^2\sum_{a\lt b}Q_{ab}\,s^as^b+\beta h\sum_a s^a\Big)\Big]
+  \]</div>
+  <p data-l="en">The limit \(n\to0\) of an expression defined for integer \(n\) is the delicate step: the saddle point has to be chosen through an ansatz for \(Q\), and the symmetric choice \(Q_{ab}=q\) is wrong below the de Almeida–Thouless line. The physical content of the correct ansatz is the overlap distribution \(P_J(q)=\sum_{\sigma,\tau}w_J(\sigma)\,w_J(\tau)\,\delta(q-q_{\sigma\tau})\), with \(w_J\) the Gibbs weights. It is not self-averaging, and Parisi's function \(q(x)\) is the inverse of the cumulative distribution \(x(q)=\int_0^q P(q')\,dq'\) of its average \(P=\mathbb E P_J\) (global spin-flip symmetry removed). Units: \(J=1\), \(k_B=1\); the transition at \(h=0\) is at \(T_c=1\).</p>
+  <p data-l="it">Il limite \(n\to0\) di un'espressione definita per \(n\) intero è il passaggio delicato: il punto di sella va scelto attraverso un ansatz per \(Q\), e la scelta simmetrica \(Q_{ab}=q\) è sbagliata sotto la linea di de Almeida–Thouless. Il contenuto fisico dell'ansatz corretto è la distribuzione delle sovrapposizioni \(P_J(q)=\sum_{\sigma,\tau}w_J(\sigma)\,w_J(\tau)\,\delta(q-q_{\sigma\tau})\), con \(w_J\) i pesi di Gibbs. Non è automediante, e la funzione di Parisi \(q(x)\) è l'inversa della distribuzione cumulativa \(x(q)=\int_0^q P(q')\,dq'\) della sua media \(P=\mathbb E P_J\) (tolta la simmetria globale di inversione degli spin). Unità: \(J=1\), \(k_B=1\); la transizione a \(h=0\) è a \(T_c=1\).</p>
+  <div class="keys">
+    <div><b><span data-l="en">§1 Exact samples</span><span data-l="it">§1 Campioni esatti</span></b><span data-l="en">All \(2^N\) states: \(P_J(q)\) differs from sample to sample.</span><span data-l="it">Tutti i \(2^N\) stati: \(P_J(q)\) cambia da campione a campione.</span></div>
+    <div><b><span data-l="en">§2 Replica symmetry fails</span><span data-l="it">§2 La simmetria di replica fallisce</span></b><span data-l="en">Negative entropy and the de Almeida–Thouless instability.</span><span data-l="it">Entropia negativa e instabilità di de Almeida–Thouless.</span></div>
+    <div><b><span data-l="en">§3 Parisi's ansatz</span><span data-l="it">§3 L'ansatz di Parisi</span></b><span data-l="en">Nested blocks, ultrametricity, and \(n\to0\) reversing the order.</span><span data-l="it">Blocchi annidati, ultrametricità, e \(n\to0\) che inverte l'ordine.</span></div>
+    <div><b><span data-l="en">§4 Solving for q(x)</span><span data-l="it">§4 Calcolo di q(x)</span></b><span data-l="en">K-step bounds of Guerra–Talagrand, minimized numerically.</span><span data-l="it">Limiti a K passi di Guerra–Talagrand, minimizzati numericamente.</span></div>
+    <div><b><span data-l="en">§5 Pure states</span><span data-l="it">§5 Stati puri</span></b><span data-l="en">Ruelle cascades: random weights, \(\mathbb E\,Y=1-m\).</span><span data-l="it">Cascate di Ruelle: pesi aleatori, \(\mathbb E\,Y=1-m\).</span></div>
+  </div>
+</header>
+
+<!-- §1 -->
+<section id="sec1">
+  <h2><span class="n">§1</span><span data-l="en">Exact enumeration of small samples</span><span data-l="it">Enumerazione esatta di campioni piccoli</span></h2>
+  <div class="prose" data-l="en">
+    <p>For \(N\le16\) spins all \(2^N\) configurations can be enumerated along a Gray code at cost \(O(2^N N)\). The overlap distribution of one sample is then a convolution over the group \(\mathbb Z_2^N\). Writing configurations as bit strings, \(q(\sigma,\sigma\oplus u)=1-2|u|/N\), and</p>
+    <div class="eq">\[ P_J\Big(q=1-\frac{2d}{N}\Big)=\sum_{|u|=d}\,\sum_\sigma w_J(\sigma)\,w_J(\sigma\oplus u)=\frac1{2^N}\sum_{|u|=d}\Big[\mathcal H\big(\mathcal H w_J\big)^2\Big](u), \]</div>
+    <p>with \(\mathcal H\) the Walsh–Hadamard transform, so \(P_J\) is exact at cost \(O(2^N N)\). Above \(T_c=1\) the distribution is centred on \(q=0\) with width of order \(N^{-1/2}\). Below \(T_c\) each sample develops its own peaks, symmetric under \(q\to-q\), that move from one sample to the next. At these sizes finite-size effects are large: the figure shows the objects that the theory describes, not the thermodynamic limit.</p>
+    <p>The energy landscape is rugged. The number of configurations stable against every single spin flip grows as \(e^{\Sigma N}\) with \(\Sigma\simeq0.199\) (Tanaka–Edwards), and the lowest of them have mutual overlaps that group into clusters. The ground-state energy per spin tends to \(e_0=-0.7632\), the zero-temperature value of Parisi's solution, with corrections of order \(N^{-2/3}\).</p>
+  </div>
+  <div class="prose" data-l="it">
+    <p>Per \(N\le16\) spin tutte le \(2^N\) configurazioni si possono enumerare lungo un codice di Gray con costo \(O(2^N N)\). La distribuzione delle sovrapposizioni di un campione è allora una convoluzione sul gruppo \(\mathbb Z_2^N\). Scrivendo le configurazioni come stringhe di bit, \(q(\sigma,\sigma\oplus u)=1-2|u|/N\), e</p>
+    <div class="eq">\[ P_J\Big(q=1-\frac{2d}{N}\Big)=\sum_{|u|=d}\,\sum_\sigma w_J(\sigma)\,w_J(\sigma\oplus u)=\frac1{2^N}\sum_{|u|=d}\Big[\mathcal H\big(\mathcal H w_J\big)^2\Big](u), \]</div>
+    <p>con \(\mathcal H\) la trasformata di Walsh–Hadamard, quindi \(P_J\) è esatta con costo \(O(2^N N)\). Sopra \(T_c=1\) la distribuzione è centrata in \(q=0\) con larghezza dell'ordine di \(N^{-1/2}\). Sotto \(T_c\) ogni campione sviluppa i propri picchi, simmetrici per \(q\to-q\), che si spostano da un campione all'altro. A queste taglie gli effetti di taglia finita sono grandi: la figura mostra gli oggetti descritti dalla teoria, non il limite termodinamico.</p>
+    <p>Il paesaggio energetico è accidentato. Il numero di configurazioni stabili rispetto a ogni singola inversione di spin cresce come \(e^{\Sigma N}\) con \(\Sigma\simeq0.199\) (Tanaka–Edwards), e le più basse hanno sovrapposizioni reciproche che si raggruppano in cluster. L'energia per spin dello stato fondamentale tende a \(e_0=-0.7632\), il valore a temperatura zero della soluzione di Parisi, con correzioni dell'ordine di \(N^{-2/3}\).</p>
+  </div>
+  <div class="fig">
+    <div class="fig-grid g-3-2">
+      <div class="pane">
+        <h3><span data-l="en">Overlap distribution: this sample and the average over samples</span><span data-l="it">Distribuzione delle sovrapposizioni: questo campione e media sui campioni</span></h3>
+        <div class="cv grow" style="min-height:380px"><canvas id="c1a" aria-label="Overlap distribution of one sample and of the sample average"></canvas></div>
+        <div class="legend"><span class="l-acc"><i></i>P_J(q) <span data-l="en">this sample</span><span data-l="it">questo campione</span></span><span class="l-hot"><i></i><span data-l="en">average over samples</span><span data-l="it">media sui campioni</span></span></div>
+      </div>
+      <div class="col">
+        <div class="pane">
+          <h3><span data-l="en">Energies of single-flip-stable states</span><span data-l="it">Energie degli stati stabili a singola inversione</span></h3>
+          <div class="cv" style="height:170px"><canvas id="c1b" aria-label="Histogram of energies of stable states"></canvas></div>
+          <div class="legend"><span class="l-acc"><i></i><span data-l="en">ground state</span><span data-l="it">stato fondamentale</span></span><span class="l-mut"><i></i>e₀(N → ∞) = −0.7632</span></div>
+        </div>
+        <div class="pane">
+          <h3><span data-l="en">|q| among the lowest stable states, clustered</span><span data-l="it">|q| tra gli stati stabili più bassi, raggruppati</span></h3>
+          <div class="cv sq" style="max-height:260px"><canvas id="c1c" aria-label="Overlap matrix of the lowest stable states"></canvas></div>
+        </div>
+      </div>
+    </div>
+    <div class="ctl">
+      <label for="n1"><span class="row"><span><span data-l="en">spins N</span><span data-l="it">spin N</span></span><output for="n1" id="o_n1"></output></span><input type="range" id="n1" min="8" max="16" step="2" value="14"></label>
+      <label for="t1"><span class="row"><span><span data-l="en">temperature T</span><span data-l="it">temperatura T</span></span><output for="t1" id="o_t1"></output></span><input type="range" id="t1" min="0.15" max="2" step="0.01" value="0.4"></label>
+      <label for="s1"><span class="row"><span><span data-l="en">disorder samples</span><span data-l="it">campioni di disordine</span></span><output for="s1" id="o_s1"></output></span><input type="range" id="s1" min="1" max="30" step="1" value="20"></label>
+      <div class="btns"><button id="b1n" type="button"><span data-l="en">Next sample</span><span data-l="it">Campione successivo</span></button><button id="b1d" type="button"><span data-l="en">New disorder</span><span data-l="it">Nuovo disordine</span></button></div>
+    </div>
+    <dl class="ro" id="r1"></dl>
+    <p class="cap" data-l="en">The enumeration is done once per sample; changing T only changes the Gibbs weights. Step through the samples with <b>Next sample</b>: below T ≈ 0.6 the peaks of P_J(q) change position and height from one sample to the next, while the average is smooth. The matrix on the right uses |q| because each state and its global flip are equivalent.</p>
+    <p class="cap" data-l="it">L'enumerazione si fa una volta per campione; variare T cambia solo i pesi di Gibbs. Scorrere i campioni con <b>Campione successivo</b>: sotto T ≈ 0.6 i picchi di P_J(q) cambiano posizione e altezza da un campione all'altro, mentre la media è regolare. La matrice a destra usa |q| perché ogni stato e il suo inverso globale sono equivalenti.</p>
+  </div>
+</section>
+
+<!-- §2 -->
+<section id="sec2">
+  <h2><span class="n">§2</span><span data-l="en">The replica-symmetric solution and its failure</span><span data-l="it">La soluzione a simmetria di replica e il suo fallimento</span></h2>
+  <div class="prose" data-l="en">
+    <p>The replica-symmetric ansatz \(Q_{ab}=q\) for all \(a\ne b\) reduces the saddle point to the Sherrington–Kirkpatrick solution,</p>
+    <div class="eq">\[ -\beta f_{\rm RS}=\frac{\beta^2}{4}(1-q)^2+\int\!Dz\,\ln2\cosh\Xi,\qquad q=\int\!Dz\,\tanh^2\Xi,\qquad \Xi=\beta\big(\sqrt q\,z+h\big), \]</div>
+    <p>with \(Dz\) the standard Gaussian measure. It fails in two ways. Its entropy</p>
+    <div class="eq">\[ s_{\rm RS}=-\frac{\beta^2}{4}(1-q)^2+\int\!Dz\,\big(\ln2\cosh\Xi-\Xi\tanh\Xi\big) \]</div>
+    <p>becomes negative at low temperature and tends to \(-1/2\pi\) as \(T\to0\) at \(h=0\), which is impossible for Ising spins. And the saddle point is unstable: among the fluctuations of \(Q_{ab}\) around \(q\), the replicon mode has eigenvalue proportional to</p>
+    <div class="eq">\[ \lambda_R=1-\beta^2\!\int\!Dz\;\mathrm{sech}^4\,\Xi, \]</div>
+    <p>which turns negative below the de Almeida–Thouless line, \(h_{\rm AT}^2\simeq\tfrac43(1-T)^3\) near \(T=1\). The figure solves these equations numerically at every point of the \((h,T)\) plane.</p>
+  </div>
+  <div class="prose" data-l="it">
+    <p>L'ansatz a simmetria di replica \(Q_{ab}=q\) per ogni \(a\ne b\) riduce il punto di sella alla soluzione di Sherrington–Kirkpatrick,</p>
+    <div class="eq">\[ -\beta f_{\rm RS}=\frac{\beta^2}{4}(1-q)^2+\int\!Dz\,\ln2\cosh\Xi,\qquad q=\int\!Dz\,\tanh^2\Xi,\qquad \Xi=\beta\big(\sqrt q\,z+h\big), \]</div>
+    <p>con \(Dz\) la misura gaussiana standard. Fallisce in due modi. La sua entropia</p>
+    <div class="eq">\[ s_{\rm RS}=-\frac{\beta^2}{4}(1-q)^2+\int\!Dz\,\big(\ln2\cosh\Xi-\Xi\tanh\Xi\big) \]</div>
+    <p>diventa negativa a bassa temperatura e tende a \(-1/2\pi\) per \(T\to0\) a \(h=0\), cosa impossibile per spin di Ising. E il punto di sella è instabile: tra le fluttuazioni di \(Q_{ab}\) attorno a \(q\), il modo replicone ha autovalore proporzionale a</p>
+    <div class="eq">\[ \lambda_R=1-\beta^2\!\int\!Dz\;\mathrm{sech}^4\,\Xi, \]</div>
+    <p>che diventa negativo sotto la linea di de Almeida–Thouless, \(h_{\rm AT}^2\simeq\tfrac43(1-T)^3\) vicino a \(T=1\). La figura risolve numericamente queste equazioni in ogni punto del piano \((h,T)\).</p>
+  </div>
+  <div class="fig">
+    <div class="fig-grid g-3-2">
+      <div class="pane">
+        <h3><span data-l="en">Phase diagram: stability of the RS solution</span><span data-l="it">Diagramma di fase: stabilità della soluzione RS</span></h3>
+        <div class="cv grow" style="min-height:400px"><canvas id="c2a" aria-label="Phase diagram with the de Almeida-Thouless line"></canvas></div>
+        <div class="legend"><span class="l-hot"><i></i><span data-l="en">AT line, λ_R = 0 (numerical)</span><span data-l="it">linea AT, λ_R = 0 (numerica)</span></span><span class="l-mut"><i></i>h² = (4/3)(1 − T)³</span><span class="l-mut"><span data-l="en">drag to move the point</span><span data-l="it">trascina per spostare il punto</span></span></div>
+      </div>
+      <div class="col">
+        <div class="pane">
+          <h3><span data-l="en">RS order parameter and entropy at fixed h</span><span data-l="it">Parametro d'ordine ed entropia RS a h fissato</span></h3>
+          <div class="cv" style="height:220px"><canvas id="c2b" aria-label="RS order parameter and entropy versus temperature"></canvas></div>
+          <div class="legend"><span class="l-acc"><i></i>q_RS(T)</span><span class="l-hot"><i></i>s_RS(T)</span><span class="l-mut"><i></i>−1/2π</span></div>
+        </div>
+        <div class="pane">
+          <h3><span data-l="en">Replicon eigenvalue λ_R(T)</span><span data-l="it">Autovalore replicone λ_R(T)</span></h3>
+          <div class="cv" style="height:160px"><canvas id="c2c" aria-label="Replicon eigenvalue versus temperature"></canvas></div>
+        </div>
+      </div>
+    </div>
+    <div class="ctl">
+      <label for="h2"><span class="row"><span><span data-l="en">field h</span><span data-l="it">campo h</span></span><output for="h2" id="o_h2"></output></span><input type="range" id="h2" min="0" max="2" step="0.01" value="0.3"></label>
+      <label for="t2"><span class="row"><span><span data-l="en">temperature T</span><span data-l="it">temperatura T</span></span><output for="t2" id="o_t2"></output></span><input type="range" id="t2" min="0.08" max="1.4" step="0.01" value="0.5"></label>
+    </div>
+    <dl class="ro" id="r2"></dl>
+  </div>
+</section>
+
+<!-- §3 -->
+<section id="sec3">
+  <h2><span class="n">§3</span><span data-l="en">Parisi's hierarchical ansatz</span><span data-l="it">L'ansatz gerarchico di Parisi</span></h2>
+  <div class="prose" data-l="en">
+    <p>Parisi's ansatz breaks the permutation symmetry of the replicas hierarchically. The \(n\) replicas are split into \(n/m_1\) groups of \(m_1\), each group into \(m_1/m_2\) subgroups of \(m_2\), and so on for \(K\) steps. \(Q_{ab}=q_l\) when the deepest group containing both \(a\) and \(b\) is at level \(l\). Every triple of replicas then satisfies the ultrametric inequality \(q_{ac}\ge\min(q_{ab},q_{bc})\): of the three overlaps, the two smallest are equal. The number of partners \(b\ne a\) with \(Q_{ab}=q_l\) is \(m_l-m_{l+1}\), with \(m_0=n\) and \(m_{K+1}=1\), so</p>
+    <div class="eq">\[ \frac{1}{n(n-1)}\sum_{a\ne b}\delta(q-Q_{ab})=\sum_{l=0}^{K}\frac{m_l-m_{l+1}}{n-1}\,\delta(q-q_l). \]</div>
+    <p>For integer \(n\) the chain is \(n\ge m_1\ge\dots\ge m_K\ge1\). Continued to \(n\to0\), the weights \((m_l-m_{l+1})/(n-1)\) stay positive only if the order is reversed, \(0\le m_1\le\dots\le m_K\le1\). The block sizes become a cumulative probability \(x\), and the overlap matrix becomes a nondecreasing step function \(q(x)\) on \([0,1]\) that takes the value \(q_l\) with probability \(m_{l+1}-m_l\). The limit \(K\to\infty\) gives a continuous \(q(x)\).</p>
+  </div>
+  <div class="prose" data-l="it">
+    <p>L'ansatz di Parisi rompe in modo gerarchico la simmetria per permutazioni delle repliche. Le \(n\) repliche sono divise in \(n/m_1\) gruppi di \(m_1\), ogni gruppo in \(m_1/m_2\) sottogruppi di \(m_2\), e così via per \(K\) passi. \(Q_{ab}=q_l\) quando il gruppo più profondo che contiene sia \(a\) sia \(b\) è al livello \(l\). Ogni terna di repliche soddisfa allora la disuguaglianza ultrametrica \(q_{ac}\ge\min(q_{ab},q_{bc})\): delle tre sovrapposizioni, le due più piccole sono uguali. Il numero di partner \(b\ne a\) con \(Q_{ab}=q_l\) è \(m_l-m_{l+1}\), con \(m_0=n\) e \(m_{K+1}=1\), quindi</p>
+    <div class="eq">\[ \frac{1}{n(n-1)}\sum_{a\ne b}\delta(q-Q_{ab})=\sum_{l=0}^{K}\frac{m_l-m_{l+1}}{n-1}\,\delta(q-q_l). \]</div>
+    <p>Per \(n\) intero la catena è \(n\ge m_1\ge\dots\ge m_K\ge1\). Continuando a \(n\to0\), i pesi \((m_l-m_{l+1})/(n-1)\) restano positivi solo se l'ordine si inverte, \(0\le m_1\le\dots\le m_K\le1\). Le dimensioni dei blocchi diventano una probabilità cumulativa \(x\), e la matrice delle sovrapposizioni diventa una funzione a gradini non decrescente \(q(x)\) su \([0,1]\) che vale \(q_l\) con probabilità \(m_{l+1}-m_l\). Il limite \(K\to\infty\) dà una \(q(x)\) continua.</p>
+  </div>
+  <div class="fig">
+    <div class="fig-grid g-3-2">
+      <div class="pane">
+        <h3><span data-l="en">Parisi matrix Q_ab for integer n</span><span data-l="it">Matrice di Parisi Q_ab per n intero</span></h3>
+        <div class="cv sq"><canvas id="c3a" aria-label="Hierarchical Parisi matrix"></canvas></div>
+        <div class="legend" id="lg3"></div>
+      </div>
+      <div class="col">
+        <div class="pane">
+          <h3><span data-l="en">The same matrix as an ultrametric tree</span><span data-l="it">La stessa matrice come albero ultrametrico</span></h3>
+          <div class="cv" style="height:230px"><canvas id="c3b" aria-label="Ultrametric tree of the replicas"></canvas></div>
+        </div>
+        <div class="pane">
+          <h3><span data-l="en">Fraction of partners at each level, (m_l − m_l+1)/(n − 1)</span><span data-l="it">Frazione di partner a ogni livello, (m_l − m_l+1)/(n − 1)</span></h3>
+          <div class="cv" style="height:170px"><canvas id="c3c" aria-label="Fraction of partners per level"></canvas></div>
+        </div>
+      </div>
+    </div>
+    <div class="ctl">
+      <label for="n3"><span class="row"><span><span data-l="en">replicas n</span><span data-l="it">repliche n</span></span></span>
+        <select id="n3"><option>8</option><option>12</option><option selected>16</option><option>24</option><option>32</option></select></label>
+      <label for="c3"><span class="row"><span><span data-l="en">block sizes n → m₁ → … → m_K</span><span data-l="it">dimensioni dei blocchi n → m₁ → … → m_K</span></span></span>
+        <select id="c3"></select></label>
+    </div>
+    <dl class="ro" id="r3"></dl>
+    <p class="cap" data-l="en">The values q_l = 0.15 + 0.7 l/K are illustrative; only their order matters here. The ultrametric inequality is checked directly on every triple of the matrix.</p>
+    <p class="cap" data-l="it">I valori q_l = 0.15 + 0.7 l/K sono illustrativi; qui conta solo il loro ordine. La disuguaglianza ultrametrica è verificata direttamente su ogni terna della matrice.</p>
+  </div>
+</section>
+
+<!-- §4 -->
+<section id="sec4">
+  <h2><span class="n">§4</span><span data-l="en">Solving the Parisi variational problem</span><span data-l="it">Soluzione del problema variazionale di Parisi</span></h2>
+  <div class="prose" data-l="en">
+    <p>For the \(K\)-step ansatz the limit \(n\to0\) can be taken explicitly. In the form of Guerra and Talagrand, take \(0=m_0\le m_1\le\dots\le m_K\le m_{K+1}=1\) and \(0=q_0\le q_1\le\dots\le q_{K+1}\le q_{K+2}=1\), independent Gaussians \(z_p\) with variances \(q_{p+1}-q_p\), and define recursively</p>
+    <div class="eq">\[ X_{K+2}=\ln\cosh\beta\Big(h+\sum_{p=0}^{K+1}z_p\Big),\qquad X_l=\frac1{m_l}\ln\mathbb E_{z_l}\,e^{\,m_lX_{l+1}}\;\;(l=K+1,\dots,1),\qquad X_0=\mathbb E_{z_0}X_1, \]</div>
+    <div class="eq">\[ \mathcal P_K(m,q)=\ln2+X_0-\frac{\beta^2}{4}\sum_{l=1}^{K+1}m_l\big(q_{l+1}^2-q_l^2\big). \]</div>
+    <p>Guerra proved that every choice of the parameters gives an upper bound, \(\lim_N N^{-1}\mathbb E\ln Z_J\le\mathcal P_K(m,q)\); Talagrand proved that the infimum over \(K\) and the parameters is exact. This is the Parisi formula. \(K=0\) gives back the RS solution of §2. The figure minimizes \(\mathcal P_K\) for \(K=0,\dots,K_{\max}\) with Nelder–Mead on the \(2K+1\) parameters; each \(K\) starts from the solution at \(K-1\) by splitting its widest step. The Gaussian expectations are done by quadrature on a grid in the field variable, with an error below \(10^{-6}\) in \(f\). The minimizer gives the overlap distribution, \(P(q)=\sum_l(m_l-m_{l-1})\,\delta(q-q_l)\).</p>
+    <p>The free energy increases monotonically with \(K\) and converges quickly, while \(q(x)\) approaches a continuous curve that ends on a plateau \(q(x)=q_{\rm EA}\) for \(x>x_{\max}\): \(P(q)\) has a delta peak of weight \(1-x_{\max}\) at the self-overlap of the pure states and a continuous part below it. At finite \(K\) and \(h=0\) the best bound still puts a small weight at \(q_1>0\); \(q_1\) moves toward \(0\) as \(K\) grows, consistent with \(q(0)=0\) for the full solution.</p>
+  </div>
+  <div class="prose" data-l="it">
+    <p>Per l'ansatz a \(K\) passi il limite \(n\to0\) si può prendere esplicitamente. Nella forma di Guerra e Talagrand, si prendano \(0=m_0\le m_1\le\dots\le m_K\le m_{K+1}=1\) e \(0=q_0\le q_1\le\dots\le q_{K+1}\le q_{K+2}=1\), gaussiane indipendenti \(z_p\) con varianze \(q_{p+1}-q_p\), e si definisca ricorsivamente</p>
+    <div class="eq">\[ X_{K+2}=\ln\cosh\beta\Big(h+\sum_{p=0}^{K+1}z_p\Big),\qquad X_l=\frac1{m_l}\ln\mathbb E_{z_l}\,e^{\,m_lX_{l+1}}\;\;(l=K+1,\dots,1),\qquad X_0=\mathbb E_{z_0}X_1, \]</div>
+    <div class="eq">\[ \mathcal P_K(m,q)=\ln2+X_0-\frac{\beta^2}{4}\sum_{l=1}^{K+1}m_l\big(q_{l+1}^2-q_l^2\big). \]</div>
+    <p>Guerra ha dimostrato che ogni scelta dei parametri dà un limite superiore, \(\lim_N N^{-1}\mathbb E\ln Z_J\le\mathcal P_K(m,q)\); Talagrand ha dimostrato che l'estremo inferiore su \(K\) e sui parametri è esatto. È la formula di Parisi. \(K=0\) restituisce la soluzione RS del §2. La figura minimizza \(\mathcal P_K\) per \(K=0,\dots,K_{\max}\) con Nelder–Mead sui \(2K+1\) parametri; ogni \(K\) parte dalla soluzione a \(K-1\) dividendo il suo gradino più largo. Le medie gaussiane sono calcolate per quadratura su una griglia nella variabile di campo, con errore sotto \(10^{-6}\) su \(f\). Il minimo dà la distribuzione delle sovrapposizioni, \(P(q)=\sum_l(m_l-m_{l-1})\,\delta(q-q_l)\).</p>
+    <p>L'energia libera cresce in modo monotono con \(K\) e converge rapidamente, mentre \(q(x)\) si avvicina a una curva continua che termina su un plateau \(q(x)=q_{\rm EA}\) per \(x>x_{\max}\): \(P(q)\) ha un picco delta di peso \(1-x_{\max}\) all'autosovrapposizione degli stati puri e una parte continua al di sotto. A \(K\) finito e \(h=0\) il limite migliore mette ancora un piccolo peso in \(q_1>0\); \(q_1\) si sposta verso \(0\) al crescere di \(K\), coerentemente con \(q(0)=0\) per la soluzione completa.</p>
+  </div>
+  <div class="fig">
+    <div class="fig-grid g-3-2">
+      <div class="pane">
+        <h3><span data-l="en">Parisi function q(x) for K = 0 … K_max</span><span data-l="it">Funzione di Parisi q(x) per K = 0 … K_max</span></h3>
+        <div class="cv grow" style="min-height:380px"><canvas id="c4a" aria-label="Parisi function for increasing number of steps"></canvas></div>
+        <div class="legend" id="lg4"></div>
+      </div>
+      <div class="col">
+        <div class="pane">
+          <h3><span data-l="en">Free-energy gain (f_K − f_RS) × 10³</span><span data-l="it">Guadagno di energia libera (f_K − f_RS) × 10³</span></h3>
+          <div class="cv" style="height:190px"><canvas id="c4b" aria-label="Free energy versus number of steps"></canvas></div>
+        </div>
+        <div class="pane">
+          <h3><span data-l="en">P(q) at K = K_max</span><span data-l="it">P(q) a K = K_max</span></h3>
+          <div class="cv" style="height:190px"><canvas id="c4c" aria-label="Overlap distribution of the best solution"></canvas></div>
+        </div>
+      </div>
+    </div>
+    <div class="ctl">
+      <label for="t4"><span class="row"><span><span data-l="en">temperature T</span><span data-l="it">temperatura T</span></span><output for="t4" id="o_t4"></output></span><input type="range" id="t4" min="0.2" max="1.2" step="0.01" value="0.4"></label>
+      <label for="h4"><span class="row"><span><span data-l="en">field h</span><span data-l="it">campo h</span></span><output for="h4" id="o_h4"></output></span><input type="range" id="h4" min="0" max="0.8" step="0.01" value="0"></label>
+      <label for="k4"><span class="row"><span>K_max</span></span>
+        <select id="k4"><option>1</option><option>2</option><option selected>3</option><option>4</option></select></label>
+      <div class="btns"><span class="stat" id="st4"></span></div>
+    </div>
+    <dl class="ro" id="r4"></dl>
+    <p class="cap" data-l="en">The minimization restarts on every change of T, h or K_max, from the previous solution when one is available. K_max = 4 takes a few seconds. Since each K-step family contains the (K − 1)-step one, f_K can only increase; the readouts show how fast the increments shrink.</p>
+    <p class="cap" data-l="it">La minimizzazione riparte a ogni variazione di T, h o K_max, dalla soluzione precedente quando disponibile. K_max = 4 richiede qualche secondo. Poiché ogni famiglia a K passi contiene quella a K − 1, f_K può solo crescere; le letture mostrano quanto rapidamente si riducono gli incrementi.</p>
+  </div>
+</section>
+
+<!-- §5 -->
+<section id="sec5">
+  <h2><span class="n">§5</span><span data-l="en">Pure states, random weights and non-self-averaging</span><span data-l="it">Stati puri, pesi aleatori e assenza di automedia</span></h2>
+  <div class="prose" data-l="en">
+    <p>The hierarchical matrix has a probabilistic reading. In the low-temperature phase the Gibbs measure splits into pure states \(\alpha\) with random weights \(w_\alpha\). Two independent replicas fall into states \(\alpha,\beta\) with probability \(w_\alpha w_\beta\), and their overlap \(q_{\alpha\beta}\) depends only on the deepest cluster containing both. For the \(K\)-step solution the weights form a Ruelle probability cascade: the cluster masses at level \(l\) are Poisson–Dirichlet \(\mathrm{PD}(m_l,0)\), and each cluster at level \(l\) fragments into level \(l+1\) according to \(\mathrm{PD}(m_{l+1},-m_l)\). The figure samples cascades with the \(m_l\) and \(q_l\) found in §4, by stick-breaking: \(\mathrm{PD}(\alpha,\theta)\) has weights \(V_i\prod_{j\lt i}(1-V_j)\) with \(V_i\sim\mathrm{Beta}(1-\alpha,\theta+i\alpha)\).</p>
+    <p>For one sample, \(P_J(q)\) is a finite set of delta peaks whose heights change from sample to sample; only the average is \(P(q)\). The probability that two replicas are in the same state, \(Y=\sum_\alpha w_\alpha^2\), has a non-trivial distribution with</p>
+    <div class="eq">\[ \mathbb E\,Y=1-m,\qquad \mathbb E\,Y^2=\frac{(1-m)(3-2m)}{3},\qquad m=m_K=x_{\max} \]</div>
+    <p>(Mézard, Parisi, Sourlas, Toulouse, Virasoro, 1984): the order parameter is not self-averaging even for \(N\to\infty\). Ultrametricity of the pure states, assumed in this construction, was proved by Panchenko (2013) for models satisfying the Ghirlanda–Guerra identities, which hold for generic mean-field spin glasses.</p>
+  </div>
+  <div class="prose" data-l="it">
+    <p>La matrice gerarchica ha una lettura probabilistica. Nella fase di bassa temperatura la misura di Gibbs si scompone in stati puri \(\alpha\) con pesi aleatori \(w_\alpha\). Due repliche indipendenti cadono negli stati \(\alpha,\beta\) con probabilità \(w_\alpha w_\beta\), e la loro sovrapposizione \(q_{\alpha\beta}\) dipende solo dal cluster più profondo che li contiene entrambi. Per la soluzione a \(K\) passi i pesi formano una cascata di probabilità di Ruelle: le masse dei cluster al livello \(l\) sono Poisson–Dirichlet \(\mathrm{PD}(m_l,0)\), e ogni cluster al livello \(l\) si frammenta nel livello \(l+1\) secondo \(\mathrm{PD}(m_{l+1},-m_l)\). La figura campiona cascate con gli \(m_l\) e \(q_l\) trovati nel §4, per stick-breaking: \(\mathrm{PD}(\alpha,\theta)\) ha pesi \(V_i\prod_{j\lt i}(1-V_j)\) con \(V_i\sim\mathrm{Beta}(1-\alpha,\theta+i\alpha)\).</p>
+    <p>Per un campione, \(P_J(q)\) è un insieme finito di picchi delta le cui altezze cambiano da campione a campione; solo la media è \(P(q)\). La probabilità che due repliche siano nello stesso stato, \(Y=\sum_\alpha w_\alpha^2\), ha una distribuzione non banale con</p>
+    <div class="eq">\[ \mathbb E\,Y=1-m,\qquad \mathbb E\,Y^2=\frac{(1-m)(3-2m)}{3},\qquad m=m_K=x_{\max} \]</div>
+    <p>(Mézard, Parisi, Sourlas, Toulouse, Virasoro, 1984): il parametro d'ordine non è automediante nemmeno per \(N\to\infty\). L'ultrametricità degli stati puri, assunta in questa costruzione, è stata dimostrata da Panchenko (2013) per i modelli che soddisfano le identità di Ghirlanda–Guerra, valide per i vetri di spin di campo medio generici.</p>
+  </div>
+  <div class="fig">
+    <div class="fig-grid g-3-2">
+      <div class="pane">
+        <h3><span data-l="en">One cascade: clusters at each level, width = weight</span><span data-l="it">Una cascata: cluster a ogni livello, larghezza = peso</span></h3>
+        <div class="cv grow" style="min-height:360px"><canvas id="c5a" aria-label="Clusters of pure states at each level of the cascade"></canvas></div>
+        <div class="legend"><span class="l-mut"><span data-l="en">row l: clusters whose members have mutual overlap ≥ q_l; bottom row: pure states</span><span data-l="it">riga l: cluster i cui membri hanno sovrapposizione reciproca ≥ q_l; riga in basso: stati puri</span></span></div>
+      </div>
+      <div class="col">
+        <div class="pane">
+          <h3><span data-l="en">P_J(q): this sample, batch average, P(q) from §4</span><span data-l="it">P_J(q): questo campione, media del lotto, P(q) dal §4</span></h3>
+          <div class="cv" style="height:200px"><canvas id="c5b" aria-label="Sample overlap distribution against the average"></canvas></div>
+          <div class="legend"><span class="l-acc"><i></i><span data-l="en">this sample</span><span data-l="it">questo campione</span></span><span class="l-hot"><i></i><span data-l="en">batch average</span><span data-l="it">media del lotto</span></span><span class="l-fg"><i></i>P(q) §4</span></div>
+        </div>
+        <div class="pane">
+          <h3><span data-l="en">Distribution of Y = Σ w_α² over the batch</span><span data-l="it">Distribuzione di Y = Σ w_α² sul lotto</span></h3>
+          <div class="cv" style="height:180px"><canvas id="c5c" aria-label="Histogram of Y"></canvas></div>
+          <div class="legend"><span class="l-fg"><i></i>1 − m</span><span class="l-hot"><i></i><span data-l="en">batch mean</span><span data-l="it">media del lotto</span></span></div>
+        </div>
+      </div>
+    </div>
+    <div class="ctl">
+      <label for="z5"><span class="row"><span><span data-l="en">batch size</span><span data-l="it">dimensione del lotto</span></span></span>
+        <select id="z5"><option>500</option><option selected>2000</option><option>8000</option></select></label>
+      <div class="btns"><button id="b5" type="button"><span data-l="en">New cascade</span><span data-l="it">Nuova cascata</span></button></div>
+    </div>
+    <dl class="ro" id="r5"></dl>
+    <p class="cap" data-l="en">The parameters come from the K_max solution of §4, so changing T or h there changes the cascade here. Sticks smaller than 2·10⁻⁴ are not resolved individually: their contribution to Σ w² at each level is added through its exact expectation.</p>
+    <p class="cap" data-l="it">I parametri vengono dalla soluzione a K_max del §4, quindi variare T o h lì cambia la cascata qui. I segmenti più piccoli di 2·10⁻⁴ non sono risolti singolarmente: il loro contributo a Σ w² a ogni livello è aggiunto tramite il suo valore atteso esatto.</p>
+  </div>
+</section>
+
+<section>
+  <h2><span data-l="en">References</span><span data-l="it">Riferimenti</span></h2>
+  <ol class="refs">
+    <li>D. Sherrington, S. Kirkpatrick, Solvable model of a spin-glass, Phys. Rev. Lett. 35, 1792 (1975).</li>
+    <li>J. R. L. de Almeida, D. J. Thouless, Stability of the Sherrington–Kirkpatrick solution of a spin glass model, J. Phys. A 11, 983 (1978).</li>
+    <li>G. Parisi, Infinite number of order parameters for spin-glasses, Phys. Rev. Lett. 43, 1754 (1979).</li>
+    <li>G. Parisi, A sequence of approximated solutions to the S-K model for spin glasses, J. Phys. A 13, L115 (1980).</li>
+    <li>G. Parisi, Order parameter for spin-glasses, Phys. Rev. Lett. 50, 1946 (1983).</li>
+    <li>F. Tanaka, S. F. Edwards, Analytic theory of the ground state properties of a spin glass, J. Phys. F 10, 2769 (1980).</li>
+    <li>M. Mézard, G. Parisi, N. Sourlas, G. Toulouse, M. Virasoro, Nature of the spin-glass phase, Phys. Rev. Lett. 52, 1156 (1984).</li>
+    <li>M. Mézard, G. Parisi, M. A. Virasoro, Spin Glass Theory and Beyond, World Scientific (1987).</li>
+    <li>D. Ruelle, A mathematical reformulation of Derrida's REM and GREM, Commun. Math. Phys. 108, 225 (1987).</li>
+    <li>J. Pitman, M. Yor, The two-parameter Poisson–Dirichlet distribution derived from a stable subordinator, Ann. Probab. 25, 855 (1997).</li>
+    <li>F. Guerra, Broken replica symmetry bounds in the mean field spin glass model, Commun. Math. Phys. 233, 1 (2003).</li>
+    <li>M. Talagrand, The Parisi formula, Ann. Math. 163, 221 (2006).</li>
+    <li>D. Panchenko, The Parisi ultrametricity conjecture, Ann. Math. 177, 383 (2013).</li>
+  </ol>
+  <footer><span data-l="en">Units: J = 1 (J_ij of variance 1/N), k_B = 1. All computations run in the browser.</span><span data-l="it">Unità: J = 1 (J_ij di varianza 1/N), k_B = 1. Tutti i calcoli sono eseguiti nel browser.</span></footer>
+</section>
+
+</div>
+
+<script>
+(() => {
+'use strict';
+const TAU = Math.PI * 2, PI = Math.PI;
+const MONO = '"IBM Plex Mono", ui-monospace, Menlo, monospace';
+const $ = id => document.getElementById(id);
+let P = {};
+function readPal() {
+  const s = getComputedStyle(document.documentElement), g = n => s.getPropertyValue(n).trim();
+  P = { bg: g('--bg'), panel: g('--panel'), fg: g('--fg'), mut: g('--muted'), rule: g('--rule'), grid: g('--grid'),
+        acc: g('--accent'), hot: g('--hot'), teal: g('--teal'), L: g('--phaseL') || '50%' };
+}
+const phaseCol = (phi, a = 1) => `hsla(${((((phi % TAU) + TAU) % TAU) * 180 / PI).toFixed(1)},70%,${P.L},${a})`;
+const mfmt = (v, d = 3) => (Number.isFinite(v) ? v.toFixed(d) : '∞').replace('-', '−');
+
+function fit(cv) {
+  const r = cv.getBoundingClientRect(), dpr = window.devicePixelRatio || 1;
+  const w = Math.max(10, Math.round(r.width)), h = Math.max(10, Math.round(r.height));
+  if (cv.width !== Math.round(w * dpr) || cv.height !== Math.round(h * dpr)) { cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr); }
+  const ctx = cv.getContext('2d');
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.clearRect(0, 0, w, h);
+  ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+  return { ctx, w, h };
+}
+function ticks(a, b, n) {
+  const span = b - a; if (!(span > 0)) return [a];
+  const s0 = span / n, mag = Math.pow(10, Math.floor(Math.log10(s0))), r = s0 / mag;
+  const step = (r < 1.5 ? 1 : r < 3 ? 2 : r < 7 ? 5 : 10) * mag;
+  const out = []; for (let v = Math.ceil(a / step - 1e-9) * step; v <= b + 1e-9 * span; v += step) out.push(+v.toFixed(10));
+  return out;
+}
+function tfmt(v) {
+  if (Math.abs(v) < 1e-12) return '0';
+  const a = Math.abs(v); let s = (a >= 1e4 || a < 1e-3) ? v.toExponential(0) : String(+v.toPrecision(3));
+  return s.replace('-', '−');
+}
+function frame(ctx, b, xr, yr, o = {}) {
+  const X = v => b.x + (v - xr[0]) / (xr[1] - xr[0]) * b.w;
+  const Y = v => b.y + b.h - (v - yr[0]) / (yr[1] - yr[0]) * b.h;
+  ctx.save();
+  ctx.lineWidth = 1; ctx.font = '10.5px ' + MONO; ctx.fillStyle = P.mut;
+  const xt = o.xt || ticks(xr[0], xr[1], o.nx || 5), yt = o.yt || ticks(yr[0], yr[1], o.ny || 4);
+  const fx = o.fx || tfmt, fy = o.fy || tfmt;
+  ctx.strokeStyle = P.grid;
+  for (const v of xt) { const px = Math.round(X(v)) + .5; if (px < b.x - 1 || px > b.x + b.w + 1) continue;
+    if (!o.nogrid) { ctx.beginPath(); ctx.moveTo(px, b.y); ctx.lineTo(px, b.y + b.h); ctx.stroke(); }
+    if (!o.noxl) { ctx.textAlign = 'center'; ctx.textBaseline = 'top'; ctx.fillText(fx(v), px, b.y + b.h + 4); } }
+  for (const v of yt) { const py = Math.round(Y(v)) + .5; if (py < b.y - 1 || py > b.y + b.h + 1) continue;
+    if (!o.nogrid) { ctx.beginPath(); ctx.moveTo(b.x, py); ctx.lineTo(b.x + b.w, py); ctx.stroke(); }
+    if (!o.noyl) { ctx.textAlign = 'right'; ctx.textBaseline = 'middle'; ctx.fillText(fy(v), b.x - 5, py); } }
+  ctx.strokeStyle = P.rule; ctx.strokeRect(b.x + .5, b.y + .5, b.w - 1, b.h - 1);
+  ctx.fillStyle = P.mut; ctx.font = 'italic 11.5px ' + MONO;
+  if (o.xl) { ctx.textAlign = 'right'; ctx.textBaseline = 'top'; ctx.fillText(o.xl, b.x + b.w, b.y + b.h + 17); }
+  if (o.yl) { ctx.textAlign = 'left'; ctx.textBaseline = 'top'; ctx.fillText(o.yl, b.x + 5, b.y + 4); }
+  ctx.restore();
+  return { X, Y };
+}
+function arrow(ctx, x0, y0, x1, y1, col, lw = 2, hd = 8) {
+  const ang = Math.atan2(y1 - y0, x1 - x0), len = Math.hypot(x1 - x0, y1 - y0);
+  ctx.save(); ctx.strokeStyle = col; ctx.fillStyle = col; ctx.lineWidth = lw;
+  ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x1 - Math.cos(ang) * Math.min(hd, len) * .6, y1 - Math.sin(ang) * Math.min(hd, len) * .6); ctx.stroke();
+  if (len > 3) { ctx.beginPath(); ctx.moveTo(x1, y1);
+    ctx.lineTo(x1 - hd * Math.cos(ang - .38), y1 - hd * Math.sin(ang - .38));
+    ctx.lineTo(x1 - hd * Math.cos(ang + .38), y1 - hd * Math.sin(ang + .38)); ctx.closePath(); ctx.fill(); }
+  ctx.restore();
+}
+function rng(seed) { return () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed);
+  t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+function gauss(r) { let u = 0; while (u === 0) u = r(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(TAU * r()); }
+function readouts(el, rows) {
+  el.innerHTML = rows.map(([k, v, c]) => `<div><dt>${k}</dt><dd class="${c || ''}">${v}</dd></div>`).join('');
+}
+const tr = (en, it) => document.documentElement.getAttribute('data-ui') === 'it' ? it : en;
+function setOut(id, txt) { const o = $('o_' + id); if (o) o.textContent = txt; }
+function gauss(R) { let u = 0; while (u === 0) u = R(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(TAU * R()); }
+function hex2rgb(h) { h = h.replace('#', ''); if (h.length === 3) h = h.split('').map(c => c + c).join(''); return [0, 2, 4].map(i => parseInt(h.slice(i, i + 2), 16)); }
+function mix(a, b, t) { const A = hex2rgb(a), B = hex2rgb(b); return `rgb(${A.map((v, i) => Math.round(v + (B[i] - v) * t)).join(',')})`; }
+const lvlCol = (l, K) => K > 0 ? mix(P.hot, P.acc, l / K) : P.acc;
+function msg(ctx, w, h, s) { ctx.fillStyle = P.mut; ctx.font = '12px ' + MONO; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(s, w / 2, h / 2); }
+// Run a generator in time slices so the page stays responsive. Returns a cancel function.
+function runTask(gen, done, budget = 14) {
+  let alive = true;
+  const step = () => { if (!alive) return; const t0 = performance.now(); let r;
+    do { r = gen.next(); } while (!r.done && performance.now() - t0 < budget);
+    if (r.done) { alive = false; done(r.value); } else setTimeout(step, 0); };
+  setTimeout(step, 0);
+  return () => { alive = false; };
+}
+
+/* ================================================================ §1 exact enumeration */
+const NMAX1 = 16, PC = new Uint8Array(1 << NMAX1);
+for (let i = 1; i < PC.length; i++) PC[i] = PC[i >> 1] + (i & 1);
+const E0_INF = -0.7632, SIGMA_TE = 0.1992;
+const S1 = { N: 14, T: 0.4, S: 20, seed: 11, samples: [], cur: 0, ready: false, cancel: null, Pav: null };
+function* enumSample(N, R) {
+  const M = 1 << N, J = new Float64Array(N * N), sd = 1 / Math.sqrt(N);
+  for (let i = 0; i < N; i++) for (let j = i + 1; j < N; j++) J[i * N + j] = J[j * N + i] = gauss(R) * sd;
+  // bit b of the index set  <=>  sigma_b = -1 ; start from all +1
+  const E = new Float64Array(M), sg = new Int8Array(N).fill(1), hf = new Float64Array(N);
+  let e = 0;
+  for (let i = 0; i < N; i++) { let s = 0; for (let j = 0; j < N; j++) s += J[i * N + j]; hf[i] = s; for (let j = i + 1; j < N; j++) e -= J[i * N + j]; }
+  const stable = () => { for (let i = 0; i < N; i++) if (sg[i] * hf[i] < 0) return false; return true; };
+  const meta = []; let x = 0; E[0] = e; if (stable()) meta.push(0);
+  for (let g = 1; g < M; g++) {
+    const b = 31 - Math.clz32(g & -g);           // Gray code: flip the lowest set bit of g
+    e += 2 * sg[b] * hf[b]; sg[b] = -sg[b];
+    const d = 2 * sg[b]; for (let i = 0; i < N; i++) hf[i] += d * J[i * N + b];
+    x ^= 1 << b; E[x] = e; if (stable()) meta.push(x);
+    if ((g & 2047) === 0) yield;
+  }
+  let emin = Infinity; for (let i = 0; i < M; i++) if (E[i] < emin) emin = E[i];
+  // lowest stable states, one representative per global flip (sigma_{N-1} = +1)
+  const reps = meta.filter(v => !((v >> (N - 1)) & 1)).sort((a, b) => E[a] - E[b]).slice(0, 14);
+  return { E, emin, meta, reps, order: clusterOrder(reps, N) };
+}
+function clusterOrder(reps, N) {  // average-linkage agglomeration on 1 - |q|
+  const L = reps.length, S = (a, b) => Math.abs(1 - 2 * PC[reps[a] ^ reps[b]] / N);
+  let cl = reps.map((_, i) => [i]);
+  while (cl.length > 1) { let bi = 0, bj = 1, bs = -1;
+    for (let i = 0; i < cl.length; i++) for (let j = i + 1; j < cl.length; j++) { let s = 0; for (const a of cl[i]) for (const b of cl[j]) s += S(a, b); s /= cl[i].length * cl[j].length; if (s > bs) { bs = s; bi = i; bj = j; } }
+    cl[bi] = cl[bi].concat(cl[bj]); cl.splice(bj, 1); }
+  return L ? cl[0] : [];
+}
+function wht(a) { const M = a.length; for (let h = 1; h < M; h <<= 1) for (let i = 0; i < M; i += h << 1) for (let j = i; j < i + h; j++) { const x = a[j], y = a[j + h]; a[j] = x + y; a[j + h] = x - y; } }
+function pOverlap(s, N, T) {
+  const M = 1 << N, w = new Float64Array(M); let Z = 0;
+  for (let i = 0; i < M; i++) { w[i] = Math.exp(-(s.E[i] - s.emin) / T); Z += w[i]; }
+  for (let i = 0; i < M; i++) w[i] /= Z;
+  wht(w); for (let i = 0; i < M; i++) w[i] *= w[i]; wht(w);
+  const Pq = new Float64Array(N + 1); for (let u = 0; u < M; u++) Pq[PC[u]] += w[u] / M;
+  return Pq;  // Pq[d] = P_J(q = 1 - 2d/N)
+}
+function recompute1() {
+  const p = S1, N = p.N; if (!p.ready) return;
+  p.Pav = new Float64Array(N + 1);
+  for (const s of p.samples) { s.Pq = pOverlap(s, N, p.T); s.q2 = 0; for (let d = 0; d <= N; d++) { const q = 1 - 2 * d / N; s.q2 += q * q * s.Pq[d]; p.Pav[d] += s.Pq[d] / p.samples.length; } }
+}
+function regen1() {
+  const p = S1; if (p.cancel) p.cancel(); p.ready = false; p.samples = []; p.cur = 0;
+  const R = rng(p.seed * 7919 + p.N), N = p.N, S = p.S;
+  function* all() { const out = []; for (let k = 0; k < S; k++) { out.push(yield* enumSample(N, R)); p.done = k + 1; } return out; }
+  p.done = 0; draw1();
+  p.cancel = runTask(all(), out => { p.samples = out; p.ready = true; p.cancel = null; recompute1(); draw1(); });
+  const tick = () => { if (!p.ready && p.cancel) { draw1(); setTimeout(tick, 200); } }; setTimeout(tick, 200);
+}
+function draw1() {
+  const p = S1, N = p.N;
+  setOut('n1', String(N)); setOut('t1', p.T.toFixed(2)); setOut('s1', String(p.S));
+  const ca = fit($('c1a')), cb = fit($('c1b')), cc = fit($('c1c'));
+  if (!p.ready) { const t = tr('enumerating', 'enumerazione') + ` ${p.done || 0}/${p.S}`; msg(ca.ctx, ca.w, ca.h, t); readouts($('r1'), [[tr('status', 'stato'), t]]); return; }
+  const s = p.samples[p.cur];
+  { const { ctx, w, h } = ca, b = { x: 46, y: 10, w: w - 58, h: h - 42 };
+    let ym = 0; for (let d = 0; d <= N; d++) ym = Math.max(ym, s.Pq[d], p.Pav[d]);
+    const f = frame(ctx, b, [-1.08, 1.08], [0, ym * 1.12], { xl: 'q', yl: 'P_J(q)', xt: [-1, -0.5, 0, 0.5, 1] });
+    const bw = Math.max(2, b.w / (N + 1) * 0.42);
+    ctx.fillStyle = P.acc; for (let d = 0; d <= N; d++) { const x = f.X(1 - 2 * d / N), y = f.Y(s.Pq[d]); ctx.fillRect(x - bw / 2, y, bw, f.Y(0) - y); }
+    ctx.strokeStyle = P.hot; ctx.fillStyle = P.hot; ctx.lineWidth = 1.6; ctx.beginPath();
+    for (let d = 0; d <= N; d++) { const x = f.X(1 - 2 * d / N), y = f.Y(p.Pav[d]); d ? ctx.lineTo(x, y) : ctx.moveTo(x, y); } ctx.stroke();
+    for (let d = 0; d <= N; d++) { ctx.beginPath(); ctx.arc(f.X(1 - 2 * d / N), f.Y(p.Pav[d]), 2.6, 0, TAU); ctx.fill(); }
+    ctx.fillStyle = P.mut; ctx.font = '11px ' + MONO; ctx.textAlign = 'right'; ctx.textBaseline = 'top';
+    ctx.fillText(`${tr('sample', 'campione')} ${p.cur + 1}/${p.samples.length}`, b.x + b.w - 6, b.y + 6);
+  }
+  { const { ctx, w, h } = cb, b = { x: 40, y: 8, w: w - 50, h: h - 36 };
+    const es = s.meta.filter(v => !((v >> (N - 1)) & 1)).map(v => s.E[v] / N);
+    const lo = Math.min(E0_INF, s.emin / N) - 0.03, hi = Math.max(...es) + 0.03, nb = 22, hist = new Array(nb).fill(0);
+    for (const e of es) hist[Math.min(nb - 1, Math.floor((e - lo) / (hi - lo) * nb))]++;
+    const f = frame(ctx, b, [lo, hi], [0, Math.max(...hist) * 1.15], { xl: 'E/N', ny: 3 });
+    ctx.fillStyle = mix(P.panel, P.fg, 0.35); for (let k = 0; k < nb; k++) if (hist[k]) { const x0 = f.X(lo + k * (hi - lo) / nb), x1 = f.X(lo + (k + 1) * (hi - lo) / nb), y = f.Y(hist[k]); ctx.fillRect(x0 + 0.5, y, x1 - x0 - 1, f.Y(0) - y); }
+    ctx.lineWidth = 1.4; ctx.strokeStyle = P.acc; ctx.beginPath(); ctx.moveTo(f.X(s.emin / N), b.y); ctx.lineTo(f.X(s.emin / N), b.y + b.h); ctx.stroke();
+    ctx.setLineDash([3, 3]); ctx.strokeStyle = P.mut; ctx.beginPath(); ctx.moveTo(f.X(E0_INF), b.y); ctx.lineTo(f.X(E0_INF), b.y + b.h); ctx.stroke(); ctx.setLineDash([]);
+  }
+  { const { ctx, w, h } = cc, L = s.order.length, sz = Math.min(w, h) - 8, c = sz / Math.max(L, 1), x0 = (w - sz) / 2, y0 = 4;
+    for (let i = 0; i < L; i++) for (let j = 0; j < L; j++) { const a = s.reps[s.order[i]], bb = s.reps[s.order[j]], q = Math.abs(1 - 2 * PC[a ^ bb] / N);
+      ctx.fillStyle = mix(P.panel, P.acc, q); ctx.fillRect(x0 + j * c, y0 + i * c, c - 1, c - 1); }
+    if (L > 1) { ctx.fillStyle = P.mut; ctx.font = '10px ' + MONO; ctx.textAlign = 'left'; ctx.textBaseline = 'bottom'; }
+  }
+  const nAv = p.samples.reduce((a, t) => a + Math.log(t.meta.length) / N, 0) / p.samples.length;
+  const e0Av = p.samples.reduce((a, t) => a + t.emin / N, 0) / p.samples.length;
+  const q2Av = p.samples.reduce((a, t) => a + t.q2, 0) / p.samples.length;
+  const q2sd = Math.sqrt(Math.max(0, p.samples.reduce((a, t) => a + t.q2 * t.q2, 0) / p.samples.length - q2Av * q2Av));
+  readouts($('r1'), [[tr('ground state E₀/N, this sample', 'stato fondamentale E₀/N, questo campione'), mfmt(s.emin / N, 4), 'acc'], [tr('⟨E₀/N⟩ over samples (N → ∞: −0.7632)', '⟨E₀/N⟩ sui campioni (N → ∞: −0.7632)'), mfmt(e0Av, 4)],
+    [tr('stable states, this sample', 'stati stabili, questo campione'), String(s.meta.length)], [tr('⟨ln 𝒩_s⟩/N (N → ∞: 0.199)', '⟨ln 𝒩_s⟩/N (N → ∞: 0.199)'), mfmt(nAv, 3)],
+    [tr('⟨q²⟩_J, this sample', '⟨q²⟩_J, questo campione'), mfmt(s.q2, 4), 'acc'], [tr('E⟨q²⟩ ± sample spread', 'E⟨q²⟩ ± dispersione tra campioni'), `${mfmt(q2Av, 4)} ± ${mfmt(q2sd, 4)}`, 'hot']]);
+}
+$('n1').addEventListener('input', () => { S1.N = +$('n1').value; setOut('n1', String(S1.N)); clearTimeout(S1.db); S1.db = setTimeout(regen1, 250); });
+$('s1').addEventListener('input', () => { S1.S = +$('s1').value; setOut('s1', String(S1.S)); clearTimeout(S1.db); S1.db = setTimeout(regen1, 250); });
+$('t1').addEventListener('input', () => { S1.T = +$('t1').value; recompute1(); draw1(); });
+$('b1n').addEventListener('click', () => { if (!S1.ready) return; S1.cur = (S1.cur + 1) % S1.samples.length; draw1(); });
+$('b1d').addEventListener('click', () => { S1.seed++; regen1(); });
+
+/* ================================================================ §2 replica symmetric solution */
+function rsLoop(beta, sq, h, fn) {   // trapezoid over z ~ N(0,1), step adapted to the scale beta*sqrt(q)
+  const a = beta * sq, dz = Math.min(0.05, 0.12 / Math.max(a, 1e-9)), L = 8.5, n = Math.ceil(2 * L / dz), hh = 2 * L / n;
+  let W = 0; for (let i = 0; i <= n; i++) { const z = -L + i * hh, w = Math.exp(-z * z / 2) * (i % n ? 1 : 0.5); W += w; fn(w, beta * (sq * z + h)); }
+  return W;
+}
+function rsQ(T, h) {
+  const beta = 1 / T;
+  const g = q => { let A = 0; const W = rsLoop(beta, Math.sqrt(q), h, (w, X) => { const t = Math.tanh(X); A += w * t * t; }); return A / W - q; };
+  if (h < 1e-9 && T >= 0.999) return 0;
+  let lo = h < 1e-9 ? 1e-6 : 0, hi = 1; if (g(lo) <= 0) return 0;
+  for (let k = 0; k < 44; k++) { const mid = 0.5 * (lo + hi); g(mid) > 0 ? lo = mid : hi = mid; }
+  return 0.5 * (lo + hi);
+}
+function rsAll(T, h) {
+  const beta = 1 / T, q = rsQ(T, h); let A = 0, B = 0, C = 0;
+  const W = rsLoop(beta, Math.sqrt(q), h, (w, X) => { const ax = Math.abs(X), t = Math.tanh(X), c2 = 1 - t * t; A += w * (ax + Math.log1p(Math.exp(-2 * ax))); B += w * X * t; C += w * c2 * c2; });
+  A /= W; B /= W; C /= W;
+  return { q, f: -beta / 4 * (1 - q) ** 2 - T * A, s: -beta * beta / 4 * (1 - q) ** 2 + A - B, lam: 1 - beta * beta * C };
+}
+const S2 = { h: 0.3, T: 0.5, at: null, curve: null, curveH: NaN };
+function* atLine() {   // h_AT(T): bisection on lambda_R(h) = 0 at fixed T (lambda_R increases with h)
+  const out = [];
+  for (let k = 0; k <= 46; k++) { const T = 0.08 + (0.999 - 0.08) * k / 46; let lo = 0, hi = 3;
+    for (let it = 0; it < 22; it++) { const mid = 0.5 * (lo + hi); rsAll(T, mid).lam < 0 ? lo = mid : hi = mid; yield; }
+    out.push([0.5 * (lo + hi), T]); }
+  out.push([0, 1]); return out;
+}
+function tAT(h) { const a = S2.at; if (!a) return NaN; if (h <= 0) return 1;
+  for (let k = 0; k < a.length - 1; k++) { const [h0, T0] = a[k], [h1, T1] = a[k + 1]; if ((h - h0) * (h - h1) <= 0 && h0 !== h1) return T0 + (T1 - T0) * (h - h0) / (h1 - h0); }
+  return h > a[0][0] ? NaN : 1; }
+function curve2() { if (S2.curveH === S2.h) return; S2.curveH = S2.h; S2.curve = [];
+  for (let k = 0; k <= 70; k++) { const T = 0.06 + (1.4 - 0.06) * k / 70; S2.curve.push([T, rsAll(T, S2.h)]); } }
+const BX2 = { x: 46, y: 10 };
+function draw2() {
+  const p = S2; setOut('h2', p.h.toFixed(2)); setOut('t2', p.T.toFixed(2)); curve2();
+  const HM = 2, TM = 1.4;
+  { const { ctx, w, h } = fit($('c2a')), b = { x: 46, y: 10, w: w - 58, h: h - 42 }; p.mapA = b;
+    const f = frame(ctx, b, [0, HM], [0, TM], { xl: 'h', yl: 'T' });
+    if (p.at) {
+      ctx.fillStyle = P.hot; ctx.globalAlpha = 0.09; ctx.beginPath(); ctx.moveTo(f.X(0), f.Y(0)); for (const [hh, T] of p.at) ctx.lineTo(f.X(Math.min(hh, HM)), f.Y(T)); ctx.lineTo(f.X(0), f.Y(1)); ctx.closePath(); ctx.fill(); ctx.globalAlpha = 1;
+      ctx.save(); ctx.beginPath(); ctx.rect(b.x, b.y, b.w, b.h); ctx.clip();
+      ctx.strokeStyle = P.hot; ctx.lineWidth = 2; ctx.beginPath(); p.at.forEach(([hh, T], i) => i ? ctx.lineTo(f.X(hh), f.Y(T)) : ctx.moveTo(f.X(hh), f.Y(T))); ctx.stroke();
+      ctx.setLineDash([4, 3]); ctx.strokeStyle = P.mut; ctx.lineWidth = 1; ctx.beginPath();
+      for (let k = 0; k <= 60; k++) { const T = 0.4 + 0.6 * k / 60, hh = Math.sqrt(4 / 3 * (1 - T) ** 3); k ? ctx.lineTo(f.X(hh), f.Y(T)) : ctx.moveTo(f.X(hh), f.Y(T)); } ctx.stroke(); ctx.setLineDash([]); ctx.restore();
+      ctx.font = '11.5px ' + MONO; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+      ctx.fillStyle = P.hot; ctx.fillText(tr('RS unstable: replica symmetry broken', 'RS instabile: simmetria di replica rotta'), f.X(0.05), f.Y(0.25));
+      ctx.fillStyle = P.mut; ctx.fillText(tr('RS stable', 'RS stabile'), f.X(1.35), f.Y(1.15));
+    } else msg(ctx, w, h, tr('computing the AT line…', 'calcolo della linea AT…'));
+    ctx.fillStyle = P.acc; ctx.beginPath(); ctx.arc(f.X(p.h), f.Y(p.T), 5, 0, TAU); ctx.fill();
+  }
+  const Tat = tAT(p.h);
+  { const { ctx, w, h } = fit($('c2b')), b = { x: 40, y: 8, w: w - 50, h: h - 34 };
+    const f = frame(ctx, b, [0, TM], [-0.25, 1.02], { xl: 'T', ny: 5 });
+    ctx.save(); ctx.beginPath(); ctx.rect(b.x, b.y, b.w, b.h); ctx.clip();
+    ctx.strokeStyle = P.rule; ctx.beginPath(); ctx.moveTo(b.x, f.Y(0) + .5); ctx.lineTo(b.x + b.w, f.Y(0) + .5); ctx.stroke();
+    ctx.setLineDash([4, 3]); ctx.strokeStyle = P.mut; ctx.beginPath(); ctx.moveTo(b.x, f.Y(-1 / TAU)); ctx.lineTo(b.x + b.w, f.Y(-1 / TAU)); ctx.stroke();
+    if (Tat > 0) { ctx.strokeStyle = P.hot; ctx.beginPath(); ctx.moveTo(f.X(Tat), b.y); ctx.lineTo(f.X(Tat), b.y + b.h); ctx.stroke(); } ctx.setLineDash([]);
+    for (const [key, col] of [['q', P.acc], ['s', P.hot]]) { ctx.strokeStyle = col; ctx.lineWidth = 1.8; ctx.beginPath(); p.curve.forEach(([T, r], i) => i ? ctx.lineTo(f.X(T), f.Y(r[key])) : ctx.moveTo(f.X(T), f.Y(r[key]))); ctx.stroke(); }
+    ctx.strokeStyle = P.fg; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(f.X(p.T), b.y); ctx.lineTo(f.X(p.T), b.y + b.h); ctx.stroke(); ctx.restore();
+  }
+  { const { ctx, w, h } = fit($('c2c')), b = { x: 40, y: 8, w: w - 50, h: h - 34 };
+    const lmin = Math.max(-6, Math.min(...p.curve.map(c => c[1].lam))) - 0.2;
+    const f = frame(ctx, b, [0, TM], [lmin, 1.1], { xl: 'T', ny: 4 });
+    ctx.save(); ctx.beginPath(); ctx.rect(b.x, b.y, b.w, b.h); ctx.clip();
+    ctx.fillStyle = P.hot; ctx.globalAlpha = 0.12; ctx.fillRect(b.x, f.Y(0), b.w, b.y + b.h - f.Y(0)); ctx.globalAlpha = 1;
+    ctx.strokeStyle = P.rule; ctx.beginPath(); ctx.moveTo(b.x, f.Y(0) + .5); ctx.lineTo(b.x + b.w, f.Y(0) + .5); ctx.stroke();
+    ctx.strokeStyle = P.fg; ctx.lineWidth = 1.8; ctx.beginPath(); p.curve.forEach(([T, r], i) => i ? ctx.lineTo(f.X(T), f.Y(r.lam)) : ctx.moveTo(f.X(T), f.Y(r.lam))); ctx.stroke();
+    ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(f.X(p.T), b.y); ctx.lineTo(f.X(p.T), b.y + b.h); ctx.stroke(); ctx.restore();
+  }
+  const r = rsAll(p.T, p.h);
+  readouts($('r2'), [['q_RS', mfmt(r.q, 4), 'acc'], ['f_RS', mfmt(r.f, 5)], ['s_RS', mfmt(r.s, 4), r.s < 0 ? 'hot' : ''], ['λ_R', mfmt(r.lam, 4), r.lam < 0 ? 'hot' : ''],
+    [tr('T_AT at this h', 'T_AT a questo h'), p.at ? (Number.isFinite(Tat) ? mfmt(Tat, 4) : '< 0.08') : '…'],
+    [tr('RS solution', 'soluzione RS'), r.lam < 0 ? tr('unstable → RSB', 'instabile → RSB') : tr('stable', 'stabile'), r.lam < 0 ? 'hot' : '']]);
+}
+['h2', 't2'].forEach(id => $(id).addEventListener('input', () => { S2.h = +$('h2').value; S2.T = +$('t2').value; draw2(); }));
+(() => { const cv = $('c2a'); const mv = e => { if (!S2.mapA || !(e.buttons & 1)) return; const r = cv.getBoundingClientRect(), b = S2.mapA;
+  const hh = (e.clientX - r.left - b.x) / b.w * 2, T = (1 - (e.clientY - r.top - b.y) / b.h) * 1.4;
+  $('h2').value = Math.max(0, Math.min(2, hh)).toFixed(2); $('t2').value = Math.max(0.08, Math.min(1.4, T)).toFixed(2); S2.h = +$('h2').value; S2.T = +$('t2').value; draw2(); };
+  cv.addEventListener('pointerdown', e => { cv.setPointerCapture(e.pointerId); mv({ buttons: 1, clientX: e.clientX, clientY: e.clientY }); }); cv.addEventListener('pointermove', mv); })();
+
+/* ================================================================ §3 Parisi matrix */
+function chains(n) { const out = [];
+  const rec = (c, ch) => { if (ch.length) out.push(ch); if (ch.length === 3) return; for (let d = c - 1; d >= 2; d--) if (c % d === 0) rec(d, ch.concat(d)); };
+  rec(n, []); return out.sort((a, b) => b.length - a.length || b[0] - a[0]); }
+function fillChains() { const n = +$('n3').value, sel = $('c3'), ch = chains(n);
+  sel.innerHTML = ch.map((c, i) => `<option value="${c.join(',')}">${[n, ...c].join(' → ')}</option>`).join('');
+  const pref = ch.findIndex(c => c.length === Math.min(3, ch[0].length) && c.every((v, i) => v === n >> (i + 1)));
+  sel.selectedIndex = pref >= 0 ? pref : 0; }
+function draw3() {
+  const n = +$('n3').value, ms = $('c3').value.split(',').map(Number), K = ms.length, m = [n, ...ms, 1];
+  const ql = l => 0.15 + 0.7 * l / K;
+  const lev = (a, b) => { let l = 0; while (l < K && Math.floor(a / m[l + 1]) === Math.floor(b / m[l + 1])) l++; return l; };
+  { const { ctx, w, h } = fit($('c3a')), sz = Math.min(w, h) - 4, c = sz / n, x0 = (w - sz) / 2;
+    for (let a = 0; a < n; a++) for (let b = 0; b < n; b++) { ctx.fillStyle = a === b ? P.fg : lvlCol(lev(a, b), K); ctx.fillRect(x0 + b * c, 2 + a * c, Math.max(1, c - (n > 24 ? 0.5 : 1)), Math.max(1, c - (n > 24 ? 0.5 : 1))); }
+  }
+  $('lg3').innerHTML = Array.from({ length: K + 1 }, (_, l) => `<span style="color:${lvlCol(l, K)}"><i></i>q${'₀₁₂₃'[l]} = ${ql(l).toFixed(2)}</span>`).join('') + `<span class="l-fg"><i></i>${tr('diagonal (excluded)', 'diagonale (esclusa)')}</span>`;
+  { const { ctx, w, h } = fit($('c3b')), b = { x: 40, y: 8, w: w - 50, h: h - 30 };
+    const f = frame(ctx, b, [-0.5, n - 0.5], [0, 1.02], { xt: [], yt: [0, ...Array.from({ length: K + 1 }, (_, l) => ql(l)), 1], fy: v => v.toFixed(2), yl: 'q' });
+    // node of block at level l containing leaf a: x = centre of block, y = q_l ; leaves at q = 1
+    for (let l = K; l >= 0; l--) { const sz = m[l], szc = m[l + 1];
+      for (let s0 = 0; s0 < n; s0 += sz) { const yl = f.Y(ql(l)); ctx.strokeStyle = lvlCol(l, K); ctx.lineWidth = 1.6; ctx.beginPath();
+        ctx.moveTo(f.X(s0 + (szc - 1) / 2), yl); ctx.lineTo(f.X(s0 + sz - szc + (szc - 1) / 2), yl);
+        for (let c0 = s0; c0 < s0 + sz; c0 += szc) { const yc = l === K ? f.Y(1) : f.Y(ql(l + 1)); ctx.moveTo(f.X(c0 + (szc - 1) / 2), yl); ctx.lineTo(f.X(c0 + (szc - 1) / 2), yc); }
+        ctx.stroke(); } }
+    ctx.fillStyle = P.fg; for (let a = 0; a < n; a++) { ctx.beginPath(); ctx.arc(f.X(a), f.Y(1), 2.4, 0, TAU); ctx.fill(); }
+  }
+  const wts = Array.from({ length: K + 1 }, (_, l) => (m[l] - m[l + 1]) / (n - 1));
+  { const { ctx, w, h } = fit($('c3c')), b = { x: 40, y: 8, w: w - 50, h: h - 34 };
+    const f = frame(ctx, b, [0, 1], [0, Math.max(...wts) * 1.18], { xl: 'q', ny: 3 });
+    const bw = Math.max(6, b.w * 0.05);
+    wts.forEach((v, l) => { ctx.fillStyle = lvlCol(l, K); const x = f.X(ql(l)), y = f.Y(v); ctx.fillRect(x - bw / 2, y, bw, f.Y(0) - y); });
+  }
+  // direct checks on the matrix
+  let sum = 0, viol = 0, tri = 0;
+  for (let a = 0; a < n; a++) for (let b = 0; b < n; b++) if (a !== b) sum += ql(lev(a, b));
+  for (let a = 0; a < n; a++) for (let b = a + 1; b < n; b++) for (let c = b + 1; c < n; c++) { tri++; const v = [ql(lev(a, b)), ql(lev(b, c)), ql(lev(a, c))].sort((x, y) => x - y); if (Math.abs(v[0] - v[1]) > 1e-12) viol++; }
+  readouts($('r3'), [[tr('steps K', 'passi K'), String(K)], [tr('partners per level', 'partner per livello'), m.slice(0, K + 1).map((v, l) => v - m[l + 1]).join(' + ') + ' = ' + (n - 1)],
+    [tr('mean off-diagonal Q_ab, direct', 'Q_ab fuori diagonale medio, diretto'), mfmt(sum / (n * (n - 1)), 4)], [tr('Σ_l weight · q_l, formula', 'Σ_l peso · q_l, formula'), mfmt(wts.reduce((s, v, l) => s + v * ql(l), 0), 4)],
+    [tr('triples checked', 'terne verificate'), String(tri)], [tr('ultrametric violations', 'violazioni ultrametriche'), String(viol), viol ? 'hot' : 'acc']]);
+}
+$('n3').addEventListener('change', () => { fillChains(); draw3(); });
+$('c3').addEventListener('change', draw3);
+
+/* ================================================================ §4 Parisi functional */
+const NU = 241, UMAX = 6, DU = 2 * UMAX / (NU - 1);
+const UG = Float64Array.from({ length: NU }, (_, i) => -UMAX + i * DU);
+const lncosh = x => { const a = Math.abs(x); return a + Math.log1p(Math.exp(-2 * a)) - Math.LN2; };
+function cub(X, u) {   // Catmull-Rom on the grid, linear extrapolation outside (X is asymptotically linear in u)
+  const t = (u + UMAX) / DU;
+  if (t <= 0) return X[0] + (X[1] - X[0]) * t;
+  if (t >= NU - 1) return X[NU - 1] + (X[NU - 1] - X[NU - 2]) * (t - NU + 1);
+  const i = Math.min(NU - 2, Math.floor(t)), f = t - i;
+  const p0 = i > 0 ? X[i - 1] : 2 * X[0] - X[1], p1 = X[i], p2 = X[i + 1], p3 = i + 2 < NU ? X[i + 2] : 2 * X[NU - 1] - X[NU - 2];
+  return p1 + 0.5 * f * (p2 - p0 + f * (2 * p0 - 5 * p1 + 4 * p2 - p3 + f * (3 * (p1 - p2) + p3 - p0)));
+}
+const ZR = new Map();
+function zrule(c, dz) {   // trapezoid nodes for E over z ~ N(0,1), range widened by the tilt c = m beta s
+  const L = 7.5 + c, n = Math.ceil(2 * L / dz), key = n * 1000 + Math.round(L * 10);
+  if (ZR.has(key)) return ZR.get(key);
+  const z = new Float64Array(n + 1), w = new Float64Array(n + 1), hh = 2 * L / n; let S = 0;
+  for (let i = 0; i <= n; i++) { z[i] = -L + i * hh; w[i] = Math.exp(-z[i] * z[i] / 2) * (i % n ? 1 : 0.5); S += w[i]; }
+  for (let i = 0; i <= n; i++) w[i] /= S;
+  const r = { z, w, A: new Float64Array(n + 1) }; if (ZR.size > 400) ZR.clear(); ZR.set(key, r); return r;
+}
+// Talagrand's P_k with k = K+1 levels: m = [m_1..m_K], q = [q_1..q_{K+1}]. Returns -beta f bound.
+function parisiP(beta, h, m, q) {
+  const k = q.length, qq = [0, ...q, 1], mm = [0, ...m, 1];
+  let F = u => lncosh(beta * (h + u)) + beta * beta * (1 - qq[k]) / 2;   // level k has m_k = 1: Gaussian average done exactly
+  for (let l = k - 1; l >= 1; l--) {
+    const s = Math.sqrt(Math.max(qq[l + 1] - qq[l], 0)), ml = mm[l], Y = new Float64Array(NU);
+    if (s < 1e-9 || ml < 1e-12) {
+      if (s < 1e-9) for (let i = 0; i < NU; i++) Y[i] = F(UG[i]);
+      else { const { z, w } = zrule(0, Math.min(0.2, 0.35 / (beta * s))); for (let i = 0; i < NU; i++) { let S = 0; for (let j = 0; j < z.length; j++) S += w[j] * F(UG[i] + s * z[j]); Y[i] = S; } }
+    } else {
+      const { z, w, A } = zrule(ml * beta * s, Math.min(0.2, 0.35 / (beta * s))), nz = z.length;
+      for (let i = 0; i < NU; i++) { let M = -Infinity;
+        for (let j = 0; j < nz; j++) { A[j] = ml * F(UG[i] + s * z[j]); if (A[j] > M) M = A[j]; }
+        let S = 0; for (let j = 0; j < nz; j++) S += w[j] * Math.exp(A[j] - M);
+        Y[i] = (M + Math.log(S)) / ml; }
+    }
+    F = u => cub(Y, u);
+  }
+  const s0 = Math.sqrt(qq[1]); let X0;
+  if (s0 < 1e-9) X0 = F(0); else { const { z, w } = zrule(0, Math.min(0.1, 0.35 / (beta * s0))); X0 = 0; for (let j = 0; j < z.length; j++) X0 += w[j] * F(s0 * z[j]); }
+  let pen = 0; for (let l = 1; l <= k; l++) pen += mm[l] * (qq[l + 1] ** 2 - qq[l] ** 2);
+  return Math.LN2 + X0 - beta * beta / 4 * pen;
+}
+function* nelderMead(f, x0, step, maxEval = 2500, tol = 1e-12) {
+  const n = x0.length; let S = [x0.slice()];
+  for (let i = 0; i < n; i++) { const v = x0.slice(); v[i] += step; S.push(v); }
+  let F = []; for (const v of S) { F.push(f(v)); yield; } let ev = n + 1;
+  while (ev < maxEval) {
+    const idx = F.map((v, i) => i).sort((a, b) => F[a] - F[b]); S = idx.map(i => S[i]); F = idx.map(i => F[i]);
+    if (Math.abs(F[n] - F[0]) < tol) break;
+    const c = new Array(n).fill(0); for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) c[j] += S[i][j] / n;
+    const pt = a => c.map((v, j) => v + a * (S[n][j] - v));
+    const xr = pt(-1), fr = f(xr); ev++; yield;
+    if (fr < F[0]) { const xe = pt(-2), fe = f(xe); ev++; yield; if (fe < fr) { S[n] = xe; F[n] = fe; } else { S[n] = xr; F[n] = fr; } }
+    else if (fr < F[n - 1]) { S[n] = xr; F[n] = fr; }
+    else { const xc = fr < F[n] ? pt(-0.5) : pt(0.5), fc = f(xc); ev++; yield;
+      if (fc < Math.min(fr, F[n])) { S[n] = xc; F[n] = fc; }
+      else for (let i = 1; i <= n; i++) { S[i] = S[i].map((v, j) => S[0][j] + 0.5 * (v - S[0][j])); F[i] = f(S[i]); ev++; yield; } }
+  }
+  const i0 = F.indexOf(Math.min(...F)); return { x: S[i0], f: F[i0], ev };
+}
+// unconstrained parameters: q increments and m increments as softmax weights (ordering automatic)
+const softmax = a => { const M = Math.max(...a), e = a.map(v => Math.exp(v - M)), s = e.reduce((x, y) => x + y); return e.map(v => v / s); };
+const cumsum = a => { let c = 0; return a.map(v => (c += v)); };
+function unpack(p, K) { const k = K + 1; return { q: cumsum(softmax(p.slice(0, k + 1))).slice(0, k), m: K ? cumsum(softmax(p.slice(k + 1))).slice(0, K) : [] }; }
+function pack(m, q) { const e = 1e-4, lg = v => Math.log(Math.max(v, e));
+  const dq = [q[0], ...q.slice(1).map((v, i) => v - q[i]), 1 - q[q.length - 1]].map(lg);
+  const dm = m.length ? [m[0], ...m.slice(1).map((v, i) => v - m[i]), 1 - m[m.length - 1]].map(lg) : [];
+  return [...dq, ...dm]; }
+function split(sol) {   // K-step solution -> (K+1)-step starting point: split the widest q step
+  const { m, q } = sol;
+  if (q.length === 1) return { q: [q[0] * 0.5, q[0]], m: [0.3] };
+  let j = 1, g = -1; for (let i = 1; i < q.length; i++) if (q[i] - q[i - 1] > g) { g = q[i] - q[i - 1]; j = i; }
+  const mlo = j >= 2 ? m[j - 2] : 0, mhi = m[j - 1];
+  return { q: [...q.slice(0, j), (q[j - 1] + q[j]) / 2, ...q.slice(j)], m: [...m.slice(0, j - 1), (mlo + mhi) / 2, ...m.slice(j - 1)] };
+}
+const S4 = { T: 0.4, h: 0, Kmax: 3, sols: [], cache: {}, busy: false, cancel: null, status: '' };
+function* solveAll(T, h, Kmax) {
+  const beta = 1 / T, out = [];
+  for (let K = 0; K <= Kmax; K++) {
+    const fK = p => { const { m, q } = unpack(p, K); return parisiP(beta, h, m, q); };
+    const starts = [K === 0 ? { m: [], q: [0.5] } : split(out[K - 1])]; if (S4.cache[K]) starts.unshift(S4.cache[K]);
+    let best = null;
+    for (const st of starts) {
+      let r = yield* nelderMead(fK, pack(st.m, st.q), st === S4.cache[K] ? 0.3 : 0.7);
+      for (let i = 0; i < 3; i++) { const r2 = yield* nelderMead(fK, r.x, 0.2); const d = r.f - r2.f; r = r2; if (d < 1e-11) break; }
+      if (!best || r.f < best.f) best = r;
+      if (st === S4.cache[K] && K > 0 && best.f <= out[K - 1].P + 1e-12) break;   // warm start already beats K-1: done
+    }
+    const { m, q } = unpack(best.x, K);
+    out.push({ K, P: best.f, f: -T * best.f, m, q });
+    S4.sols = out.slice(); S4.status = `K = ${K} ✓`; draw4();
+  }
+  return out;
+}
+function solve4() {
+  if (S4.cancel) S4.cancel(); S4.busy = true; S4.sols = []; S4.status = tr('solving…', 'calcolo…'); draw4();
+  const t0 = performance.now();
+  S4.cancel = runTask(solveAll(S4.T, S4.h, S4.Kmax), out => {
+    S4.busy = false; S4.cancel = null; S4.sols = out; out.forEach((s, K) => { S4.cache[K] = { m: s.m, q: s.q }; });
+    S4.status = `${((performance.now() - t0) / 1000).toFixed(1)} s`; draw4(); regen5(); });
+}
+function draw4() {
+  const p = S4; setOut('t4', p.T.toFixed(2)); setOut('h4', p.h.toFixed(2)); $('st4').textContent = p.status;
+  const sols = p.sols, Km = p.Kmax, col = K => K === 0 ? P.mut : mix(P.hot, P.acc, K / Math.max(1, Km));
+  $('lg4').innerHTML = Array.from({ length: Km + 1 }, (_, K) => `<span style="color:${col(K)}"><i></i>K = ${K}${K === 0 ? ' (RS)' : ''}</span>`).join('');
+  { const { ctx, w, h } = fit($('c4a')), b = { x: 44, y: 10, w: w - 56, h: h - 42 };
+    const f = frame(ctx, b, [0, 1], [0, 1], { xl: 'x', yl: 'q(x)' });
+    for (const s of sols) { const M = [0, ...s.m, 1]; ctx.strokeStyle = col(s.K); ctx.lineWidth = s.K === Km ? 2.4 : 1.5; ctx.beginPath();
+      for (let l = 1; l <= s.K + 1; l++) { const y = f.Y(s.q[l - 1]); l === 1 ? ctx.moveTo(f.X(M[0]), y) : ctx.lineTo(f.X(M[l - 1]), y); ctx.lineTo(f.X(M[l]), y); }
+      ctx.stroke(); }
+    if (!sols.length) msg(ctx, w, h, p.status);
+  }
+  { const { ctx, w, h } = fit($('c4b')), b = { x: 44, y: 8, w: w - 54, h: h - 34 };
+    const d = sols.map(s => (s.f - sols[0].f) * 1e3), ym = Math.max(1e-3, ...d) * 1.15;
+    const f = frame(ctx, b, [-0.4, Km + 0.4], [0, ym], { xt: Array.from({ length: Km + 1 }, (_, i) => i), fx: v => 'K=' + v, ny: 4 });
+    ctx.strokeStyle = P.fg; ctx.lineWidth = 1.2; ctx.beginPath(); d.forEach((v, K) => K ? ctx.lineTo(f.X(K), f.Y(v)) : ctx.moveTo(f.X(K), f.Y(v))); ctx.stroke();
+    d.forEach((v, K) => { ctx.fillStyle = col(K); ctx.beginPath(); ctx.arc(f.X(K), f.Y(v), 4, 0, TAU); ctx.fill(); });
+  }
+  { const { ctx, w, h } = fit($('c4c')), b = { x: 44, y: 8, w: w - 54, h: h - 34 }, s = sols[sols.length - 1];
+    const f = frame(ctx, b, [0, 1], [0, 1.05], { xl: 'q', ny: 4 });
+    if (s) { const M = [0, ...s.m, 1], bw = Math.max(3, b.w * 0.012); ctx.fillStyle = col(s.K);
+      for (let l = 1; l <= s.K + 1; l++) { const x = f.X(s.q[l - 1]), y = f.Y(M[l] - M[l - 1]); ctx.fillRect(x - bw / 2, y, bw, f.Y(0) - y); } }
+  }
+  const rows = sols.map(s => [`f_${s.K}${s.K === 0 ? ' (RS)' : ''}`, mfmt(s.f, 6), s.K === sols.length - 1 && s.K ? 'acc' : '']);
+  const s = sols[sols.length - 1];
+  if (s && s.K) { rows.push(['q_EA = q_K+1', mfmt(s.q[s.K], 4)], ['x_max = m_K', mfmt(s.m[s.K - 1], 4)], ['q_1', mfmt(s.q[0], 4)]);
+    if (sols.length > 1) rows.push([`f_${s.K} − f_${s.K - 1}`, (s.f - sols[s.K - 1].f).toExponential(1).replace('-', '−')]); }
+  if (p.busy) rows.push([tr('status', 'stato'), p.status]);
+  readouts($('r4'), rows);
+}
+$('t4').addEventListener('input', () => { S4.T = +$('t4').value; setOut('t4', S4.T.toFixed(2)); clearTimeout(S4.db); S4.db = setTimeout(solve4, 300); });
+$('h4').addEventListener('input', () => { S4.h = +$('h4').value; setOut('h4', S4.h.toFixed(2)); clearTimeout(S4.db); S4.db = setTimeout(solve4, 300); });
+$('k4').addEventListener('change', () => { S4.Kmax = +$('k4').value; solve4(); });
+
+/* ================================================================ §5 Ruelle cascades */
+function gammaR(a, R) { if (a < 1) { const u = R(); return gammaR(a + 1, R) * Math.pow(u > 0 ? u : 1e-300, 1 / a); }
+  const d = a - 1 / 3, c = 1 / Math.sqrt(9 * d);
+  for (;;) { let x, v; do { x = gauss(R); v = 1 + c * x; } while (v <= 0); v = v * v * v; const u = R(); if (Math.log(u) < 0.5 * x * x + d - d * v + d * Math.log(v)) return d * v; } }
+function betaR(a, b, R) { if (b <= 1e-12) return 1; const x = gammaR(a, R), y = gammaR(b, R); return x + y > 0 ? x / (x + y) : 1; }
+const EPS5 = 2e-4;
+// mu = [m_1..m_K]: depth-d clusters are PD(m_d, 0); a depth-d cluster fragments by PD(m_{d+1}, -m_d).
+// S[d] = sum over depth-d clusters of W^2 (unresolved pieces added through their exact expectation).
+function cascade(mu, R, keep) {
+  const K = mu.length, S = new Float64Array(K + 1), blocks = Array.from({ length: K + 1 }, () => []); S[0] = 1;
+  const deeper = (W2, d) => { for (let j = d + 1; j <= K; j++) S[j] += W2 * (1 - mu[j - 1]) / (1 - (d ? mu[d - 1] : 0)); };
+  function frag(W, d, x0) {
+    if (keep) blocks[d].push([x0, W]);
+    if (d === K) return;
+    const a = Math.min(mu[d], 1 - 1e-9), th = d ? -mu[d - 1] : 0; let r = W, i = 0, x = x0;
+    while (r > EPS5 && i < 4000) { i++; const u = r * betaR(1 - a, th + i * a, R); r -= u; S[d + 1] += u * u;
+      if (u > EPS5) frag(u, d + 1, x); else deeper(u * u, d + 1); x += u; }
+    const e1 = r * r * (1 - a) / (1 + th + i * a); S[d + 1] += e1; deeper(e1, d + 1);
+  }
+  frag(1, 0, 0);
+  return { S, blocks };
+}
+const S5 = { seed: 3, batch: 2000, one: null, Ys: [], Pbar: null, done: 0, cancel: null, sol: null };
+function regen5() {
+  const sols = S4.sols; if (!sols.length) return; const sol = sols[sols.length - 1]; S5.sol = sol;
+  if (S5.cancel) S5.cancel(); const R = rng(S5.seed * 104729 + 17), K = sol.K, mu = sol.m;
+  S5.one = cascade(mu, R, true); S5.Ys = []; S5.Pbar = new Float64Array(K + 1); S5.done = 0;
+  const pj = S => Array.from({ length: K + 1 }, (_, d) => d < K ? S[d] - S[d + 1] : S[K]);
+  S5.Pone = pj(S5.one.S);
+  const N = S5.batch;
+  function* run() { for (let t = 0; t < N; t++) { const { S } = cascade(mu, R, false); S5.Ys.push(S[K]); const pp = pj(S); for (let d = 0; d <= K; d++) S5.Pbar[d] += pp[d]; S5.done = t + 1; if (t % 25 === 24) { draw5(); } yield; } }
+  S5.cancel = runTask(run(), () => { S5.cancel = null; draw5(); });
+  draw5();
+}
+function draw5() {
+  const s = S5.sol, ca = fit($('c5a')), cb = fit($('c5b')), cc = fit($('c5c'));
+  if (!s) { msg(ca.ctx, ca.w, ca.h, tr('waiting for §4…', 'in attesa del §4…')); readouts($('r5'), []); return; }
+  const K = s.K, Q = s.q, mK = K ? s.m[K - 1] : 0, n = S5.done;
+  { const { ctx, w, h } = ca, b = { x: 74, y: 8, w: w - 84, h: h - 16 }, rh = b.h / (K + 1);
+    ctx.font = '10.5px ' + MONO; ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+    for (let d = 0; d <= K; d++) { const y = b.y + d * rh, col = lvlCol(d, K);
+      ctx.fillStyle = P.mut; ctx.fillText(`q${d + 1} = ${Q[d].toFixed(3)}`, b.x - 8, y + rh / 2);
+      ctx.strokeStyle = P.rule; ctx.strokeRect(b.x + .5, y + 3.5, b.w - 1, rh - 7);
+      ctx.fillStyle = col; for (const [x0, W] of S5.one.blocks[d]) { const px = b.x + x0 * b.w, pw = W * b.w; if (pw < 0.6) continue; ctx.fillRect(px + (pw > 3 ? 0.5 : 0), y + 4, Math.max(0.6, pw - (pw > 3 ? 1 : 0)), rh - 8); } }
+  }
+  const Pex = K ? Array.from({ length: K + 1 }, (_, l) => (l < K ? s.m[l] : 1) - (l ? s.m[l - 1] : 0)) : [1];
+  { const { ctx, w, h } = cb, b = { x: 40, y: 8, w: w - 50, h: h - 34 };
+    const f = frame(ctx, b, [0, 1], [0, 1.05], { xl: 'q', ny: 4 }); const bw = Math.max(3, b.w * 0.014);
+    for (let d = 0; d <= K; d++) { const x = f.X(Q[d]);
+      ctx.fillStyle = P.acc; const y = f.Y(S5.Pone[d]); ctx.fillRect(x - bw - 1, y, bw, f.Y(0) - y);
+      ctx.strokeStyle = P.fg; ctx.lineWidth = 1.2; ctx.strokeRect(x + 1.5, f.Y(Pex[d]) + .5, bw, f.Y(0) - f.Y(Pex[d]));
+      if (n) { ctx.fillStyle = P.hot; ctx.beginPath(); ctx.arc(x + 1.5 + bw / 2, f.Y(S5.Pbar[d] / n), 3.2, 0, TAU); ctx.fill(); } }
+  }
+  let mY = 0, mY2 = 0; for (const y of S5.Ys) { mY += y; mY2 += y * y; } if (n) { mY /= n; mY2 /= n; }
+  { const { ctx, w, h } = cc, b = { x: 40, y: 8, w: w - 50, h: h - 34 }, nb = 25, hist = new Array(nb).fill(0);
+    for (const y of S5.Ys) hist[Math.min(nb - 1, Math.floor(y * nb))]++;
+    const f = frame(ctx, b, [0, 1], [0, Math.max(1, ...hist) / Math.max(1, n) * nb * 1.15], { xl: 'Y', ny: 3 });
+    ctx.fillStyle = mix(P.panel, P.fg, 0.35); hist.forEach((c, k) => { if (!c) return; const x0 = f.X(k / nb), x1 = f.X((k + 1) / nb), y = f.Y(c / n * nb); ctx.fillRect(x0 + 0.5, y, x1 - x0 - 1, f.Y(0) - y); });
+    ctx.lineWidth = 1.6; ctx.strokeStyle = P.fg; ctx.beginPath(); ctx.moveTo(f.X(1 - mK), b.y); ctx.lineTo(f.X(1 - mK), b.y + b.h); ctx.stroke();
+    if (n) { ctx.setLineDash([4, 3]); ctx.strokeStyle = P.hot; ctx.beginPath(); ctx.moveTo(f.X(mY), b.y); ctx.lineTo(f.X(mY), b.y + b.h); ctx.stroke(); ctx.setLineDash([]); }
+  }
+  const leaves = S5.one.blocks[K].map(v => v[1]), wmax = Math.max(...leaves), big = leaves.filter(v => v > 0.01).length;
+  const se = n > 1 ? Math.sqrt(Math.max(0, mY2 - mY * mY) / n) : NaN;
+  readouts($('r5'), [[tr('K, m = x_max', 'K, m = x_max'), `${K}, ${mfmt(mK, 4)}`], [tr('E Y: batch ± s.e. | exact 1 − m', 'E Y: lotto ± e.s. | esatto 1 − m'), n ? `${mfmt(mY, 4)} ± ${mfmt(se, 4)} | ${mfmt(1 - mK, 4)}` : '…', 'hot'],
+    [tr('E Y²: batch | exact (1−m)(3−2m)/3', 'E Y²: lotto | esatto (1−m)(3−2m)/3'), n ? `${mfmt(mY2, 4)} | ${mfmt((1 - mK) * (3 - 2 * mK) / 3, 4)}` : '…'],
+    [tr('Y of this sample', 'Y di questo campione'), mfmt(S5.one.S[K], 4), 'acc'], [tr('largest weight, this sample', 'peso massimo, questo campione'), mfmt(wmax, 4)],
+    [tr('states with w > 1%', 'stati con w > 1%'), String(big)], [tr('batch', 'lotto'), `${n}/${S5.batch}`]]);
+}
+$('b5').addEventListener('click', () => { S5.seed++; regen5(); });
+$('z5').addEventListener('change', () => { S5.batch = +$('z5').value; regen5(); });
+
+/* ================================================================ global */
+function drawAll() { readPal(); draw1(); draw2(); draw3(); draw4(); draw5(); }
+let pend = 0; const sched = () => { if (!pend) pend = requestAnimationFrame(() => { pend = 0; drawAll(); }); };
+new ResizeObserver(sched).observe(document.querySelector('.wrap'));
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change', sched);
+new MutationObserver(sched).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme', 'class', 'style'] });
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(sched);
+function setLang(l) {
+  document.documentElement.setAttribute('data-ui', l); document.documentElement.lang = l;
+  try { localStorage.setItem('pi-lang', l); } catch (e) {}
+  document.querySelectorAll('.lang button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.set === l)));
+  document.querySelectorAll('#theme button').forEach(b => { b.title = { auto: tr('System theme', 'Tema di sistema'), light: tr('Light', 'Chiaro'), dark: tr('Dark', 'Scuro') }[b.dataset.themeSet]; b.setAttribute('aria-label', b.title); });
+  sched();
+}
+document.querySelectorAll('.lang button').forEach(b => b.addEventListener('click', () => setLang(b.dataset.set)));
+function setTheme(t) {
+  const root = document.documentElement;
+  if (t === 'light' || t === 'dark') root.setAttribute('data-theme', t); else root.removeAttribute('data-theme');
+  try { t === 'auto' ? localStorage.removeItem('pi-theme') : localStorage.setItem('pi-theme', t); } catch (e) {}
+  document.querySelectorAll('#theme button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.themeSet === t)));
+}
+document.querySelectorAll('#theme button').forEach(b => b.addEventListener('click', () => setTheme(b.dataset.themeSet)));
+{ const t0 = document.documentElement.getAttribute('data-theme'); setTheme(t0 === 'light' || t0 === 'dark' ? t0 : 'auto'); }
+readPal(); fillChains();
+S1.N = +$('n1').value; S1.T = +$('t1').value; S1.S = +$('s1').value;
+S2.h = +$('h2').value; S2.T = +$('t2').value;
+S4.T = +$('t4').value; S4.h = +$('h4').value; S4.Kmax = +$('k4').value; S5.batch = +$('z5').value;
+drawAll();
+setLang(document.documentElement.getAttribute('data-ui') === 'it' ? 'it' : 'en');
+regen1();
+runTask(atLine(), at => { S2.at = at; draw2(); });
+solve4();
+})();
+</script>

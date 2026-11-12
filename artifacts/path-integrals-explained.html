@@ -1,0 +1,649 @@
+<title>Path Integrals Explained</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
+<script>
+(function(){var l='en';try{var v=localStorage.getItem('pi-lang');if(v==='it'||v==='en')l=v;}catch(e){}document.documentElement.setAttribute('data-ui',l);document.documentElement.lang=l;var t=null;try{t=localStorage.getItem('pi-theme');}catch(e){}if(t==='dark'||t==='light')document.documentElement.setAttribute('data-theme',t);})();
+window.MathJax = {
+  tex: { inlineMath: [['\\(', '\\)']], displayMath: [['\\[', '\\]']] },
+  svg: { fontCache: 'global' }
+};
+</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-svg.js"></script>
+<style>
+:root {
+  --bg: #f4f3ee;
+  --panel: #fcfbf8;
+  --fg: #141413;
+  --muted: #67655d;
+  --rule: #dddacf;
+  --grid: #ebe8df;
+  --accent: #b9542f;
+  --hot: #2e66a3;
+  --teal: #2f7a68;
+  --phaseL: 48%;
+  --sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #1f1e1c; --panel: #292826; --fg: #eceae3; --muted: #a29f96; --rule: #3e3c38; --grid: #33312e;
+    --accent: #e28a68; --hot: #74a9e0; --teal: #5dc1ac; --phaseL: 62%; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #1f1e1c; --panel: #292826; --fg: #eceae3; --muted: #a29f96; --rule: #3e3c38; --grid: #33312e;
+  --accent: #e28a68; --hot: #74a9e0; --teal: #5dc1ac; --phaseL: 62%; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html[data-ui="it"] [data-l="en"], html:not([data-ui="it"]) [data-l="it"] { display: none !important; }
+.topbar { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+.tools { display: inline-flex; gap: 10px; flex-wrap: wrap; }
+.lang, .seg { display: inline-flex; border: 1px solid var(--rule); border-radius: 3px; overflow: hidden; font: 500 12px var(--mono); }
+.lang button, .seg button { border: 0; background: transparent; color: var(--muted); padding: 5px 12px; cursor: pointer; font: inherit; letter-spacing: .06em; }
+.lang button + button, .seg button + button { border-left: 1px solid var(--rule); }
+.lang button[aria-pressed="true"], .seg button[aria-pressed="true"] { background: var(--accent); color: var(--panel); }
+body {
+  background: var(--bg); color: var(--fg);
+  font-family: var(--sans); font-size: 15.5px; line-height: 1.6;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 40px 64px;
+  -webkit-font-smoothing: antialiased;
+}
+.wrap { max-width: 1160px; margin: 0 auto; display: flex; flex-direction: column; gap: 56px; }
+header { display: flex; flex-direction: column; gap: 14px; }
+.eyebrow { font-family: var(--mono); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+h1 { font-size: clamp(28px, 4vw, 40px); line-height: 1.12; font-weight: 600; margin: 0; letter-spacing: -.01em; text-wrap: balance; }
+h2 { font-size: 22px; font-weight: 600; margin: 0; letter-spacing: -.005em; text-wrap: balance; display: flex; gap: 14px; align-items: baseline; }
+h2 .n { font-family: var(--mono); font-weight: 400; font-size: 14px; color: var(--accent); }
+h3 { font-size: 13px; font-family: var(--mono); font-weight: 500; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); margin: 0; }
+p { margin: 0; max-width: 70ch; }
+.lead { font-size: 17px; color: var(--fg); max-width: 72ch; }
+.prose { display: flex; flex-direction: column; gap: 12px; }
+.eq { overflow-x: auto; overflow-y: hidden; padding: 6px 0; max-width: 100%; }
+mjx-container { color: var(--fg); }
+mjx-container[display="true"] { margin: 0.4em 0 !important; }
+section { display: flex; flex-direction: column; gap: 18px; border-top: 1px solid var(--rule); padding-top: 28px; }
+.keys { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); background: var(--panel); border: 1px solid var(--rule); border-width: 1px 0 0 1px; }
+.keys div { border: solid var(--rule); border-width: 0 1px 1px 0; padding: 14px 16px; display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.keys b { font-family: var(--mono); font-weight: 500; font-size: 12px; color: var(--accent); }
+.keys span { font-size: 14px; color: var(--muted); }
+
+.fig { background: var(--panel); border: 1px solid var(--rule); display: flex; flex-direction: column; }
+.fig-grid { display: grid; gap: 1px; background: var(--rule); }
+.fig-grid > * { background: var(--panel); min-width: 0; }
+.g-2-1 { grid-template-columns: 2fr 1fr; }
+.g-3-2 { grid-template-columns: 3fr 2fr; }
+.col { display: flex; flex-direction: column; gap: 1px; background: var(--rule); }
+.col > * { background: var(--panel); }
+.pane { position: relative; padding: 10px 12px 8px; display: flex; flex-direction: column; gap: 6px; }
+.pane h3 { font-size: 11px; }
+.cv { position: relative; width: 100%; }
+.cv canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; }
+.cv.grow { flex: 1 1 auto; }
+.sq { aspect-ratio: 1 / 1; max-width: 100%; }
+.cap { font-size: 13px; color: var(--muted); padding: 10px 14px; border-top: 1px solid var(--rule); max-width: none; }
+.cap b { color: var(--fg); font-weight: 500; }
+
+.ctl { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px 22px; padding: 14px 16px; border-top: 1px solid var(--rule); }
+.ctl label { display: flex; flex-direction: column; gap: 4px; font-size: 12.5px; color: var(--muted); min-width: 0; }
+.ctl .row { display: flex; justify-content: space-between; gap: 8px; }
+.ctl output { font-family: var(--mono); font-size: 12px; color: var(--fg); font-variant-numeric: tabular-nums; }
+.ctl input[type=range] { width: 100%; accent-color: var(--accent); margin: 0; }
+.ctl select, .ctl button {
+  font: 500 12.5px var(--mono); color: var(--fg); background: var(--bg);
+  border: 1px solid var(--rule); padding: 6px 10px; border-radius: 3px; cursor: pointer;
+}
+.ctl button:hover, .ctl select:hover { border-color: var(--accent); }
+.ctl button.on { background: var(--accent); color: var(--panel); border-color: var(--accent); }
+.ctl .chk { flex-direction: row; align-items: center; gap: 8px; color: var(--fg); }
+.ctl .chk input { accent-color: var(--accent); margin: 0; }
+.ctl .btns { display: flex; gap: 8px; flex-wrap: wrap; align-items: flex-end; flex-direction: row; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.ro { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); background: var(--panel); border-top: 1px solid var(--rule); margin: 0; }
+.ro div { border: solid var(--rule); border-width: 0 1px 1px 0; padding: 9px 14px; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.ro dt { font-size: 11.5px; color: var(--muted); }
+.ro dd { margin: 0; font-family: var(--mono); font-size: 13.5px; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.ro dd.hot { color: var(--hot); }
+.ro dd.acc { color: var(--accent); }
+
+.legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-family: var(--mono); font-size: 11.5px; color: var(--muted); }
+.legend i { display: inline-block; width: 16px; height: 2px; vertical-align: middle; margin-right: 6px; background: currentColor; }
+.l-acc { color: var(--accent); } .l-hot { color: var(--hot); } .l-teal { color: var(--teal); } .l-fg { color: var(--fg); } .l-mut { color: var(--muted); }
+.phbar { display: inline-block; width: 64px; height: 8px; vertical-align: middle; margin-right: 6px; border-radius: 1px; }
+
+.refs { font-size: 13.5px; color: var(--muted); display: flex; flex-direction: column; gap: 6px; padding-left: 1.2em; margin: 0; }
+.refs li { max-width: 90ch; }
+footer { font-size: 12.5px; color: var(--muted); font-family: var(--mono); }
+
+@media (max-width: 820px) {
+  .g-2-1, .g-3-2 { grid-template-columns: 1fr; }
+  body { font-size: 15px; padding-block: 24px 48px; }
+}
+.col > .pane:last-child { flex: 1 1 auto; }
+.ex { background: var(--panel); border: 1px solid var(--rule); border-left: 3px solid var(--accent); padding: 12px 16px; display: flex; flex-direction: column; gap: 6px; max-width: 76ch; }
+.ex b.t { font: 500 11.5px var(--mono); letter-spacing: .07em; text-transform: uppercase; color: var(--accent); }
+.ex p { max-width: none; }
+.short { border-left: 3px solid var(--teal); padding: 2px 0 2px 14px; max-width: 72ch; }
+.short b { color: var(--teal); font-weight: 600; }
+.xlink { font: 13px var(--mono); color: var(--muted); }
+.xlink a { color: var(--accent); }
+.apps { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1px; background: var(--rule); border: 1px solid var(--rule); }
+.apps div { background: var(--panel); padding: 14px 16px; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.apps b { font-weight: 600; }
+.apps span { font-size: 14px; color: var(--muted); }
+.apps code { font: 13px var(--mono); color: var(--fg); }
+.steps { margin: 0; padding-left: 1.3em; display: flex; flex-direction: column; gap: 6px; max-width: 72ch; }
+</style>
+
+<div class="wrap">
+
+<header>
+  <div class="topbar">
+    <div class="eyebrow"><span data-l="en">Popular science · quantum mechanics · Feynman 1948</span><span data-l="it">Divulgazione · meccanica quantistica · Feynman 1948</span></div>
+    <div class="tools">
+      <div class="seg" id="theme" role="group" aria-label="Theme / Tema">
+        <button type="button" data-theme-set="auto" aria-pressed="true">AUTO</button>
+        <button type="button" data-theme-set="light" aria-pressed="false">☀</button>
+        <button type="button" data-theme-set="dark" aria-pressed="false">☾</button>
+      </div>
+      <div class="lang" role="group" aria-label="Language / Lingua">
+        <button type="button" id="lang-en" data-set="en" aria-pressed="true">EN</button>
+        <button type="button" id="lang-it" data-set="it" aria-pressed="false">IT</button>
+      </div>
+    </div>
+  </div>
+  <h1><span data-l="en">Feynman's sum over histories</span><span data-l="it">La somma su tutte le storie di Feynman</span></h1>
+  <p class="lead" data-l="en">How does a particle get from here to there? Classical physics answers: along one path, fixed by the laws of motion. Quantum mechanics, in the form Richard Feynman gave it in 1948, answers in a stranger way: the particle explores every possible path, and each path contributes a small rotating arrow. Adding up all the arrows gives the chance of arriving. This page shows, with four experiments computed in the browser, how this single rule explains why mirrors reflect at equal angles, why a ball follows a parabola, why electrons make interference fringes and why light bends when it enters water.</p>
+  <p class="lead" data-l="it">Come fa una particella ad andare da qui a lì? La fisica classica risponde: lungo un solo percorso, fissato dalle leggi del moto. La meccanica quantistica, nella forma che le diede Richard Feynman nel 1948, risponde in modo più strano: la particella esplora tutti i percorsi possibili, e ogni percorso contribuisce con una piccola freccia che ruota. Sommando tutte le frecce si ottiene la probabilità di arrivare. Questa pagina mostra, con quattro esperimenti calcolati nel browser, come quest'unica regola spieghi perché gli specchi riflettono ad angoli uguali, perché una palla segue una parabola, perché gli elettroni formano frange di interferenza e perché la luce si piega entrando nell'acqua.</p>
+  <p data-l="en">The rule fits in three steps, the way Feynman told it in his popular lectures <i>QED</i> (1985):</p>
+  <p data-l="it">La regola sta in tre passi, come la raccontò Feynman nelle sue lezioni divulgative <i>QED</i> (1985):</p>
+  <ol class="steps" data-l="en">
+    <li><b>A stopwatch for every path.</b> Imagine a clock hand that turns while the particle travels along a path. For light it makes one full turn for every wavelength of distance covered. In general its angle is the <i>action</i> \(S\) of the path divided by \(\hbar\), the reduced Planck constant.</li>
+    <li><b>An arrow at arrival.</b> When the particle arrives, the hand points in some direction: that is the arrow of the path.</li>
+    <li><b>Add the arrows.</b> Put all the arrows head to tail. The arrow from the start to the end of the chain is the <i>amplitude</i>; its length squared is the probability.</li>
+  </ol>
+  <ol class="steps" data-l="it">
+    <li><b>Un cronometro per ogni percorso.</b> Si immagini una lancetta che gira mentre la particella percorre un cammino. Per la luce fa un giro completo per ogni lunghezza d'onda di strada percorsa. In generale il suo angolo è l'<i>azione</i> \(S\) del percorso divisa per \(\hbar\), la costante di Planck ridotta.</li>
+    <li><b>Una freccia all'arrivo.</b> Quando la particella arriva, la lancetta punta in una certa direzione: è la freccia del percorso.</li>
+    <li><b>Sommare le frecce.</b> Si mettano tutte le frecce in fila, la punta di una sulla coda della successiva. La freccia dall'inizio alla fine della catena è l'<i>ampiezza</i>; il suo quadrato è la probabilità.</li>
+  </ol>
+  <div class="eq" data-l="en">\[ \text{amplitude}=\sum_{\text{all paths}} e^{\,iS/\hbar},\qquad \text{probability}=|\text{amplitude}|^2,\qquad \hbar=1.055\times10^{-34}\ \mathrm{J\,s}. \]</div>
+  <div class="eq" data-l="it">\[ \text{ampiezza}=\sum_{\text{tutti i percorsi}} e^{\,iS/\hbar},\qquad \text{probabilità}=|\text{ampiezza}|^2,\qquad \hbar=1.055\times10^{-34}\ \mathrm{J\,s}. \]</div>
+  <p data-l="en">The tininess of \(\hbar\) is the reason why the everyday world does not look quantum, as section 2 will show.</p>
+  <p data-l="it">La piccolezza di \(\hbar\) è il motivo per cui il mondo di tutti i giorni non sembra quantistico, come mostrerà il paragrafo 2.</p>
+  <div class="keys">
+    <div><b><span data-l="en">1 The mirror</span><span data-l="it">1 Lo specchio</span></b><span data-l="en">Light bounces off every point; only the middle survives.</span><span data-l="it">La luce rimbalza su ogni punto; sopravvive solo il centro.</span></div>
+    <div><b><span data-l="en">2 Why a single path</span><span data-l="it">2 Perché un solo percorso</span></b><span data-l="en">Large action: the arrows cancel except near the classical path.</span><span data-l="it">Azione grande: le frecce si cancellano tranne vicino al percorso classico.</span></div>
+    <div><b><span data-l="en">3 Two slits</span><span data-l="it">3 Due fenditure</span></b><span data-l="en">One electron at a time, the fringes build up.</span><span data-l="it">Un elettrone alla volta, le frange si formano.</span></div>
+    <div><b><span data-l="en">4 The lifeguard</span><span data-l="it">4 Il bagnino</span></b><span data-l="en">Light takes the quickest route: refraction.</span><span data-l="it">La luce prende la via più rapida: la rifrazione.</span></div>
+  </div>
+  <p class="xlink"><span data-l="en">Technical version for specialists: </span><span data-l="it">Versione tecnica per specialisti: </span><a href="https://marcomauro.github.io/physics-artifact/feynman-path-integral/"><span data-l="en">Feynman path integrals →</span><span data-l="it">Integrale sui cammini di Feynman →</span></a></p>
+</header>
+
+<!-- 1 -->
+<section id="sec1">
+  <h2><span class="n">1</span><span data-l="en">Every point of the mirror reflects</span><span data-l="it">Ogni punto dello specchio riflette</span></h2>
+  <div class="prose" data-l="en">
+    <p>Light leaves a source S, bounces off a mirror and reaches a detector D. At school we learn that the angle of incidence equals the angle of reflection. Feynman's rule says something different: light bounces off <i>every</i> point of the mirror, and each route has its own arrow. The routes have different lengths, so their stopwatch hands have turned by different amounts.</p>
+    <p>Near the point where the two angles are equal, the length changes very little from one route to the next: the arrows are almost parallel and add up. Far from it the length changes quickly: the arrows turn round and round, curl into small circles and cancel out. The lower panel shows the length of each route. Where the curve is flat, at its minimum, the arrows agree.</p>
+  </div>
+  <div class="prose" data-l="it">
+    <p>La luce parte da una sorgente S, rimbalza su uno specchio e arriva a un rivelatore D. A scuola si impara che l'angolo di incidenza è uguale all'angolo di riflessione. La regola di Feynman dice una cosa diversa: la luce rimbalza su <i>ogni</i> punto dello specchio, e ogni percorso ha la sua freccia. I percorsi hanno lunghezze diverse, quindi le loro lancette hanno girato di quantità diverse.</p>
+    <p>Vicino al punto in cui i due angoli sono uguali, la lunghezza cambia pochissimo da un percorso al successivo: le frecce sono quasi parallele e si sommano. Lontano da lì la lunghezza cambia in fretta: le frecce girano e rigirano, si arrotolano in piccoli cerchi e si cancellano. Il pannello in basso mostra la lunghezza di ogni percorso. Dove la curva è piatta, nel suo minimo, le frecce vanno d'accordo.</p>
+  </div>
+  <div class="ex" data-l="en"><b class="t">Example</b><p>Are the edges of the mirror really useless? Move the detector away from the mirror-image position: almost no light arrives, because all the arrows cancel. Now tick <b>scrape into a grating</b>: the strips of mirror whose arrows point the “wrong” way are removed. The remaining arrows all point roughly the same way, and a lot of light reaches D at an angle where an ordinary mirror sends none. This is how a diffraction grating works, and why the tracks of a CD split white light into colours: each wavelength has its own favoured angle.</p></div>
+  <div class="ex" data-l="it"><b class="t">Esempio</b><p>I bordi dello specchio sono davvero inutili? Si sposti il rivelatore lontano dalla posizione speculare: non arriva quasi luce, perché tutte le frecce si cancellano. Ora si spunti <b>gratta in un reticolo</b>: le strisce di specchio le cui frecce puntano nel verso “sbagliato” vengono rimosse. Le frecce rimaste puntano tutte più o meno nello stesso verso, e molta luce arriva in D a un angolo in cui uno specchio normale non ne manda. Così funziona un reticolo di diffrazione, ed è per questo che le tracce di un CD scompongono la luce bianca in colori: ogni lunghezza d'onda ha il suo angolo preferito.</p></div>
+  <div class="fig">
+    <div class="fig-grid g-3-2">
+      <div class="col">
+        <div class="pane">
+          <h3><span data-l="en">Routes from S to D via the mirror, colour = direction of the arrow</span><span data-l="it">Percorsi da S a D via lo specchio, colore = direzione della freccia</span></h3>
+          <div class="cv" style="height:300px"><canvas id="c1a" aria-label="Mirror and routes of light"></canvas></div>
+        </div>
+        <div class="pane">
+          <h3><span data-l="en">Length of the route through each point of the mirror</span><span data-l="it">Lunghezza del percorso attraverso ogni punto dello specchio</span></h3>
+          <div class="cv" style="height:170px"><canvas id="c1c" aria-label="Route length along the mirror"></canvas></div>
+        </div>
+      </div>
+      <div class="pane">
+        <h3><span data-l="en">All the arrows head to tail</span><span data-l="it">Tutte le frecce in fila</span></h3>
+        <div class="cv sq"><canvas id="c1b" aria-label="Chain of arrows"></canvas></div>
+        <div class="legend"><span class="l-fg"><i></i><span data-l="en">total arrow (amplitude)</span><span data-l="it">freccia totale (ampiezza)</span></span></div>
+      </div>
+    </div>
+    <div class="ctl">
+      <label for="d1"><span class="row"><span><span data-l="en">detector position</span><span data-l="it">posizione del rivelatore</span></span><output for="d1" id="o_d1"></output></span><input type="range" id="d1" min="-0.2" max="1.4" step="0.01" value="0.6"></label>
+      <label for="l1"><span class="row"><span><span data-l="en">wavelength (mirror = 2)</span><span data-l="it">lunghezza d'onda (specchio = 2)</span></span><output for="l1" id="o_l1"></output></span><input type="range" id="l1" min="0.03" max="0.2" step="0.005" value="0.06"></label>
+      <label class="chk"><input type="checkbox" id="g1"><span><span data-l="en">scrape into a grating</span><span data-l="it">gratta in un reticolo</span></span></label>
+    </div>
+    <dl class="ro" id="r1"></dl>
+    <p class="cap" data-l="en">The mirror is divided into 3000 small pieces, each giving one arrow of the same length; the direction is 2π × (route length)/(wavelength). Brightness is the squared length of the total arrow, relative to an ordinary mirror with the detector at the mirror-image position.</p>
+    <p class="cap" data-l="it">Lo specchio è diviso in 3000 piccoli pezzi, ciascuno con una freccia della stessa lunghezza; la direzione è 2π × (lunghezza del percorso)/(lunghezza d'onda). La luminosità è il quadrato della lunghezza della freccia totale, relativa a uno specchio normale con il rivelatore nella posizione speculare.</p>
+  </div>
+  <p class="short" data-l="en"><b>In short.</b> Light does not “choose” the equal-angle route. All routes contribute, but only those near the shortest one add up; the others cancel among themselves.</p>
+  <p class="short" data-l="it"><b>In breve.</b> La luce non “sceglie” il percorso ad angoli uguali. Tutti i percorsi contribuiscono, ma solo quelli vicini al più breve si sommano; gli altri si cancellano tra loro.</p>
+</section>
+
+<!-- 2 -->
+<section id="sec2">
+  <h2><span class="n">2</span><span data-l="en">Why a ball follows a single path</span><span data-l="it">Perché una palla segue un solo percorso</span></h2>
+  <div class="prose" data-l="en">
+    <p>For a body with mass the stopwatch hand turns by the <i>action</i> divided by \(\hbar\). The action of a path is the sum, moment by moment along the trip, of kinetic energy minus potential energy, multiplied by the time step. Take a ball thrown upward and caught after a time \(T\), rising to a height \(H\). Its true path is a parabola. Every other path, here the parabola plus a bump \(a\,H\sin(\pi t/T)\), has a larger action:</p>
+    <div class="eq">\[ \frac{S_a-S_{\rm parabola}}{\hbar}=\frac{\pi^2}{4}\,\frac{S_0}{\hbar}\,a^2,\qquad S_0=\frac{mH^2}{T}. \]</div>
+    <p>Near the parabola the action changes only as \(a^2\), so the arrows of nearby paths agree: this is the same flat-bottom effect as for the mirror. Only paths with \(|a|\lesssim\sqrt{4\hbar/(\pi S_0)}\) contribute. Everything depends on a single number, \(S_0/\hbar\). For an electron in an atom it is about 1 and all paths count: there is no trajectory. For a ball it is about \(10^{34}\) and the useful bundle of paths is thinner than a proton: we see a single, classical path.</p>
+  </div>
+  <div class="prose" data-l="it">
+    <p>Per un corpo dotato di massa la lancetta gira di un angolo pari all'<i>azione</i> divisa per \(\hbar\). L'azione di un percorso è la somma, istante per istante lungo il viaggio, dell'energia cinetica meno l'energia potenziale, moltiplicata per il passo di tempo. Si prenda una palla lanciata verso l'alto e ripresa dopo un tempo \(T\), che sale fino a un'altezza \(H\). Il suo percorso vero è una parabola. Ogni altro percorso, qui la parabola più una gobba \(a\,H\sin(\pi t/T)\), ha un'azione maggiore:</p>
+    <div class="eq">\[ \frac{S_a-S_{\rm parabola}}{\hbar}=\frac{\pi^2}{4}\,\frac{S_0}{\hbar}\,a^2,\qquad S_0=\frac{mH^2}{T}. \]</div>
+    <p>Vicino alla parabola l'azione cambia solo come \(a^2\), quindi le frecce dei percorsi vicini vanno d'accordo: è lo stesso effetto del fondo piatto visto per lo specchio. Contribuiscono solo i percorsi con \(|a|\lesssim\sqrt{4\hbar/(\pi S_0)}\). Tutto dipende da un solo numero, \(S_0/\hbar\). Per un elettrone in un atomo vale circa 1 e contano tutti i percorsi: non c'è una traiettoria. Per una palla vale circa \(10^{34}\) e il fascio utile di percorsi è più sottile di un protone: vediamo un solo percorso, quello classico.</p>
+  </div>
+  <div class="ex" data-l="en"><b class="t">Example</b><p>Slide S₀/ħ from 1 to 1000. At 1 the arrows of all the paths shown point in similar directions and nearly all of them matter. At 1000 the chain curls up at both ends and only a thin bundle around the parabola survives. The table below the figure gives S₀/ħ for real objects: the slider covers only the first few powers of ten of a scale that, for a tennis ball, reaches 10³⁴.</p></div>
+  <div class="ex" data-l="it"><b class="t">Esempio</b><p>Si porti S₀/ħ da 1 a 1000. A 1 le frecce di tutti i percorsi mostrati puntano in direzioni simili e quasi tutti contano. A 1000 la catena si arrotola a entrambi i capi e sopravvive solo un fascio sottile attorno alla parabola. La tabella sotto la figura dà S₀/ħ per oggetti reali: il cursore copre solo le prime potenze di dieci di una scala che, per una pallina da tennis, arriva a 10³⁴.</p></div>
+  <div class="fig">
+    <div class="fig-grid g-3-2">
+      <div class="pane">
+        <h3><span data-l="en">Alternative paths of the ball, colour = direction of the arrow</span><span data-l="it">Percorsi alternativi della palla, colore = direzione della freccia</span></h3>
+        <div class="cv grow" style="min-height:360px"><canvas id="c2a" aria-label="Alternative paths around the parabola"></canvas></div>
+        <div class="legend"><span class="l-fg"><i></i><span data-l="en">parabola (classical path)</span><span data-l="it">parabola (percorso classico)</span></span><span class="l-mut"><span data-l="en">thick paths: inside the useful bundle</span><span data-l="it">percorsi spessi: dentro il fascio utile</span></span></div>
+      </div>
+      <div class="pane">
+        <h3><span data-l="en">All the arrows head to tail</span><span data-l="it">Tutte le frecce in fila</span></h3>
+        <div class="cv sq"><canvas id="c2b" aria-label="Chain of arrows of the paths"></canvas></div>
+      </div>
+    </div>
+    <div class="ctl">
+      <label for="s2"><span class="row">S₀/ħ<output for="s2" id="o_s2"></output></span><input type="range" id="s2" min="-0.5" max="3.5" step="0.01" value="1.5"></label>
+    </div>
+    <dl class="ro" id="r2"></dl>
+    <div class="apps" id="objs"></div>
+  </div>
+  <p class="short" data-l="en"><b>In short.</b> Classical mechanics is not replaced by quantum mechanics: it emerges from it. When the action is enormous compared with ħ, the arrows of all paths cancel except those near the path of least action, which is the path Newton's laws predict.</p>
+  <p class="short" data-l="it"><b>In breve.</b> La meccanica classica non viene sostituita da quella quantistica: ne emerge. Quando l'azione è enorme rispetto a ħ, le frecce di tutti i percorsi si cancellano tranne quelle vicine al percorso di minima azione, che è il percorso previsto dalle leggi di Newton.</p>
+</section>
+
+<!-- 3 -->
+<section id="sec3">
+  <h2><span class="n">3</span><span data-l="en">Two slits, one electron at a time</span><span data-l="it">Due fenditure, un elettrone alla volta</span></h2>
+  <div class="prose" data-l="en">
+    <p>Electrons are sent toward a wall with two narrow slits, A and B, behind which there is a screen. Each electron arrives at a single point and leaves a dot. Where it lands is random, but the probability of each point follows Feynman's rule: add the arrows of all the paths through slit A and all the paths through slit B, and square the length of the total.</p>
+    <p>Where the routes from A and from B differ in length by a whole number of wavelengths, the two groups of arrows point the same way and the screen is bright. Where they differ by half a wavelength, they point in opposite directions and the screen is dark. For a screen far away the bright fringes are spaced by about \(\lambda L/d\), with \(L\) the distance to the screen and \(d\) the distance between the slits. Close one slit and the fringes disappear: there is nothing left to interfere with.</p>
+  </div>
+  <div class="prose" data-l="it">
+    <p>Si inviano elettroni verso una parete con due fenditure strette, A e B, dietro la quale c'è uno schermo. Ogni elettrone arriva in un solo punto e lascia un puntino. Dove arrivi è casuale, ma la probabilità di ogni punto segue la regola di Feynman: si sommano le frecce di tutti i percorsi attraverso la fenditura A e di tutti quelli attraverso B, e si eleva al quadrato la lunghezza del totale.</p>
+    <p>Dove i percorsi da A e da B differiscono in lunghezza per un numero intero di lunghezze d'onda, i due gruppi di frecce puntano nello stesso verso e lo schermo è luminoso. Dove differiscono di mezza lunghezza d'onda, puntano in versi opposti e lo schermo è scuro. Per uno schermo lontano le frange luminose sono distanziate di circa \(\lambda L/d\), con \(L\) la distanza dello schermo e \(d\) la distanza tra le fenditure. Chiudendo una fenditura le frange spariscono: non resta nulla con cui interferire.</p>
+  </div>
+  <div class="ex" data-l="en"><b class="t">Example</b><p>In 1989 a team at Hitachi led by Akira Tonomura sent electrons through a double-slit-like device so slowly that only one was in the apparatus at a time. Fire the electrons one by one: at first the dots look random; after a few thousand the fringes are unmistakable. No electron interferes with another: the pattern comes from the arrows of each single electron. Click on the screen to see the two groups of arrows at that point.</p></div>
+  <div class="ex" data-l="it"><b class="t">Esempio</b><p>Nel 1989 un gruppo di Hitachi guidato da Akira Tonomura inviò elettroni in un dispositivo equivalente a una doppia fenditura così lentamente che nell'apparato ce n'era uno solo alla volta. Si sparino gli elettroni uno alla volta: all'inizio i puntini sembrano casuali; dopo qualche migliaio le frange sono inconfondibili. Nessun elettrone interferisce con un altro: la figura viene dalle frecce di ogni singolo elettrone. Si clicchi sullo schermo per vedere i due gruppi di frecce in quel punto.</p></div>
+  <div class="fig">
+    <div class="fig-grid g-3-2">
+      <div class="pane">
+        <h3><span data-l="en">Slits (not to scale), screen with the hits and the probability curve</span><span data-l="it">Fenditure (non in scala), schermo con gli impatti e curva di probabilità</span></h3>
+        <div class="cv grow" style="min-height:400px"><canvas id="c3a" aria-label="Double slit, hits on the screen"></canvas></div>
+        <div class="legend"><span class="l-fg"><i></i><span data-l="en">probability from the arrows</span><span data-l="it">probabilità dalle frecce</span></span><span class="l-mut"><span data-l="en">click on the screen to pick a point</span><span data-l="it">clicca sullo schermo per scegliere un punto</span></span></div>
+      </div>
+      <div class="pane">
+        <h3><span data-l="en">Arrows at the chosen point</span><span data-l="it">Frecce nel punto scelto</span></h3>
+        <div class="cv sq"><canvas id="c3b" aria-label="Arrows from slit A and slit B"></canvas></div>
+        <div class="legend"><span class="l-acc"><i></i><span data-l="en">paths through A</span><span data-l="it">percorsi per A</span></span><span class="l-hot"><i></i><span data-l="en">paths through B</span><span data-l="it">percorsi per B</span></span><span class="l-fg"><i></i><span data-l="en">total</span><span data-l="it">totale</span></span></div>
+      </div>
+    </div>
+    <div class="ctl">
+      <label for="d3"><span class="row"><span><span data-l="en">slit distance d (wavelengths)</span><span data-l="it">distanza fenditure d (lunghezze d'onda)</span></span><output for="d3" id="o_d3"></output></span><input type="range" id="d3" min="4" max="30" step="0.5" value="12"></label>
+      <label class="chk"><input type="checkbox" id="k3"><span><span data-l="en">close slit B</span><span data-l="it">chiudi la fenditura B</span></span></label>
+      <div class="btns"><button id="b3a" type="button"><span data-l="en">Fire 1</span><span data-l="it">Spara 1</span></button><button id="b3b" type="button"><span data-l="en">Fire 100</span><span data-l="it">Spara 100</span></button><button id="b3c" type="button"><span data-l="en">Fire 2000</span><span data-l="it">Spara 2000</span></button><button id="b3r" type="button"><span data-l="en">Clear</span><span data-l="it">Cancella</span></button></div>
+    </div>
+    <dl class="ro" id="r3"></dl>
+    <p class="cap" data-l="en">Each slit is 2 wavelengths wide and is divided into 60 points; the screen is 400 wavelengths away. Every point of each slit is the start of a straight route to the screen, and its arrow turns by 2π per wavelength of length. For the electrons in Tonomura's experiment the wavelength was about 5 picometres.</p>
+    <p class="cap" data-l="it">Ogni fenditura è larga 2 lunghezze d'onda ed è divisa in 60 punti; lo schermo è a 400 lunghezze d'onda. Ogni punto di ogni fenditura è l'inizio di un percorso rettilineo verso lo schermo, e la sua freccia gira di 2π per ogni lunghezza d'onda di strada. Per gli elettroni dell'esperimento di Tonomura la lunghezza d'onda era di circa 5 picometri.</p>
+  </div>
+  <p class="short" data-l="en"><b>In short.</b> The particle arrives as a particle, at one point, but where it is likely to arrive is decided by the arrows of all its possible paths, which behave like waves.</p>
+  <p class="short" data-l="it"><b>In breve.</b> La particella arriva come una particella, in un punto, ma dove è probabile che arrivi lo decidono le frecce di tutti i suoi percorsi possibili, che si comportano come onde.</p>
+</section>
+
+<!-- 4 -->
+<section id="sec4">
+  <h2><span class="n">4</span><span data-l="en">The lifeguard: light takes the quickest route</span><span data-l="it">Il bagnino: la luce prende la via più rapida</span></h2>
+  <div class="prose" data-l="en">
+    <p>A lifeguard on the beach must reach a swimmer in the sea as fast as possible. Running on sand is faster than swimming, so the straight line is not the quickest route: it pays to run a bit further on the sand and enter the water at a steeper angle. Light does exactly the same: it travels more slowly in water than in air, by the factor \(n\), the refractive index (1.33 for water). This is Fermat's principle of least time, formulated in 1662.</p>
+    <p>Feynman's arrows explain why it works. For light the turning of the hand is proportional to the travel time. Near the quickest route the time hardly changes from one route to the next, so the arrows agree; elsewhere they cancel. At the quickest crossing point the angles satisfy Snell's law, \(\sin\theta_1/\sin\theta_2=n\), which the figure checks numerically.</p>
+  </div>
+  <div class="prose" data-l="it">
+    <p>Un bagnino sulla spiaggia deve raggiungere il più in fretta possibile un bagnante in mare. Correre sulla sabbia è più veloce che nuotare, quindi la linea retta non è la via più rapida: conviene correre un po' di più sulla sabbia ed entrare in acqua con un angolo più ripido. La luce fa esattamente lo stesso: in acqua viaggia più lentamente che in aria, del fattore \(n\), l'indice di rifrazione (1.33 per l'acqua). È il principio del tempo minimo di Fermat, formulato nel 1662.</p>
+    <p>Le frecce di Feynman spiegano perché funziona. Per la luce la rotazione della lancetta è proporzionale al tempo di percorrenza. Vicino alla via più rapida il tempo cambia appena da un percorso all'altro, quindi le frecce vanno d'accordo; altrove si cancellano. Nel punto di attraversamento più rapido gli angoli soddisfano la legge di Snell, \(\sin\theta_1/\sin\theta_2=n\), che la figura verifica numericamente.</p>
+  </div>
+  <div class="ex" data-l="en"><b class="t">Example</b><p>A straw in a glass of water looks broken at the surface, and a fish seems closer to the surface than it is: the light from the submerged part reaches your eye along the quickest route, which bends at the surface. Drag the swimmer and change n: with n = 1 the best route is straight; with n = 2 the lifeguard runs almost all the way along the shore before diving in.</p></div>
+  <div class="ex" data-l="it"><b class="t">Esempio</b><p>Una cannuccia in un bicchiere d'acqua sembra spezzata in superficie, e un pesce sembra più vicino alla superficie di quanto non sia: la luce della parte immersa arriva all'occhio lungo la via più rapida, che si piega in superficie. Si trascini il bagnante e si cambi n: con n = 1 la via migliore è dritta; con n = 2 il bagnino corre lungo quasi tutta la riva prima di tuffarsi.</p></div>
+  <div class="fig">
+    <div class="fig-grid g-3-2">
+      <div class="col">
+        <div class="pane">
+          <h3><span data-l="en">Routes from the lifeguard to the swimmer, colour = direction of the arrow</span><span data-l="it">Percorsi dal bagnino al bagnante, colore = direzione della freccia</span></h3>
+          <div class="cv" style="height:320px"><canvas id="c4a" aria-label="Beach, sea and routes"></canvas></div>
+          <div class="legend"><span class="l-fg"><i></i><span data-l="en">quickest route</span><span data-l="it">via più rapida</span></span><span class="l-mut"><i></i><span data-l="en">straight line</span><span data-l="it">linea retta</span></span><span class="l-mut"><span data-l="en">drag in the sea to move the swimmer</span><span data-l="it">trascina in mare per spostare il bagnante</span></span></div>
+        </div>
+        <div class="pane">
+          <h3><span data-l="en">Travel time as a function of the entry point</span><span data-l="it">Tempo di percorrenza in funzione del punto di ingresso</span></h3>
+          <div class="cv" style="height:170px"><canvas id="c4c" aria-label="Travel time versus entry point"></canvas></div>
+        </div>
+      </div>
+      <div class="pane">
+        <h3><span data-l="en">All the arrows head to tail</span><span data-l="it">Tutte le frecce in fila</span></h3>
+        <div class="cv sq"><canvas id="c4b" aria-label="Chain of arrows"></canvas></div>
+      </div>
+    </div>
+    <div class="ctl">
+      <label for="n4"><span class="row"><span><span data-l="en">slowdown in water n</span><span data-l="it">rallentamento in acqua n</span></span><output for="n4" id="o_n4"></output></span><input type="range" id="n4" min="1" max="2.5" step="0.01" value="1.33"></label>
+      <label for="l4"><span class="row"><span><span data-l="en">wavelength</span><span data-l="it">lunghezza d'onda</span></span><output for="l4" id="o_l4"></output></span><input type="range" id="l4" min="0.03" max="0.2" step="0.005" value="0.06"></label>
+    </div>
+    <dl class="ro" id="r4"></dl>
+  </div>
+  <p class="short" data-l="en"><b>In short.</b> “Light takes the quickest route” is not a choice made by light. It is what is left after the arrows of all the other routes have cancelled.</p>
+  <p class="short" data-l="it"><b>In breve.</b> “La luce prende la via più rapida” non è una scelta della luce. È ciò che resta dopo che le frecce di tutti gli altri percorsi si sono cancellate.</p>
+</section>
+
+<section>
+  <h2><span data-l="en">Where the idea leads</span><span data-l="it">Dove porta l'idea</span></h2>
+  <div class="apps">
+    <div><b><span data-l="en">Feynman diagrams</span><span data-l="it">Diagrammi di Feynman</span></b><span data-l="en">The same rule, applied to electrons and photons that can be created and absorbed, gives quantum electrodynamics. Its prediction of the magnetism of the electron agrees with experiment to better than one part in a billion.</span><span data-l="it">La stessa regola, applicata a elettroni e fotoni che possono essere creati e assorbiti, dà l'elettrodinamica quantistica. La sua previsione del magnetismo dell'elettrone concorda con l'esperimento meglio di una parte su un miliardo.</span></span></div>
+    <div><b><span data-l="en">Heat and chance</span><span data-l="it">Calore e caso</span></b><span data-l="en">Replacing time with “imaginary time” turns the rotating arrows into ordinary positive weights. The sum over paths becomes the sum over random walks of Brownian motion, and computers can evaluate it by sampling: this is how the mass of the proton is computed from the theory of quarks.</span><span data-l="it">Sostituendo il tempo con un “tempo immaginario” le frecce rotanti diventano pesi positivi ordinari. La somma sui percorsi diventa la somma sulle passeggiate casuali del moto browniano, e i computer possono calcolarla per campionamento: così si calcola la massa del protone a partire dalla teoria dei quark.</span></span></div>
+    <div><b><span data-l="en">Fields that are never touched</span><span data-l="it">Campi mai toccati</span></b><span data-l="en">An electron passing on either side of a magnetic coil feels the field inside it, even though it never enters the coil: the arrows of the two sides turn by different amounts (Aharonov–Bohm effect, observed by Tonomura in 1986).</span><span data-l="it">Un elettrone che passa ai due lati di una bobina magnetica risente del campo al suo interno, pur senza mai entrarvi: le frecce dei due lati girano di quantità diverse (effetto Aharonov–Bohm, osservato da Tonomura nel 1986).</span></span></div>
+    <div><b><span data-l="en">Beyond physics</span><span data-l="it">Oltre la fisica</span></b><span data-l="en">Sums over paths describe the shapes of long polymer chains and are used in mathematical finance to price options, where the “paths” are possible histories of a market price.</span><span data-l="it">Le somme sui percorsi descrivono le forme delle lunghe catene polimeriche e sono usate in finanza matematica per valutare le opzioni, dove i “percorsi” sono le storie possibili di un prezzo di mercato.</span></span></div>
+  </div>
+</section>
+
+<section>
+  <h2><span data-l="en">To read more</span><span data-l="it">Per approfondire</span></h2>
+  <ol class="refs">
+    <li><span data-l="en">R. P. Feynman, QED: The Strange Theory of Light and Matter, Princeton University Press (1985).</span><span data-l="it">R. P. Feynman, QED. La strana teoria della luce e della materia, Adelphi (1989).</span></li>
+    <li>R. P. Feynman, R. B. Leighton, M. Sands, The Feynman Lectures on Physics, Vol. III, Addison-Wesley (1965).</li>
+    <li>R. P. Feynman, Space-time approach to non-relativistic quantum mechanics, Rev. Mod. Phys. 20, 367 (1948).</li>
+    <li>A. Tonomura, J. Endo, T. Matsuda, T. Kawasaki, H. Ezawa, Demonstration of single-electron buildup of an interference pattern, Am. J. Phys. 57, 117 (1989).</li>
+    <li>M. Arndt et al., Wave–particle duality of C60 molecules, Nature 401, 680 (1999).</li>
+  </ol>
+  <p class="xlink"><span data-l="en">All the formulas and five more figures: </span><span data-l="it">Tutte le formule e altre cinque figure: </span><a href="https://marcomauro.github.io/physics-artifact/feynman-path-integral/"><span data-l="en">technical page →</span><span data-l="it">pagina tecnica →</span></a></p>
+  <footer><span data-l="en">All computations run in the browser. Arrow directions are computed exactly from route lengths or actions; only the drawings of the double slit are not to scale.</span><span data-l="it">Tutti i calcoli sono eseguiti nel browser. Le direzioni delle frecce sono calcolate esattamente dalle lunghezze dei percorsi o dalle azioni; solo i disegni della doppia fenditura non sono in scala.</span></footer>
+</section>
+
+</div>
+
+<script>
+(() => {
+'use strict';
+const TAU = Math.PI * 2, PI = Math.PI;
+const MONO = '"IBM Plex Mono", ui-monospace, Menlo, monospace';
+const $ = id => document.getElementById(id);
+let P = {};
+function readPal() {
+  const s = getComputedStyle(document.documentElement), g = n => s.getPropertyValue(n).trim();
+  P = { bg: g('--bg'), panel: g('--panel'), fg: g('--fg'), mut: g('--muted'), rule: g('--rule'), grid: g('--grid'),
+        acc: g('--accent'), hot: g('--hot'), teal: g('--teal'), L: g('--phaseL') || '50%' };
+}
+const phaseCol = (phi, a = 1) => `hsla(${((((phi % TAU) + TAU) % TAU) * 180 / PI).toFixed(1)},70%,${P.L},${a})`;
+const mfmt = (v, d = 3) => (Number.isFinite(v) ? v.toFixed(d) : '∞').replace('-', '−');
+
+function fit(cv) {
+  const r = cv.getBoundingClientRect(), dpr = window.devicePixelRatio || 1;
+  const w = Math.max(10, Math.round(r.width)), h = Math.max(10, Math.round(r.height));
+  if (cv.width !== Math.round(w * dpr) || cv.height !== Math.round(h * dpr)) { cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr); }
+  const ctx = cv.getContext('2d');
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.clearRect(0, 0, w, h);
+  ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+  return { ctx, w, h };
+}
+function ticks(a, b, n) {
+  const span = b - a; if (!(span > 0)) return [a];
+  const s0 = span / n, mag = Math.pow(10, Math.floor(Math.log10(s0))), r = s0 / mag;
+  const step = (r < 1.5 ? 1 : r < 3 ? 2 : r < 7 ? 5 : 10) * mag;
+  const out = []; for (let v = Math.ceil(a / step - 1e-9) * step; v <= b + 1e-9 * span; v += step) out.push(+v.toFixed(10));
+  return out;
+}
+function tfmt(v) {
+  if (Math.abs(v) < 1e-12) return '0';
+  const a = Math.abs(v); let s = (a >= 1e4 || a < 1e-3) ? v.toExponential(0) : String(+v.toPrecision(3));
+  return s.replace('-', '−');
+}
+function frame(ctx, b, xr, yr, o = {}) {
+  const X = v => b.x + (v - xr[0]) / (xr[1] - xr[0]) * b.w;
+  const Y = v => b.y + b.h - (v - yr[0]) / (yr[1] - yr[0]) * b.h;
+  ctx.save();
+  ctx.lineWidth = 1; ctx.font = '10.5px ' + MONO; ctx.fillStyle = P.mut;
+  const xt = o.xt || ticks(xr[0], xr[1], o.nx || 5), yt = o.yt || ticks(yr[0], yr[1], o.ny || 4);
+  const fx = o.fx || tfmt, fy = o.fy || tfmt;
+  ctx.strokeStyle = P.grid;
+  for (const v of xt) { const px = Math.round(X(v)) + .5; if (px < b.x - 1 || px > b.x + b.w + 1) continue;
+    if (!o.nogrid) { ctx.beginPath(); ctx.moveTo(px, b.y); ctx.lineTo(px, b.y + b.h); ctx.stroke(); }
+    if (!o.noxl) { ctx.textAlign = 'center'; ctx.textBaseline = 'top'; ctx.fillText(fx(v), px, b.y + b.h + 4); } }
+  for (const v of yt) { const py = Math.round(Y(v)) + .5; if (py < b.y - 1 || py > b.y + b.h + 1) continue;
+    if (!o.nogrid) { ctx.beginPath(); ctx.moveTo(b.x, py); ctx.lineTo(b.x + b.w, py); ctx.stroke(); }
+    if (!o.noyl) { ctx.textAlign = 'right'; ctx.textBaseline = 'middle'; ctx.fillText(fy(v), b.x - 5, py); } }
+  ctx.strokeStyle = P.rule; ctx.strokeRect(b.x + .5, b.y + .5, b.w - 1, b.h - 1);
+  ctx.fillStyle = P.mut; ctx.font = 'italic 11.5px ' + MONO;
+  if (o.xl) { ctx.textAlign = 'right'; ctx.textBaseline = 'top'; ctx.fillText(o.xl, b.x + b.w, b.y + b.h + 17); }
+  if (o.yl) { ctx.textAlign = 'left'; ctx.textBaseline = 'top'; ctx.fillText(o.yl, b.x + 5, b.y + 4); }
+  ctx.restore();
+  return { X, Y };
+}
+function arrow(ctx, x0, y0, x1, y1, col, lw = 2, hd = 8) {
+  const ang = Math.atan2(y1 - y0, x1 - x0), len = Math.hypot(x1 - x0, y1 - y0);
+  ctx.save(); ctx.strokeStyle = col; ctx.fillStyle = col; ctx.lineWidth = lw;
+  ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x1 - Math.cos(ang) * Math.min(hd, len) * .6, y1 - Math.sin(ang) * Math.min(hd, len) * .6); ctx.stroke();
+  if (len > 3) { ctx.beginPath(); ctx.moveTo(x1, y1);
+    ctx.lineTo(x1 - hd * Math.cos(ang - .38), y1 - hd * Math.sin(ang - .38));
+    ctx.lineTo(x1 - hd * Math.cos(ang + .38), y1 - hd * Math.sin(ang + .38)); ctx.closePath(); ctx.fill(); }
+  ctx.restore();
+}
+function rng(seed) { return () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed);
+  t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+function gauss(r) { let u = 0; while (u === 0) u = r(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(TAU * r()); }
+function readouts(el, rows) {
+  el.innerHTML = rows.map(([k, v, c]) => `<div><dt>${k}</dt><dd class="${c || ''}">${v}</dd></div>`).join('');
+}
+const tr = (en, it) => document.documentElement.getAttribute('data-ui') === 'it' ? it : en;
+function setOut(id, txt) { const o = $('o_' + id); if (o) o.textContent = txt; }
+function hex2rgb(h) { h = h.replace('#', ''); if (h.length === 3) h = h.split('').map(c => c + c).join(''); return [0, 2, 4].map(i => parseInt(h.slice(i, i + 2), 16)); }
+function mix(a, b, t) { const A = hex2rgb(a), B = hex2rgb(b); return `rgb(${A.map((v, i) => Math.round(v + (B[i] - v) * t)).join(',')})`; }
+// Draw a chain of unit arrows (phases ph[k], weights wt[k], colours col(k)) head to tail, fitted in the canvas.
+function chain(cv, ph, wt, col, extra) {
+  const { ctx, w, h } = fit(cv), n = ph.length;
+  const xs = new Float64Array(n + 1), ys = new Float64Array(n + 1);
+  for (let k = 0; k < n; k++) { xs[k + 1] = xs[k] + wt[k] * Math.cos(ph[k]); ys[k + 1] = ys[k] + wt[k] * Math.sin(ph[k]); }
+  let x0 = 0, x1 = 0, y0 = 0, y1 = 0; for (let k = 0; k <= n; k++) { x0 = Math.min(x0, xs[k]); x1 = Math.max(x1, xs[k]); y0 = Math.min(y0, ys[k]); y1 = Math.max(y1, ys[k]); }
+  const span = Math.max(x1 - x0, y1 - y0, 1e-9), s = (Math.min(w, h) - 36) / span, ox = w / 2 - (x0 + x1) / 2 * s, oy = h / 2 + (y0 + y1) / 2 * s;
+  const X = v => ox + v * s, Y = v => oy - v * s;
+  const step = Math.max(1, Math.floor(n / 4000));
+  ctx.lineWidth = 1.3; ctx.lineCap = 'round';
+  for (let k = 0; k < n; k += step) { const k2 = Math.min(n, k + step); ctx.strokeStyle = col(k); ctx.beginPath(); ctx.moveTo(X(xs[k]), Y(ys[k])); ctx.lineTo(X(xs[k2]), Y(ys[k2])); ctx.stroke(); }
+  arrow(ctx, X(0), Y(0), X(xs[n]), Y(ys[n]), P.fg, 2.4, 11);
+  ctx.fillStyle = P.fg; ctx.beginPath(); ctx.arc(X(0), Y(0), 3, 0, TAU); ctx.fill();
+  if (extra) extra(ctx, X, Y, xs, ys);
+  return { re: xs[n], im: ys[n] };
+}
+
+/* ================================================================ 1 mirror */
+const NM1 = 3000, SRC1 = [-0.6, 0.75], H1 = 0.75;
+const S1 = { d: 0.6, lam: 0.06, grating: false };
+function mirror1(dx, lam, grating) {
+  const ph = new Float64Array(NM1), wt = new Float64Array(NM1), Ls = new Float64Array(NM1); let re = 0, im = 0;
+  for (let k = 0; k < NM1; k++) { const x = -1 + 2 * (k + 0.5) / NM1, L = Math.hypot(x - SRC1[0], SRC1[1]) + Math.hypot(dx - x, H1); Ls[k] = L; ph[k] = TAU * L / lam;
+    wt[k] = grating && Math.cos(ph[k]) < 0 ? 0 : 1; re += wt[k] * Math.cos(ph[k]); im += wt[k] * Math.sin(ph[k]); }
+  return { ph, wt, Ls, I: re * re + im * im };
+}
+function draw1() {
+  const p = S1; setOut('d1', p.d.toFixed(2)); setOut('l1', p.lam.toFixed(3));
+  const m = mirror1(p.d, p.lam, p.grating), ref = mirror1(-SRC1[0], p.lam, false).I;
+  { const { ctx, w, h } = fit($('c1a')), b = { x: 20, y: 16, w: w - 40, h: h - 36 };
+    const X = v => b.x + (v + 1.15) / 2.6 * b.w, Y = v => b.y + b.h - v / 0.95 * b.h;
+    for (let k = 0; k < NM1; k += 75) { const x = -1 + 2 * (k + 0.5) / NM1; if (!m.wt[k]) continue; ctx.strokeStyle = phaseCol(m.ph[k], 0.75); ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(X(SRC1[0]), Y(SRC1[1])); ctx.lineTo(X(x), Y(0)); ctx.lineTo(X(p.d), Y(H1)); ctx.stroke(); }
+    const xs = (SRC1[0] * H1 + p.d * SRC1[1]) / (SRC1[1] + H1);   // equal-angle point
+    ctx.strokeStyle = P.fg; ctx.lineWidth = 1.6; ctx.setLineDash([5, 4]); ctx.beginPath(); ctx.moveTo(X(SRC1[0]), Y(SRC1[1])); ctx.lineTo(X(xs), Y(0)); ctx.lineTo(X(p.d), Y(H1)); ctx.stroke(); ctx.setLineDash([]);
+    for (let k = 0; k < NM1; k++) { const x0 = -1 + 2 * k / NM1; ctx.fillStyle = m.wt[k] ? P.fg : P.grid; ctx.fillRect(X(x0), Y(0), Math.max(1, 2 / NM1 / 2.6 * b.w + 0.3), 5); }
+    ctx.fillStyle = P.acc; for (const [pt, lb] of [[SRC1, 'S'], [[p.d, H1], 'D']]) { ctx.beginPath(); ctx.arc(X(pt[0]), Y(pt[1]), 6, 0, TAU); ctx.fill(); ctx.font = '500 12px ' + MONO; ctx.textAlign = 'center'; ctx.textBaseline = 'bottom'; ctx.fillText(lb, X(pt[0]), Y(pt[1]) - 9); }
+    ctx.fillStyle = P.mut; ctx.font = '10.5px ' + MONO; ctx.textAlign = 'left'; ctx.textBaseline = 'top'; ctx.fillText(tr('mirror', 'specchio'), X(-1), Y(0) + 8);
+    ctx.textAlign = 'right'; ctx.fillText(tr('dashed: equal angles', 'tratteggio: angoli uguali'), X(1.45), Y(0) + 8);
+  }
+  { const { ctx, w, h } = fit($('c1c')), b = { x: 46, y: 8, w: w - 58, h: h - 38 };
+    let lo = Infinity, hi = -Infinity; for (const v of m.Ls) { lo = Math.min(lo, v); hi = Math.max(hi, v); }
+    const f = frame(ctx, b, [-1, 1], [lo - 0.03 * (hi - lo), hi + 0.05 * (hi - lo)], { xl: tr('point on the mirror', 'punto dello specchio'), ny: 3 });
+    for (let k = 0; k < NM1; k += 2) { const x = -1 + 2 * (k + 0.5) / NM1; ctx.fillStyle = m.wt[k] ? phaseCol(m.ph[k]) : P.grid; ctx.fillRect(f.X(x) - 1, f.Y(m.Ls[k]) - 1.5, 2.2, 3); }
+  }
+  chain($('c1b'), m.ph, m.wt, k => phaseCol(m.ph[k]));
+  const kept = m.wt.reduce((s, v) => s + v, 0);
+  readouts($('r1'), [[tr('brightness at D (ordinary mirror, specular = 1)', 'luminosità in D (specchio normale, speculare = 1)'), mfmt(m.I / ref, 3), 'acc'],
+    [tr('mirror left after scraping', 'specchio rimasto dopo la grattatura'), `${Math.round(100 * kept / NM1)}%`], [tr('equal-angle point on the mirror', 'punto ad angoli uguali sullo specchio'), mfmt((SRC1[0] * H1 + p.d * SRC1[1]) / (SRC1[1] + H1), 3)]]);
+}
+$('d1').addEventListener('input', () => { S1.d = +$('d1').value; draw1(); });
+$('l1').addEventListener('input', () => { S1.lam = +$('l1').value; draw1(); });
+$('g1').addEventListener('change', () => { S1.grating = $('g1').checked; draw1(); });
+
+/* ================================================================ 2 classical limit */
+const HBAR = 1.054571817e-34;
+const OBJ = [
+  { en: 'electron in a hydrogen atom', it: 'elettrone in un atomo di idrogeno', m: 9.109e-31, H: 5.29e-11, T: 1.52e-16 },
+  { en: 'electron crossing 1 µm in 1 ns', it: 'elettrone che attraversa 1 µm in 1 ns', m: 9.109e-31, H: 1e-6, T: 1e-9 },
+  { en: 'C60 molecule, 1 µm in 1 ms', it: 'molecola C60, 1 µm in 1 ms', m: 1.197e-24, H: 1e-6, T: 1e-3 },
+  { en: 'dust grain (10⁻¹⁵ kg), 1 mm in 1 s', it: 'granello di polvere (10⁻¹⁵ kg), 1 mm in 1 s', m: 1e-15, H: 1e-3, T: 1 },
+  { en: 'tennis ball, 5 m high, 2 s', it: 'pallina da tennis, 5 m di altezza, 2 s', m: 0.057, H: 5, T: 2 },
+];
+const S2 = { lg: 1.5 };
+function draw2() {
+  const s0 = Math.pow(10, S2.lg); setOut('s2', s0 < 10 ? s0.toFixed(2) : s0 < 1000 ? s0.toFixed(0) : s0.toExponential(1));
+  const A = 1.5, aF = Math.sqrt(4 / (PI * s0)), dphi = a => PI * PI / 4 * s0 * a * a;
+  { const { ctx, w, h } = fit($('c2a')), b = { x: 40, y: 10, w: w - 52, h: h - 42 };
+    const f = frame(ctx, b, [0, 1], [-1.6, 2.6], { xl: 't/T', yl: 'x/H', ny: 4 });
+    ctx.save(); ctx.beginPath(); ctx.rect(b.x, b.y, b.w, b.h); ctx.clip();
+    for (let j = -30; j <= 30; j++) { const a = A * j / 30, inB = Math.abs(a) <= aF; ctx.strokeStyle = phaseCol(dphi(a), inB ? 0.95 : 0.4); ctx.lineWidth = inB ? 2 : 0.9; ctx.beginPath();
+      for (let k = 0; k <= 80; k++) { const t = k / 80, x = 4 * t * (1 - t) + a * Math.sin(PI * t); k ? ctx.lineTo(f.X(t), f.Y(x)) : ctx.moveTo(f.X(t), f.Y(x)); } ctx.stroke(); }
+    ctx.strokeStyle = P.fg; ctx.lineWidth = 2.4; ctx.beginPath(); for (let k = 0; k <= 80; k++) { const t = k / 80; k ? ctx.lineTo(f.X(t), f.Y(4 * t * (1 - t))) : ctx.moveTo(f.X(t), f.Y(0)); } ctx.stroke(); ctx.restore();
+  }
+  const n = Math.min(200000, Math.max(800, Math.ceil(60 * s0 * A * A))), ph = new Float64Array(n), wt = new Float64Array(n).fill(2 * A / n);
+  for (let k = 0; k < n; k++) ph[k] = dphi(-A + 2 * A * (k + 0.5) / n);
+  const r = chain($('c2b'), ph, wt, k => phaseCol(ph[k]));
+  readouts($('r2'), [['S₀/ħ', s0 < 1000 ? mfmt(s0, 2) : s0.toExponential(2)], [tr('useful bundle |a| ≲ √(4ħ/πS₀)', 'fascio utile |a| ≲ √(4ħ/πS₀)'), mfmt(Math.min(aF, 99), 3), 'acc'],
+    [tr('fraction of the paths shown that matters', 'frazione dei percorsi mostrati che conta'), `${Math.min(100, 100 * aF / A).toFixed(1)}%`], [tr('length of the total arrow', 'lunghezza della freccia totale'), mfmt(Math.hypot(r.re, r.im), 3)]]);
+  $('objs').innerHTML = OBJ.map(o => { const S = o.m * o.H * o.H / o.T, R = S / HBAR, wdt = o.H * Math.sqrt(4 / (PI * R));
+    const fe = v => v.toExponential(1).replace('e+', ' × 10^').replace('e-', ' × 10^−').replace(/\^(\S+)/, (_, e) => e.replace(/[0-9]/g, d => '⁰¹²³⁴⁵⁶⁷⁸⁹'[d]).replace('−', '⁻'));
+    return `<div><b>${tr(o.en, o.it)}</b><span>S₀/ħ = <code>${R < 100 ? R.toFixed(2) : fe(R)}</code></span><span>${tr('width of the useful bundle', 'larghezza del fascio utile')}: <code>${R < 1 ? tr('all paths', 'tutti i percorsi') : fe(wdt) + ' m'}</code></span></div>`; }).join('');
+}
+$('s2').addEventListener('input', () => { S2.lg = +$('s2').value; draw2(); });
+
+/* ================================================================ 3 double slit */
+const LS3 = 400, WS3 = 2, KS3 = 60, NY3 = 600;
+const S3 = { d: 12, closeB: false, hits: [], yp: 0, I: null, Y: 0, cdf: null, R: rng(2024) };
+function slitArrows(y, d, closeB) {
+  const out = []; for (const [sgn, on] of [[1, true], [-1, !closeB]]) { if (!on) continue;
+    for (let k = 0; k < KS3; k++) { const ys = sgn * d / 2 + WS3 * ((k + 0.5) / KS3 - 0.5), r = Math.hypot(LS3, y - ys); out.push({ ph: TAU * r, wt: 1 / Math.sqrt(r), slit: sgn }); } }
+  return out;
+}
+function pattern3() {
+  const p = S3; p.Y = Math.min(160, 3.5 * LS3 / p.d); p.I = new Float64Array(NY3); let mx = 0;
+  for (let i = 0; i < NY3; i++) { const y = -p.Y + 2 * p.Y * (i + 0.5) / NY3; let re = 0, im = 0; for (const a of slitArrows(y, p.d, p.closeB)) { re += a.wt * Math.cos(a.ph); im += a.wt * Math.sin(a.ph); } p.I[i] = re * re + im * im; mx = Math.max(mx, p.I[i]); }
+  p.Imax = mx; p.cdf = new Float64Array(NY3); let c = 0; for (let i = 0; i < NY3; i++) { c += p.I[i]; p.cdf[i] = c; }
+}
+function fire3(k) { const p = S3; for (let t = 0; t < k; t++) { const u = p.R() * p.cdf[NY3 - 1]; let lo = 0, hi = NY3 - 1; while (lo < hi) { const m = (lo + hi) >> 1; p.cdf[m] < u ? lo = m + 1 : hi = m; }
+  p.hits.push([-p.Y + 2 * p.Y * (lo + p.R()) / NY3, p.R()]); } if (p.hits.length > 30000) p.hits.splice(0, p.hits.length - 30000); draw3(); }
+function draw3() {
+  const p = S3; setOut('d3', p.d.toFixed(1));
+  { const { ctx, w, h } = fit($('c3a')), top = 14, bot = h - 14, Yc = y => top + (bot - top) * (0.5 - y / (2 * p.Y));
+    const xb = 34, xs0 = w - 230, xs1 = xs0 + 90, xi = xs1 + 14, iw = w - xi - 12; p.map = { xs0, xs1, Yc, top, bot };
+    // barrier with slits (schematic)
+    const cy = (top + bot) / 2, gap = 9; ctx.fillStyle = P.mut;
+    ctx.fillRect(xb, top, 6, cy - 22 - gap - top); ctx.fillRect(xb, cy - 22 + gap, 6, 44 - 2 * gap); ctx.fillRect(xb, cy + 22 + gap, 6, bot - cy - 22 - gap);
+    if (p.closeB) { ctx.fillStyle = P.hot; ctx.fillRect(xb, cy + 22 - gap, 6, 2 * gap); }
+    ctx.font = '500 11px ' + MONO; ctx.textAlign = 'right'; ctx.textBaseline = 'middle'; ctx.fillStyle = P.acc; ctx.fillText('A', xb - 6, cy - 22); ctx.fillStyle = P.hot; ctx.fillText('B', xb - 6, cy + 22);
+    const yy = Yc(p.yp); ctx.lineWidth = 1.2; ctx.strokeStyle = P.acc; ctx.beginPath(); ctx.moveTo(xb + 6, cy - 22); ctx.lineTo(xs0, yy); ctx.stroke();
+    if (!p.closeB) { ctx.strokeStyle = P.hot; ctx.beginPath(); ctx.moveTo(xb + 6, cy + 22); ctx.lineTo(xs0, yy); ctx.stroke(); }
+    ctx.fillStyle = mix(P.panel, P.fg, 0.06); ctx.fillRect(xs0, top, xs1 - xs0, bot - top); ctx.strokeStyle = P.rule; ctx.strokeRect(xs0 + .5, top + .5, xs1 - xs0 - 1, bot - top - 1);
+    ctx.fillStyle = P.acc; const r = p.hits.length > 3000 ? 0.9 : 1.4; for (const [y, u] of p.hits) { ctx.fillRect(xs0 + 3 + u * (xs1 - xs0 - 6), Yc(y), r, r); }
+    ctx.strokeStyle = P.fg; ctx.lineWidth = 1.4; ctx.beginPath(); for (let i = 0; i < NY3; i++) { const y = -p.Y + 2 * p.Y * (i + 0.5) / NY3, x = xi + p.I[i] / p.Imax * iw; i ? ctx.lineTo(x, Yc(y)) : ctx.moveTo(x, Yc(y)); } ctx.stroke();
+    ctx.strokeStyle = P.fg; ctx.setLineDash([3, 3]); ctx.beginPath(); ctx.moveTo(xs0 - 6, yy); ctx.lineTo(w - 4, yy); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle = P.mut; ctx.font = '10.5px ' + MONO; ctx.textAlign = 'center'; ctx.textBaseline = 'top'; ctx.fillText(tr('screen', 'schermo'), (xs0 + xs1) / 2, bot + 1);
+  }
+  const arr = slitArrows(p.yp, p.d, p.closeB);
+  chain($('c3b'), arr.map(a => a.ph), arr.map(a => a.wt), k => arr[k].slit > 0 ? P.acc : P.hot);
+  let re = 0, im = 0; for (const a of arr) { re += a.wt * Math.cos(a.ph); im += a.wt * Math.sin(a.ph); }
+  readouts($('r3'), [[tr('electrons fired', 'elettroni sparati'), String(p.hits.length), 'acc'], [tr('chosen point (wavelengths from centre)', 'punto scelto (lunghezze d\'onda dal centro)'), mfmt(p.yp, 1)],
+    [tr('probability there (maximum = 1)', 'probabilità lì (massimo = 1)'), mfmt((re * re + im * im) / p.Imax, 3)], [tr('fringe spacing λL/d', 'distanza tra frange λL/d'), p.closeB ? '—' : mfmt(LS3 / p.d, 1) + ' λ']]);
+}
+$('c3a').addEventListener('pointerdown', e => { const m = S3.map; if (!m) return; const r = $('c3a').getBoundingClientRect(), y = e.clientY - r.top;
+  S3.yp = Math.max(-S3.Y, Math.min(S3.Y, (0.5 - (y - m.top) / (m.bot - m.top)) * 2 * S3.Y)); draw3(); });
+$('d3').addEventListener('input', () => { S3.d = +$('d3').value; S3.hits = []; S3.yp = 0; pattern3(); draw3(); });
+$('k3').addEventListener('change', () => { S3.closeB = $('k3').checked; S3.hits = []; pattern3(); draw3(); });
+$('b3a').addEventListener('click', () => fire3(1)); $('b3b').addEventListener('click', () => fire3(100)); $('b3c').addEventListener('click', () => fire3(2000));
+$('b3r').addEventListener('click', () => { S3.hits = []; draw3(); });
+
+/* ================================================================ 4 lifeguard / refraction */
+const NX4 = 6000, XR4 = 1.6, LG4 = [-0.8, 0.6];
+const S4 = { n: 1.33, lam: 0.06, sw: [0.7, -0.6], map: null };
+const opl = (x, n, sw) => Math.hypot(x - LG4[0], LG4[1]) + n * Math.hypot(sw[0] - x, sw[1]);
+function draw4() {
+  const p = S4; setOut('n4', p.n.toFixed(2)); setOut('l4', p.lam.toFixed(3));
+  let a = -XR4, c = XR4; for (let i = 0; i < 100; i++) { const m1 = a + (c - a) * 0.382, m2 = a + (c - a) * 0.618; opl(m1, p.n, p.sw) < opl(m2, p.n, p.sw) ? c = m2 : a = m1; } const xs = (a + c) / 2;
+  const ph = new Float64Array(NX4), Ls = new Float64Array(NX4); for (let k = 0; k < NX4; k++) { const x = -XR4 + 2 * XR4 * (k + 0.5) / NX4; Ls[k] = opl(x, p.n, p.sw); ph[k] = TAU * Ls[k] / p.lam; }
+  { const { ctx, w, h } = fit($('c4a')), b = { x: 12, y: 10, w: w - 24, h: h - 20 };
+    const sc = Math.min(b.w / (2 * XR4), b.h / 1.6), X = v => b.x + b.w / 2 + v * sc, Y = v => b.y + b.h / 2 - v * sc; p.map = { X, Y, sc, b };
+    ctx.fillStyle = mix(P.panel, P.acc, 0.08); ctx.fillRect(b.x, b.y, b.w, Y(0) - b.y); ctx.fillStyle = mix(P.panel, P.hot, 0.12); ctx.fillRect(b.x, Y(0), b.w, b.y + b.h - Y(0));
+    ctx.font = '10.5px ' + MONO; ctx.fillStyle = P.mut; ctx.textAlign = 'left'; ctx.textBaseline = 'top'; ctx.fillText(tr('sand: speed v', 'sabbia: velocità v'), b.x + 6, b.y + 4); ctx.textBaseline = 'bottom'; ctx.fillText(tr('water: speed v/n', 'acqua: velocità v/n'), b.x + 6, b.y + b.h - 4);
+    for (let k = 0; k < NX4; k += 200) { const x = -XR4 + 2 * XR4 * (k + 0.5) / NX4; ctx.strokeStyle = phaseCol(ph[k], 0.7); ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(X(LG4[0]), Y(LG4[1])); ctx.lineTo(X(x), Y(0)); ctx.lineTo(X(p.sw[0]), Y(p.sw[1])); ctx.stroke(); }
+    ctx.setLineDash([5, 4]); ctx.strokeStyle = P.mut; ctx.lineWidth = 1.4; ctx.beginPath(); ctx.moveTo(X(LG4[0]), Y(LG4[1])); ctx.lineTo(X(p.sw[0]), Y(p.sw[1])); ctx.stroke(); ctx.setLineDash([]);
+    ctx.strokeStyle = P.fg; ctx.lineWidth = 2.6; ctx.beginPath(); ctx.moveTo(X(LG4[0]), Y(LG4[1])); ctx.lineTo(X(xs), Y(0)); ctx.lineTo(X(p.sw[0]), Y(p.sw[1])); ctx.stroke();
+    ctx.strokeStyle = P.rule; ctx.lineWidth = 1; ctx.setLineDash([2, 3]); ctx.beginPath(); ctx.moveTo(X(xs), Y(0.55)); ctx.lineTo(X(xs), Y(-0.55)); ctx.stroke(); ctx.setLineDash([]);
+    ctx.font = '500 11.5px ' + MONO; ctx.fillStyle = P.acc; ctx.beginPath(); ctx.arc(X(LG4[0]), Y(LG4[1]), 6, 0, TAU); ctx.fill(); ctx.textAlign = 'center'; ctx.textBaseline = 'bottom'; ctx.fillText(tr('lifeguard', 'bagnino'), X(LG4[0]), Y(LG4[1]) - 9);
+    ctx.fillStyle = P.hot; ctx.beginPath(); ctx.arc(X(p.sw[0]), Y(p.sw[1]), 6, 0, TAU); ctx.fill(); ctx.textBaseline = 'top'; ctx.fillText(tr('swimmer', 'bagnante'), X(p.sw[0]), Y(p.sw[1]) + 9);
+  }
+  { const { ctx, w, h } = fit($('c4c')), b = { x: 46, y: 8, w: w - 58, h: h - 38 };
+    let lo = Infinity, hi = -Infinity; for (const v of Ls) { lo = Math.min(lo, v); hi = Math.max(hi, v); }
+    const f = frame(ctx, b, [-XR4, XR4], [lo - 0.03 * (hi - lo), hi], { xl: tr('entry point on the shore', 'punto di ingresso sulla riva'), ny: 3 });
+    for (let k = 0; k < NX4; k += 2) { const x = -XR4 + 2 * XR4 * (k + 0.5) / NX4; ctx.fillStyle = phaseCol(ph[k]); ctx.fillRect(f.X(x) - 1, f.Y(Ls[k]) - 1.5, 2.2, 3); }
+    ctx.strokeStyle = P.fg; ctx.lineWidth = 1.2; ctx.beginPath(); ctx.moveTo(f.X(xs), b.y); ctx.lineTo(f.X(xs), b.y + b.h); ctx.stroke();
+  }
+  chain($('c4b'), ph, new Float64Array(NX4).fill(1), k => phaseCol(ph[k]));
+  const d1 = Math.hypot(xs - LG4[0], LG4[1]), d2 = Math.hypot(p.sw[0] - xs, p.sw[1]), s1 = (xs - LG4[0]) / d1, s2 = (p.sw[0] - xs) / d2;
+  const xst = LG4[0] + (p.sw[0] - LG4[0]) * LG4[1] / (LG4[1] - p.sw[1]), tst = opl(xst, p.n, p.sw), tb = opl(xs, p.n, p.sw);
+  readouts($('r4'), [[tr('angle on sand θ₁', 'angolo sulla sabbia θ₁'), (Math.asin(s1) * 180 / PI).toFixed(1) + '°'], [tr('angle in water θ₂', 'angolo in acqua θ₂'), (Math.asin(s2) * 180 / PI).toFixed(1) + '°'],
+    ['sin θ₁ / sin θ₂', mfmt(s1 / s2, 4), 'acc'], ['n', mfmt(p.n, 4)], [tr('time saved vs straight line', 'tempo risparmiato rispetto alla retta'), `${(100 * (tst - tb) / tst).toFixed(1)}%`]]);
+}
+$('n4').addEventListener('input', () => { S4.n = +$('n4').value; draw4(); });
+$('l4').addEventListener('input', () => { S4.lam = +$('l4').value; draw4(); });
+(() => { const cv = $('c4a'); const mv = e => { if (!S4.map || !(e.buttons & 1)) return; const r = cv.getBoundingClientRect(), { b, sc } = S4.map;
+  const x = (e.clientX - r.left - b.x - b.w / 2) / sc, y = -(e.clientY - r.top - b.y - b.h / 2) / sc;
+  S4.sw = [Math.max(-XR4 + 0.1, Math.min(XR4 - 0.1, x)), Math.max(-0.75, Math.min(-0.08, y))]; draw4(); };
+  cv.addEventListener('pointerdown', e => { if (!S4.map) return; const r = cv.getBoundingClientRect(); if (e.clientY - r.top < S4.map.Y(0)) return; cv.setPointerCapture(e.pointerId); mv({ buttons: 1, clientX: e.clientX, clientY: e.clientY }); });
+  cv.addEventListener('pointermove', mv); })();
+
+/* ================================================================ global */
+function drawAll() { readPal(); draw1(); draw2(); draw3(); draw4(); }
+let pend = 0; const sched = () => { if (!pend) pend = requestAnimationFrame(() => { pend = 0; drawAll(); }); };
+new ResizeObserver(sched).observe(document.querySelector('.wrap'));
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change', sched);
+new MutationObserver(sched).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme', 'class', 'style'] });
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(sched);
+function setLang(l) {
+  document.documentElement.setAttribute('data-ui', l); document.documentElement.lang = l;
+  try { localStorage.setItem('pi-lang', l); } catch (e) {}
+  document.querySelectorAll('.lang button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.set === l)));
+  document.querySelectorAll('#theme button').forEach(b => { b.title = { auto: tr('System theme', 'Tema di sistema'), light: tr('Light', 'Chiaro'), dark: tr('Dark', 'Scuro') }[b.dataset.themeSet]; b.setAttribute('aria-label', b.title); });
+  sched();
+}
+document.querySelectorAll('.lang button').forEach(b => b.addEventListener('click', () => setLang(b.dataset.set)));
+function setTheme(t) {
+  const root = document.documentElement;
+  if (t === 'light' || t === 'dark') root.setAttribute('data-theme', t); else root.removeAttribute('data-theme');
+  try { t === 'auto' ? localStorage.removeItem('pi-theme') : localStorage.setItem('pi-theme', t); } catch (e) {}
+  document.querySelectorAll('#theme button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.themeSet === t)));
+}
+document.querySelectorAll('#theme button').forEach(b => b.addEventListener('click', () => setTheme(b.dataset.themeSet)));
+{ const t0 = document.documentElement.getAttribute('data-theme'); setTheme(t0 === 'light' || t0 === 'dark' ? t0 : 'auto'); }
+readPal();
+S1.d = +$('d1').value; S1.lam = +$('l1').value; S1.grating = $('g1').checked;
+S2.lg = +$('s2').value; S3.d = +$('d3').value; S3.closeB = $('k3').checked; S4.n = +$('n4').value; S4.lam = +$('l4').value;
+pattern3(); S3.R = rng(7); fire3(300);
+drawAll();
+setLang(document.documentElement.getAttribute('data-ui') === 'it' ? 'it' : 'en');
+})();
+</script>

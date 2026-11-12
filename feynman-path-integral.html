@@ -4,7 +4,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
 <script>
-(function(){var l='en';try{var v=localStorage.getItem('pi-lang');if(v==='it'||v==='en')l=v;}catch(e){}document.documentElement.setAttribute('data-ui',l);document.documentElement.lang=l;})();
+(function(){var l='en';try{var v=localStorage.getItem('pi-lang');if(v==='it'||v==='en')l=v;}catch(e){}document.documentElement.setAttribute('data-ui',l);document.documentElement.lang=l;var t=null;try{t=localStorage.getItem('pi-theme');}catch(e){}if(t==='dark'||t==='light')document.documentElement.setAttribute('data-theme',t);})();
 window.MathJax = {
   tex: { inlineMath: [['\\(', '\\)']], displayMath: [['\\[', '\\]']] },
   svg: { fontCache: 'global' }
@@ -40,10 +40,11 @@ window.MathJax = {
 * { box-sizing: border-box; }
 html[data-ui="it"] [data-l="en"], html:not([data-ui="it"]) [data-l="it"] { display: none !important; }
 .topbar { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
-.lang { display: inline-flex; border: 1px solid var(--rule); border-radius: 3px; overflow: hidden; font: 500 12px var(--mono); }
-.lang button { border: 0; background: transparent; color: var(--muted); padding: 5px 12px; cursor: pointer; font: inherit; letter-spacing: .06em; }
-.lang button + button { border-left: 1px solid var(--rule); }
-.lang button[aria-pressed="true"] { background: var(--accent); color: var(--panel); }
+.tools { display: inline-flex; gap: 10px; flex-wrap: wrap; }
+.lang, .seg { display: inline-flex; border: 1px solid var(--rule); border-radius: 3px; overflow: hidden; font: 500 12px var(--mono); }
+.lang button, .seg button { border: 0; background: transparent; color: var(--muted); padding: 5px 12px; cursor: pointer; font: inherit; letter-spacing: .06em; }
+.lang button + button, .seg button + button { border-left: 1px solid var(--rule); }
+.lang button[aria-pressed="true"], .seg button[aria-pressed="true"] { background: var(--accent); color: var(--panel); }
 body {
   background: var(--bg); color: var(--fg);
   font-family: var(--sans); font-size: 15.5px; line-height: 1.6;
@@ -130,9 +131,16 @@ footer { font-size: 12.5px; color: var(--muted); font-family: var(--mono); }
 <header>
   <div class="topbar">
     <div class="eyebrow"><span data-l="en">Quantum mechanics · Lagrangian formulation · ħ as the phase scale</span><span data-l="it">Meccanica quantistica · formulazione lagrangiana · ħ come scala di fase</span></div>
-    <div class="lang" role="group" aria-label="Language / Lingua">
-      <button type="button" id="lang-en" data-set="en" aria-pressed="true">EN</button>
-      <button type="button" id="lang-it" data-set="it" aria-pressed="false">IT</button>
+    <div class="tools">
+      <div class="seg" id="theme" role="group" aria-label="Theme / Tema">
+        <button type="button" data-theme-set="auto" aria-pressed="true">AUTO</button>
+        <button type="button" data-theme-set="light" aria-pressed="false">☀</button>
+        <button type="button" data-theme-set="dark" aria-pressed="false">☾</button>
+      </div>
+      <div class="lang" role="group" aria-label="Language / Lingua">
+        <button type="button" id="lang-en" data-set="en" aria-pressed="true">EN</button>
+        <button type="button" id="lang-it" data-set="it" aria-pressed="false">IT</button>
+      </div>
     </div>
   </div>
   <h1><span data-l="en">Feynman Path Integrals</span><span data-l="it">Integrale sui cammini di Feynman</span></h1>
@@ -933,9 +941,19 @@ function setLang(l) {
   document.querySelectorAll('.lang button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.set === l)));
   document.querySelectorAll('option[data-en]').forEach(o => { o.textContent = o.dataset[l]; });
   $('p4').textContent = MC.run ? tr('Pause', 'Pausa') : tr('Run', 'Avvia');
+  document.querySelectorAll('#theme button').forEach(b => { b.title = { auto: tr('System theme', 'Tema di sistema'), light: tr('Light', 'Chiaro'), dark: tr('Dark', 'Scuro') }[b.dataset.themeSet]; b.setAttribute('aria-label', b.title); });
   sched();
 }
 document.querySelectorAll('.lang button').forEach(b => b.addEventListener('click', () => setLang(b.dataset.set)));
+function setTheme(t) {
+  const root = document.documentElement;
+  if (t === 'light' || t === 'dark') root.setAttribute('data-theme', t); else root.removeAttribute('data-theme');
+  try { t === 'auto' ? localStorage.removeItem('pi-theme') : localStorage.setItem('pi-theme', t); } catch (e) {}
+  document.querySelectorAll('#theme button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.themeSet === t)));
+}
+document.querySelectorAll('#theme button').forEach(b => {
+  b.addEventListener('click', () => setTheme(b.dataset.themeSet)); });
+{ const t0 = document.documentElement.getAttribute('data-theme'); setTheme(t0 === 'light' || t0 === 'dark' ? t0 : 'auto'); }
 readPal(); mcReset(); for (let i = 0; i < 600; i++) mcSweep();
 $('p4').textContent = MC.run ? tr('Pause', 'Pausa') : tr('Run', 'Avvia'); $('p4').classList.toggle('on', MC.run);
 drawAll(); mcKick();

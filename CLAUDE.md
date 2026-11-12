@@ -4,6 +4,7 @@
 Collection of interactive, single-file HTML physics explainers for an expert audience.
 First artifact: `artifacts/feynman-path-integral.html`. Also published as a private claude.ai artifact
 (working preview only): https://claude.ai/artifact/Fhxf9ktuZdNxm4f4eh2r6e
+Second artifact: `artifacts/replica-symmetry-breaking.html` (Parisi RSB in the SK model; same conventions).
 
 ## Distribution
 Public distribution is GitHub Pages, not claude.ai sharing.

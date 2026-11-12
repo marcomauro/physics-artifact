@@ -5,6 +5,7 @@ Collection of interactive, single-file HTML physics explainers for an expert aud
 First artifact: `artifacts/feynman-path-integral.html`. Also published as a private claude.ai artifact
 (working preview only): https://claude.ai/artifact/Fhxf9ktuZdNxm4f4eh2r6e
 Second artifact: `artifacts/replica-symmetry-breaking.html` (Parisi RSB in the SK model; same conventions).
+Third: `artifacts/spin-glasses-explained.html`, popular-science companion of the second (accessible language, "Example" and "In short" boxes, same rigor).
 
 ## Distribution
 Public distribution is GitHub Pages, not claude.ai sharing.
@@ -13,7 +14,7 @@ Public distribution is GitHub Pages, not claude.ai sharing.
   (adds doctype/head/body and a "← Index" link) and builds `_site/index.html` from `site/index.html`.
 - `.github/workflows/pages.yml` builds and deploys on every push to `main`.
   URL: https://marcomauro.github.io/physics-artifact/ (one subfolder per slug).
-- New artifact = new source file + manifest entry. Keep slugs stable: they are public URLs.
+- New artifact = new source file + manifest entry (`level`: `expert` or `popular`, shown as a badge in the index). Keep slugs stable: they are public URLs.
 - `pi-lang` and `pi-theme` in `localStorage` are shared by all pages on the site; reuse them in new artifacts.
 
 ## Structure of the Feynman page

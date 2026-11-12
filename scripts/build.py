@@ -65,12 +65,19 @@ def wrap(src: str, lang: str = "en") -> str:
     )
 
 
+LEVELS = {
+    "expert": '<span class="badge"><span data-l="en">technical</span><span data-l="it">tecnico</span></span>',
+    "popular": '<span class="badge pop"><span data-l="en">popular science</span><span data-l="it">divulgativo</span></span>',
+}
+
+
 def card(a: dict) -> str:
     e = lambda s: html.escape(s, quote=True)
     t, s = a["title"], a["summary"]
+    badge = LEVELS.get(a.get("level", ""), "")
     return (
         f'    <li class="card"><a href="{e(a["slug"])}/">\n'
-        f'      <h2><span data-l="en">{e(t["en"])}</span><span data-l="it">{e(t["it"])}</span></h2>\n'
+        f'      <h2>{badge}<span data-l="en">{e(t["en"])}</span><span data-l="it">{e(t["it"])}</span></h2>\n'
         f'      <p><span data-l="en">{e(s["en"])}</span><span data-l="it">{e(s["it"])}</span></p>\n'
         f'      <span class="meta">{e(a.get("updated", ""))}<br><span class="go">'
         f'<span data-l="en">open →</span><span data-l="it">apri →</span></span></span>\n'
